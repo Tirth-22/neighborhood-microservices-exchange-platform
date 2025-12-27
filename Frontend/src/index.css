@@ -1,0 +1,4 @@
+@tailwind base;
+/* @tailwind components;  <-- removed for Tailwind v4 */
+@tailwind utilities;
+
