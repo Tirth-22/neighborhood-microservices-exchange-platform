@@ -9,24 +9,28 @@ const Services = () => {
       id: 1,
       name: "Tirth",
       category: "IT-DSA",
-      price: "1000"
+      price: "1000",
+      providerId:"provider_tirth"
     }, {
       id: 2,
       name: "Harshit",
       category: "IT-python",
-      price: "800"
+      price: "800",
+      providerId:"provider_harshit"
     },
     {
       id: 3,
       name: "Rushil",
       category: "construction issue",
-      price: "700"
+      price: "700",
+      providerId:"provider_rushil"
     },
     {
       id: 4,
       name: "Yash",
       category: "Electric",
-      price: "700"
+      price: "700",
+      providerId:"provider_yash"
     }
   ]
 

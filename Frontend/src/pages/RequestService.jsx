@@ -21,6 +21,7 @@ const RequestService = () => {
             id: Date.now(),              
             serviceName: selectedService?.category,
             provider: selectedService?.name,
+            providerId: selectedService.providerId,
             description,
             date,
             time,
@@ -28,9 +29,9 @@ const RequestService = () => {
             payment,
             status: "Pending",
         };
-        const existingRequests = JSON.parse(localStorage.getItem("myRequests")) || [];
+        const existingRequests = JSON.parse(localStorage.getItem("requests")) || [];
         existingRequests.push(newRequest)
-        localStorage.setItem("myRequests",JSON.stringify(existingRequests));
+        localStorage.setItem("requests",JSON.stringify(existingRequests));
         navigate("/my-requests");
         localStorage.removeItem("selectedService");
     }

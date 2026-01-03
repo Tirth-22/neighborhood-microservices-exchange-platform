@@ -5,24 +5,32 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const [role, setRole] = useState("user");
   const isDisabled = !email || !password;
 
-  const handleLogin = () => {
-    if (isDisabled) {
-      alert("Please enter email and password");
-      return;
+  const handleLogin = (role) => {
+    let providerId = null;
+
+    if (role === "provider") {
+      providerId = "provider_yash"; 
     }
 
     const fakeUser = {
-      id: "user_" + Date.now(),
+      id: role === "provider" ? providerId : "user_" + Date.now(),
       email,
-      role: "user",
+      role
     };
 
+
     localStorage.setItem("currentUser", JSON.stringify(fakeUser));
-    navigate("/");
+
+    if (role === "provider") {
+      navigate("/provider-dashboard");
+    } else {
+      navigate("/services");
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -44,15 +52,23 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full border p-2 mb-6 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="w-full border p-2 mb-5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option disabled value="">Login as </option>
+          <option value="user">Login as User</option>
+          <option value="provider">Login as Provider</option>
+        </select>
 
         <button
-          onClick={handleLogin}
+          onClick={() => handleLogin(role)}
           disabled={isDisabled}
           className={`w-full py-2 rounded text-white transition
-            ${
-              isDisabled
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+            ${isDisabled
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
             }`}
         >
           Login

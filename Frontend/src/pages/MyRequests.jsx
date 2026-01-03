@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 const MyRequests = () => {
 
     useEffect(() => {
-        const storageRequest = JSON.parse(localStorage.getItem("myRequests")) || [];
+        const storageRequest = JSON.parse(localStorage.getItem("requests")) || [];
         setRequests(storageRequest);
     },[]);
 
@@ -29,7 +29,7 @@ const MyRequests = () => {
         const updateRequests = requests.map((req) => 
             req.id === id ? {...req,status:"Cancelled"} : req
         );
-        localStorage.setItem("requests",JSON.stringify(updateRequests));
+        localStorage.setItem("myRequests",JSON.stringify(updateRequests));
         setRequests(updateRequests);
     }
 
