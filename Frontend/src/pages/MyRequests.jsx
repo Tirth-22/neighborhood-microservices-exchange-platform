@@ -29,7 +29,7 @@ const MyRequests = () => {
         const updateRequests = requests.map((req) => 
             req.id === id ? {...req,status:"Cancelled"} : req
         );
-        localStorage.setItem("myRequests",JSON.stringify(updateRequests));
+        localStorage.setItem("requests",JSON.stringify(updateRequests));
         setRequests(updateRequests);
     }
 

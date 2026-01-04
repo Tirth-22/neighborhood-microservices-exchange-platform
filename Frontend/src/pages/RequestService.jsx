@@ -15,13 +15,13 @@ const RequestService = () => {
     const [time, setTime] = useState("");
     const [address, setAddress] = useState("");
     const [payment, setPayment] = useState("");
-
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const handleSubmit = () => {
         const newRequest = {
             id: Date.now(),              
             serviceName: selectedService?.category,
             provider: selectedService?.name,
-            providerId: selectedService.providerId,
+            providerId: selectedService?.providerId,
             description,
             date,
             time,

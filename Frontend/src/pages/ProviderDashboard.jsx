@@ -15,7 +15,7 @@ const ProviderDashboard = () => {
   );
 
   const pendingRequests = providerRequests.filter(
-    (req) => req.status === "pending"
+    (req) => req.status === "Pending"
   );
 
   const updateStatus = (id, newStatus) => {
@@ -54,7 +54,7 @@ const ProviderDashboard = () => {
                   </span>
                 </p>
                 <p className="text-sm text-gray-500">
-                  User ID: {req.userId}
+                  User ID: {req.providerId}
                 </p>
               </div>
 
