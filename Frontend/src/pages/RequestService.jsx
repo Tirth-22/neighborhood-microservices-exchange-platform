@@ -18,7 +18,8 @@ const RequestService = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const handleSubmit = () => {
         const newRequest = {
-            id: Date.now(),              
+            id: Date.now(),     
+            userId: currentUser.id,         
             serviceName: selectedService?.category,
             provider: selectedService?.name,
             providerId: selectedService?.providerId,

@@ -4,14 +4,15 @@ import Login from "./pages/Login";
 import Services from "./pages/Services";
 import MyRequests from "./pages/MyRequests";
 import RequestService from "./pages/RequestService";
-import Navbar from "./components/NavBar";
-import ProtectedRoute from "./components/ProtectedRoute";
 import RequestDetails from "./pages/RequestDetails";
-import Footer from "./components/Footer";
 import OfferService from "./pages/OfferService";
-import "./App.css";
+import Notification from "./pages/Notifications";
 import SignUp from "./pages/SignUp";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import Navbar from "./components/NavBar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Footer from "./components/Footer";
+import "./App.css";
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+            <Route path="/notifications" element={<Notification />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
             <Route path="/request/:id" element={<ProtectedRoute><RequestDetails /></ProtectedRoute>} />
             <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />

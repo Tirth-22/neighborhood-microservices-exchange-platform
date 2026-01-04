@@ -16,7 +16,7 @@ const Login = () => {
     }
 
     const fakeUser = {
-      id: role === "provider" ? providerId : "user_" + Date.now(),
+      id: role === "provider" ? providerId : email,
       email,
       role
     };
