@@ -18,8 +18,8 @@ const RequestService = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
     const handleSubmit = () => {
         const newRequest = {
-            id: Date.now(),     
-            userId: currentUser.id,         
+            id: Date.now(),
+            userId: currentUser.id,
             serviceName: selectedService?.category,
             provider: selectedService?.name,
             providerId: selectedService?.providerId,
@@ -30,9 +30,10 @@ const RequestService = () => {
             payment,
             status: "Pending",
         };
+
         const existingRequests = JSON.parse(localStorage.getItem("requests")) || [];
         existingRequests.push(newRequest)
-        localStorage.setItem("requests",JSON.stringify(existingRequests));
+        localStorage.setItem("requests", JSON.stringify(existingRequests));
         navigate("/my-requests");
         localStorage.removeItem("selectedService");
     }
@@ -116,17 +117,17 @@ const RequestService = () => {
 
                         <div className="flex gap-4">
                             <label className="flex items-center gap-2">
-                                <input type="radio" name="payment" value={payment} onChange={(e) => setPayment(e.target.value)} />
+                                <input type="radio" name="payment" value="Cash" onChange={(e) => setPayment(e.target.value)} />
                                 Cash
                             </label>
 
                             <label className="flex items-center gap-2">
-                                <input type="radio" name="payment" value={payment} onChange={(e) => setPayment(e.target.value)} />
+                                <input type="radio" name="payment" value="Online" onChange={(e) => setPayment(e.target.value)} />
                                 Online
                             </label>
 
                             <label className="flex items-center gap-2">
-                                <input type="radio" name="payment" value={payment} onChange={(e) => setPayment(e.target.value)} />
+                                <input type="radio" name="payment" value="Service Exchange" onChange={(e) => setPayment(e.target.value)} />
                                 Service Exchange
                             </label>
                         </div>
