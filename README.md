@@ -1,4 +1,4 @@
-# 🏘️ Neighborhood Microservices Exchange Platform
+# Neighborhood Microservices Exchange Platform
 
 A microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way.
 This project is designed using modern microservices architecture with independent services, API gateway, authentication, and a responsive frontend.
@@ -21,27 +21,27 @@ The platform follows domain-driven microservices design, making it easy to scale
 ## 🛠️ Tech Stack
 
 ### Backend
-Java 17
+Java 21
 Spring Boot
+Spring Security
 Spring Cloud
 Eureka Service Discovery
 Spring Cloud Gateway
 JWT Authentication
 REST APIs
-MySQL / PostgreSQL
-Docker (optional)
+MySQL / MongoDB
+Docker 
 
 # Frontend
 React.js
 Tailwind CSS
 Axios
 Vite
-DevOps & Tools
 Git & GitHub
 
 Postman
 Maven
-Docker Compose (optional)
+Docker Compose 
 
 ## 🔑 Microservices Breakdown
 ### 1️⃣ Auth Service
@@ -57,15 +57,18 @@ Skill & service metadata
 ### 3️⃣ Exchange Service
 Service listings
 Service requests & approvals
-Status tracking (Pending / Accepted / Completed)
 
 ### 4️⃣ Notification Service
-Email / in-app notifications
 Service request updates
+notification dashboard (Pending / Accepted / Completed)
+Email notifications (later)
 
-### 5️⃣ Review & Rating Service
-Feedback system
-Service provider ratings
+### 5️⃣ Request Service
+Request any service you want 
+
+### 6️⃣ Provider Service
+provide your service
+
 
 ## ⚙️ Setup Instructions
 ### 🔹 Backend Setup
