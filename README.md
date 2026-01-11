@@ -32,7 +32,7 @@ REST APIs
 MySQL / MongoDB
 Docker 
 
-# Frontend
+### Frontend
 React.js
 Tailwind CSS
 Axios
