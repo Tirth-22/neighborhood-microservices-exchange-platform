@@ -21,27 +21,27 @@ The platform follows domain-driven microservices design, making it easy to scale
 ## 🛠️ Tech Stack
 
 ### Backend
-Java 21
-Spring Boot
-Spring Security
-Spring Cloud
-Eureka Service Discovery
-Spring Cloud Gateway
-JWT Authentication
-REST APIs
-MySQL / MongoDB
-Docker 
+- Java 21
+- Spring Boot
+- Spring Security
+- Spring Cloud
+- Eureka Service Discovery
+- Spring Cloud Gateway
+- JWT Authentication
+- REST APIs
+- MySQL / MongoDB
+- Docker 
 
 ### Frontend
-React.js
-Tailwind CSS
-Axios
-Vite
-Git & GitHub
+- React.js
+- Tailwind CSS
+- Axios
+- Vite
+- Git & GitHub
 
-Postman
-Maven
-Docker Compose 
+- Postman
+- Maven
+- Docker Compose 
 
 ## 🔑 Microservices Breakdown
 ### 1️⃣ Auth Service
@@ -101,43 +101,43 @@ http://localhost:5173
 
 ## 🔐 Security
 
-JWT-based authentication
-Role-based access control
-Secure API gateway routing
-Token validation per request
+- JWT-based authentication
+- Role-based access control
+- Secure API gateway routing
+- Token validation per request
 
 ## 📌 Key Features
 
-✔ Microservices-based architecture
-✔ Independent database per service
-✔ Scalable & fault-tolerant design
-✔ API Gateway pattern
-✔ Secure authentication
-✔ Modern responsive UI
+- ✔ Microservices-based architecture
+- ✔ Independent database per service
+- ✔ Scalable & fault-tolerant design
+- ✔ API Gateway pattern
+- ✔ Secure authentication
+- ✔ Modern responsive UI
 
 ## 📈 Future Enhancements
 
-Location-based service recommendations
-Chat between users
-Payment gateway integration
-Kubernetes deployment
-CI/CD pipelines
+- Location-based service recommendations
+- Chat between users
+- Payment gateway integration
+- Kubernetes deployment
+- CI/CD pipelines
 
 ## 📚 Learning Outcomes
 
-Microservices architecture
-Spring Cloud ecosystem
-API Gateway & Service Discovery
-Frontend-backend integration
-Real-world scalable system design
+- Microservices architecture
+- Spring Cloud ecosystem
+- API Gateway & Service Discovery
+- Frontend-backend integration
+- Real-world scalable system design
 
 ## 🤝 Contributing
 
-Contributions are welcome!
-Fork the repository
-Create a feature branch
-Commit changes
+- Contributions are welcome!
+- Fork the repository
+- Create a feature branch
+- Commit changes
 
-Open a Pull Request
+- Open a Pull Request
 
 
