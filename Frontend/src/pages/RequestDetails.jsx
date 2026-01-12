@@ -13,6 +13,7 @@ const RequestDetails = () => {
       (req) => req.id === Number(id)
     );
 
+    
     setRequest(foundRequest);
   }, [id]);
 
