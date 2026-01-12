@@ -1,4 +1,4 @@
-# 🏘️ Neighborhood Microservices Exchange Platform
+# Neighborhood Microservices Exchange Platform
 
 A microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way.
 This project is designed using modern microservices architecture with independent services, API gateway, authentication, and a responsive frontend.
@@ -15,41 +15,33 @@ Track transactions and service status
 The platform follows domain-driven microservices design, making it easy to scale and extend.
 
 ## 🧩 Microservices Architecture
-### Frontend (React + Tailwind)
-        
-     API Gateway
-        |
-    ------------------------------------------------
-    | Auth Service | User Service | Exchange Service |
-    | Notification | Review      | Payment Service  |
-    ------------------------------------------------
-        |
-     Databases (per service)
+<img width="1347" height="592" alt="final-architecture" src="https://github.com/user-attachments/assets/2084127d-f954-4c7d-af3b-e81cb717a197" />
+
 
 ## 🛠️ Tech Stack
 
 ### Backend
-Java 17
-Spring Boot
-Spring Cloud
-Eureka Service Discovery
-Spring Cloud Gateway
-JWT Authentication
-REST APIs
-MySQL / PostgreSQL
-Docker (optional)
+- Java 21
+- Spring Boot
+- Spring Security
+- Spring Cloud
+- Eureka Service Discovery
+- Spring Cloud Gateway
+- JWT Authentication
+- REST APIs
+- MySQL / MongoDB
+- Docker 
 
-# Frontend
-React.js
-Tailwind CSS
-Axios
-Vite
-DevOps & Tools
-Git & GitHub
+### Frontend
+- React.js
+- Tailwind CSS
+- Axios
+- Vite
+- Git & GitHub
 
-Postman
-Maven
-Docker Compose (optional)
+- Postman
+- Maven
+- Docker Compose 
 
 ## 🔑 Microservices Breakdown
 ### 1️⃣ Auth Service
@@ -65,15 +57,18 @@ Skill & service metadata
 ### 3️⃣ Exchange Service
 Service listings
 Service requests & approvals
-Status tracking (Pending / Accepted / Completed)
 
 ### 4️⃣ Notification Service
-Email / in-app notifications
 Service request updates
+notification dashboard (Pending / Accepted / Completed)
+Email notifications (later)
 
-### 5️⃣ Review & Rating Service
-Feedback system
-Service provider ratings
+### 5️⃣ Request Service
+Request any service you want 
+
+### 6️⃣ Provider Service
+provide your service
+
 
 ## ⚙️ Setup Instructions
 ### 🔹 Backend Setup
@@ -106,43 +101,43 @@ http://localhost:5173
 
 ## 🔐 Security
 
-JWT-based authentication
-Role-based access control
-Secure API gateway routing
-Token validation per request
+- JWT-based authentication
+- Role-based access control
+- Secure API gateway routing
+- Token validation per request
 
 ## 📌 Key Features
 
-✔ Microservices-based architecture
-✔ Independent database per service
-✔ Scalable & fault-tolerant design
-✔ API Gateway pattern
-✔ Secure authentication
-✔ Modern responsive UI
+- ✔ Microservices-based architecture
+- ✔ Independent database per service
+- ✔ Scalable & fault-tolerant design
+- ✔ API Gateway pattern
+- ✔ Secure authentication
+- ✔ Modern responsive UI
 
 ## 📈 Future Enhancements
 
-Location-based service recommendations
-Chat between users
-Payment gateway integration
-Kubernetes deployment
-CI/CD pipelines
+- Location-based service recommendations
+- Chat between users
+- Payment gateway integration
+- Kubernetes deployment
+- CI/CD pipelines
 
 ## 📚 Learning Outcomes
 
-Microservices architecture
-Spring Cloud ecosystem
-API Gateway & Service Discovery
-Frontend-backend integration
-Real-world scalable system design
+- Microservices architecture
+- Spring Cloud ecosystem
+- API Gateway & Service Discovery
+- Frontend-backend integration
+- Real-world scalable system design
 
 ## 🤝 Contributing
 
-Contributions are welcome!
-Fork the repository
-Create a feature branch
-Commit changes
+- Contributions are welcome!
+- Fork the repository
+- Create a feature branch
+- Commit changes
 
-Open a Pull Request
+- Open a Pull Request
 
 
