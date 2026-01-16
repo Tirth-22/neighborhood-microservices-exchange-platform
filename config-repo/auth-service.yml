@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  security:
+    user:
+      name: tirth
+      password: tirth123
+
+  datasource:
+    url: jdbc:mysql://localhost:3308/auth_db
+    username: root
+    password: Tirth_22
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+jwt:
+  secret: my-secret-key
+  expiry: 3600000
