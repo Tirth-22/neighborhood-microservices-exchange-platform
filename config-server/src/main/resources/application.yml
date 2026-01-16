@@ -5,12 +5,16 @@ spring:
   application:
     name: config-server
 
+  profiles:
+    active: native
+
   cloud:
     config:
       server:
         native:
-          search-locations:
-            - file:../auth-service
-            - file:../user-service
-            - file:../api-gateway
-            - file:../request-service
+          search-locations: >
+            file:D:/Sem - 4/SGP/neighbhorhod-microsevices-exchange-platform/config-repo
+
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
