@@ -1,4 +1,8 @@
 package com.tirth.microservices.user_service.service;
 
-public class UserService {
+import com.tirth.microservices.user_service.entity.User;
+
+public interface UserService {
+
+    User getOrCreateUser(String username, String role, String email);
 }
