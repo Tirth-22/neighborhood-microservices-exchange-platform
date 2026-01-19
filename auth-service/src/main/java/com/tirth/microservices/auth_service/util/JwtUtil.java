@@ -1,22 +1,25 @@
 package com.tirth.microservices.auth_service.util;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // temp
-    private final long EXPIRY = 1000 * 60 * 60; // 1 hour
+    private static final String SECRET =
+            "THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM";
+
+    private final Key key =
+            Keys.hmacShaKeyFor(SECRET.getBytes());
+
+    private static final long EXPIRY = 1000 * 60 * 60; // 1 hour
 
     public String generateToken(String username, String role) {
-
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
@@ -51,4 +54,3 @@ public class JwtUtil {
                 .getBody();
     }
 }
-
