@@ -32,7 +32,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ServiceRequest> getMyRequest(String username) {
+    public List<ServiceRequest> getMyRequests(String username) {
         return repository.findByRequestedBy(username);
     }
 
@@ -63,4 +63,10 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(RequestStatus.REJECTED);
         return repository.save(request);
     }
+
+    @Override
+    public List<ServiceRequest> getPendingRequests(){
+        return repository.findByStatus(RequestStatus.PENDING);
+    }
+
 }

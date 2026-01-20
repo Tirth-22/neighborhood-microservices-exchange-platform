@@ -6,8 +6,11 @@ import com.tirth.microservices.request_service.entity.ServiceRequest;
 import java.util.List;
 
 public interface RequestService {
+
     ServiceRequest createRequest(CreateRequestDto dto, String username);
-    List<ServiceRequest> getMyRequest(String username);
+    List<ServiceRequest> getMyRequests(String username);
     ServiceRequest accept(Long id,String role);
     ServiceRequest reject(Long id,String role);
+    List<ServiceRequest> getPendingRequests();
+
 }
