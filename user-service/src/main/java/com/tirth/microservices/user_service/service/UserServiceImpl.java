@@ -2,7 +2,6 @@ package com.tirth.microservices.user_service.service;
 
 import com.tirth.microservices.user_service.entity.User;
 import com.tirth.microservices.user_service.repository.UserRepository;
-import com.tirth.microservices.user_service.service.UserService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +19,7 @@ public class UserServiceImpl implements UserService{
         if (email == null || email.isBlank()) {
             throw new RuntimeException("Email missing in JWT");
         }
-        
+
         return repository.findByUsername(username)
                 .orElseGet(() -> {
                     User newUser = new User();
