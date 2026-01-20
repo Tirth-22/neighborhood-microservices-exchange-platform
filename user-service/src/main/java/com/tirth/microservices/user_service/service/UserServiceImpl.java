@@ -3,8 +3,10 @@ package com.tirth.microservices.user_service.service;
 import com.tirth.microservices.user_service.entity.User;
 import com.tirth.microservices.user_service.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService{
 
     private UserRepository repository;
