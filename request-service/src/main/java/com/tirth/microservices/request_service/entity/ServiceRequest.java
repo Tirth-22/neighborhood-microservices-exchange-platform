@@ -21,7 +21,8 @@ public class ServiceRequest {
     @Column(name = "requested_by", nullable = false)
     private String requestedBy;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private RequestStatus status;
 
 }
