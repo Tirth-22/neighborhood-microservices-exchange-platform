@@ -3,9 +3,7 @@ package com.tirth.microservices.request_service.controller;
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.service.RequestService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class RequestController {
             throw new RuntimeException("Only USER can create requests");
         }
 
-        return service.createRequest(dto,username);
+        return service.createRequest(dto, username);
     }
 
     @GetMapping("/my")
@@ -44,27 +42,39 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/accept")
-    public ServiceRequest accept(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
+    public ServiceRequest accept(@PathVariable Long id,
+                                 @RequestHeader("X-User-Role") String role,
+                                 @RequestHeader("X-User-Name") String username) {
         if (!role.equals("PROVIDER")) {
             throw new RuntimeException("Only provider allowed");
         }
-        return service.accept(id,role);
+        return service.accept(id, role, username);
     }
 
     @PutMapping("/{id}/reject")
-    public ServiceRequest reject(@PathVariable Long id,@RequestHeader("X-User-Role") String role) {
+    public ServiceRequest reject(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
         if (!role.equals("PROVIDER")) {
             throw new RuntimeException("Only provider allowed");
         }
-        return service.reject(id,role);
+        return service.reject(id, role);
     }
 
     @GetMapping("/pending")
-    public List<ServiceRequest> getPendingRequests(){
+    public List<ServiceRequest> getPendingRequests() {
 //        if (!role.equals("PROVIDER")) {
 //            throw new RuntimeException("Only provider allowed");
 //        }
         return service.getPendingRequests();
     }
+
+    @GetMapping("/accepted")
+    public List<ServiceRequest> acceptedRequests(
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        return service.getAcceptedRequests(username, role);
+    }
+
+    
 }
 

@@ -25,4 +25,7 @@ public class ServiceRequest {
     @Column(nullable = false)
     private RequestStatus status;
 
+    @Column
+    private String acceptedBy;
+
 }

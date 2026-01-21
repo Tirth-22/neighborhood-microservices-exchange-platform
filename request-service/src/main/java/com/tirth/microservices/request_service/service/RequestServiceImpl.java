@@ -37,7 +37,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequest accept(Long id,String role){
+    public ServiceRequest accept(Long id,String role,String username){
         ServiceRequest request = repository.findById(id).orElseThrow(() -> new RuntimeException("request not found"));
 
         if (!"PROVIDER".equals(role)) {
@@ -49,6 +49,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
+        request.setAcceptedBy(username);
         return repository.save(request);
     }
 
@@ -69,4 +70,17 @@ public class RequestServiceImpl implements RequestService {
         return repository.findByStatus(RequestStatus.PENDING);
     }
 
+    @Override
+    public List<ServiceRequest> getAcceptedRequests(String username, String role){
+        if(!role.equalsIgnoreCase(RequestStatus.PENDING.toString())){
+            throw new RuntimeException("Only provider can accept request");
+        }
+
+        return repository.findByRequestedBy(username);
+    }
+
+    @Override
+    public ServiceRequest cancel(Long id, String username){
+
+    }
 }

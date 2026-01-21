@@ -12,5 +12,6 @@ public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, 
 
     List<ServiceRequest> findByRequestedBy(String requestedBy);
     List<ServiceRequest> findByStatus(RequestStatus status);
+    List<ServiceRequest> findByAcceptedBy(String acceptedBy);
 
 }
