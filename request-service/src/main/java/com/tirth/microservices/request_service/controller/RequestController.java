@@ -75,6 +75,20 @@ public class RequestController {
         return service.getAcceptedRequests(username, role);
     }
 
-    
+    @PutMapping("/{id}/cancel")
+    public ServiceRequest cancel(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Name") String username
+    ) {
+        return service.cancel(id, username);
+    }
+
+    @GetMapping("/provider/accepted")
+    public List<ServiceRequest> providerAcceptedRequests(
+            @RequestHeader("X-User-Name") String providerUsername,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        return service.getAcceptedRequestsForProvider(providerUsername,role);
+    }
 }
 

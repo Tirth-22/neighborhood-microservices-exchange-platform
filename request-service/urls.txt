@@ -1,0 +1,5 @@
+GET /requests/user/{userId}
+GET /requests/provider/{providerId}
+GET /requests/{requestId}
+PUT /requests/{requestId}/complete
+PUT /requests/{requestId}/cancel

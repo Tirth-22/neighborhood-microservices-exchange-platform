@@ -82,5 +82,28 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ServiceRequest cancel(Long id, String username){
 
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("request not found"));
+
+        if(!request.getStatus().equals(RequestStatus.PENDING)){
+            throw new RuntimeException("Only PENDING requests can be cancelled");
+        }
+
+        if(!request.getRequestedBy().equals(username)){
+            throw new RuntimeException("You can cancel only your own request");
+        }
+
+        request.setStatus(RequestStatus.CANCELLED);
+        return repository.save(request);
     }
+
+    @Override
+    public List<ServiceRequest> getAcceptedRequestsForProvider(String providerUsername,String role){
+        if(!role.equalsIgnoreCase("PROVIDER")){
+            throw new RuntimeException("Only provider can accept request");
+        }
+
+        return repository.findByAcceptedByAndStatus(providerUsername,RequestStatus.ACCEPTED);
+    }
+
 }
