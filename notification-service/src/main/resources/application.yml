@@ -5,6 +5,9 @@ spring:
   application:
     name: notification-service
 
+  config:
+    import: optional:configserver:http://localhost:8888
+
   datasource:
     url: jdbc:postgresql://localhost:5432/notification_db
     username: postgres
@@ -14,13 +17,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
 
   kafka:
     bootstrap-servers: localhost:9092
+
     consumer:
-      group-id: notification-group
+      group-id: notification-group-final   # NEW group (IMPORTANT)
       auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.tirth.microservices.notification_service.event.RequestAcceptedEvent
+        spring.json.use.type.headers: false
