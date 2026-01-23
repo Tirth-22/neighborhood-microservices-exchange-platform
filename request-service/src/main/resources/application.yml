@@ -8,6 +8,10 @@ spring:
   config:
     import: optional:configserver:http://localhost:8888
 
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:
