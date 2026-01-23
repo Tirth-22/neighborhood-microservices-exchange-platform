@@ -22,7 +22,7 @@ public class RequestAcceptedConsumer {
     )
     public void consume(String message) throws Exception {
 
-        System.out.println("🔥 RAW JSON RECEIVED: " + message);
+        System.out.println("RAW JSON RECEIVED: " + message);
 
         RequestAcceptedEvent event =
                 new ObjectMapper().readValue(message, RequestAcceptedEvent.class);
