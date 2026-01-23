@@ -45,7 +45,7 @@ public class RequestController {
     public ServiceRequest accept(@PathVariable Long id,
                                  @RequestHeader("X-User-Role") String role,
                                  @RequestHeader("X-User-Name") String username) {
-        if (!role.equals("PROVIDER")) {
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new RuntimeException("Only provider allowed");
         }
         return service.accept(id, role, username);

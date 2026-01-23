@@ -52,21 +52,19 @@ public class RequestServiceImpl implements RequestService {
             throw new RuntimeException("Request already processed");
         }
 
-        // 1️⃣ Update request
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
 
-        // 2️⃣ Save to DB FIRST
         ServiceRequest savedRequest = repository.save(request);
 
-        // 3️⃣ Publish Kafka Event
         RequestAcceptedEvent event = new RequestAcceptedEvent(
                 savedRequest.getId(),
-                savedRequest.getRequestedBy(), // user
-                username,                      // provider
-                savedRequest.getTitle(),       // service name
-                LocalDateTime.now()
+                savedRequest.getRequestedBy(),
+                username,
+                savedRequest.getTitle(),
+                LocalDateTime.now().toString()
         );
+
 
         requestEventProducer.publishRequestAcceptedEvent(event);
 
