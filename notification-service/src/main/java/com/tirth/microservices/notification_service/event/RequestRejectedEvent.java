@@ -1,4 +1,4 @@
-package com.tirth.microservices.request_service.event;
+package com.tirth.microservices.notification_service.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
