@@ -14,18 +14,14 @@ import java.time.LocalDateTime;
 public class RequestAcceptedConsumer {
 
     private final NotificationRepository notificationRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @KafkaListener(
             topics = "request.accepted",
             groupId = "notification-group-final"
     )
-    public void consume(String message) throws Exception {
+    public void consume(RequestAcceptedEvent event) {
 
-        System.out.println("RAW JSON RECEIVED: " + message);
-
-        RequestAcceptedEvent event =
-                new ObjectMapper().readValue(message, RequestAcceptedEvent.class);
+        System.out.println("🔥 EVENT RECEIVED: " + event);
 
         Notification notification = Notification.builder()
                 .userId(event.getUserId())
@@ -38,6 +34,7 @@ public class RequestAcceptedConsumer {
                 .build();
 
         notificationRepository.save(notification);
-    }
 
+        System.out.println("✅ Notification saved for userId = " + event.getUserId());
+    }
 }
