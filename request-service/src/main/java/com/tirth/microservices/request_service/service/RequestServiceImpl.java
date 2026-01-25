@@ -1,9 +1,14 @@
 package com.tirth.microservices.request_service.service;
 
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.event.RequestAcceptedEvent;
+import com.tirth.microservices.request_service.event.RequestRejectedEvent;
+import com.tirth.microservices.request_service.exception.InvalidRequestStateException;
+import com.tirth.microservices.request_service.exception.ResourceNotFoundException;
+import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
 import com.tirth.microservices.request_service.producer.RequestEventProducer;
 import com.tirth.microservices.request_service.repository.ServiceRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +26,21 @@ public class RequestServiceImpl implements RequestService {
     private final ServiceRequestRepository repository;
     private final RequestEventProducer requestEventProducer;
 
+
+    private ServiceRequestResponseDTO mapToDTO(ServiceRequest request) {
+        return new ServiceRequestResponseDTO(
+                request.getId(),
+                request.getTitle(),
+                request.getDescription(),
+                request.getStatus().name(),
+                request.getRequestedBy(),
+                request.getAcceptedBy(),
+                request.getRejectedBy()
+        );
+    }
+
     @Override
-    public ServiceRequest createRequest(CreateRequestDto dto, String username) {
+    public ServiceRequestResponseDTO createRequest(CreateRequestDto dto, String username) {
 
         ServiceRequest request = new ServiceRequest();
         request.setTitle(dto.getTitle());
@@ -30,7 +48,9 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestedBy(username);
         request.setStatus(RequestStatus.PENDING);
 
-        return repository.save(request);
+        ServiceRequest saved = repository.save(request);
+
+        return mapToDTO(saved);
     }
 
     @Override
@@ -39,18 +59,18 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequest accept(Long id, String role, String username) {
+    public ServiceRequestResponseDTO accept(Long id, String role, String username) {
         System.out.println("ACCEPTING REQUEST ID = " + id);
 
         ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only provider can accept request");
+            throw new UnauthorizedActionException("Only provider can accept request");
         }
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new RuntimeException("Request already processed");
+            throw new InvalidRequestStateException("Request already processed");
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
@@ -65,25 +85,38 @@ public class RequestServiceImpl implements RequestService {
                 savedRequest.getTitle(),
                 LocalDateTime.now().toString()
         );
-
-
-
         requestEventProducer.publishRequestAcceptedEvent(event);
 
-        return savedRequest;
+        return mapToDTO(savedRequest);
     }
 
     @Override
     public ServiceRequest reject(Long id, String role, String username) {
 
-        ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
-
-        if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new RuntimeException("Request already processed");
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only provider can reject request");
         }
 
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+        if (!request.getStatus().equals(RequestStatus.PENDING)) {
+            throw new InvalidRequestStateException("Request already processed");
+        }
+
+        RequestRejectedEvent event = new RequestRejectedEvent(
+                request.getId(),
+                request.getRequestedBy(),
+                username,
+                request.getTitle(),
+                LocalDateTime.now().toString()
+        );
+
+        requestEventProducer.publishRequestRejectedEvent(event);
+
         request.setStatus(RequestStatus.REJECTED);
+        request.setRejectedBy(username);
+        request.setAcceptedBy(null);
         return repository.save(request);
     }
 
@@ -93,23 +126,10 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ServiceRequest> getAcceptedRequests(String username, String role) {
-
-        if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only provider allowed");
-        }
-
-        return repository.findByAcceptedByAndStatus(
-                username,
-                RequestStatus.ACCEPTED
-        );
-    }
-
-    @Override
     public ServiceRequest cancel(Long id, String username) {
 
         ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Request not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
             throw new RuntimeException("Only PENDING requests can be cancelled");

@@ -1,6 +1,7 @@
 package com.tirth.microservices.request_service.controller;
 
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.service.RequestService;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class RequestController {
     }
 
     @PostMapping
-    public ServiceRequest createRequest(
+    public ServiceRequestResponseDTO createRequest(
             @RequestBody CreateRequestDto dto,
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
@@ -42,13 +43,13 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/accept")
-    public ServiceRequest accept(
+    public ServiceRequestResponseDTO accept(
             @PathVariable Long id,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-User-Name") String username
     ) {
         try {
-            System.out.println("➡️ ACCEPT API CALLED");
+            System.out.println("ACCEPT API CALLED");
             System.out.println("ID=" + id + ", ROLE=" + role + ", USER=" + username);
             return service.accept(id, role, username);
         } catch (Exception e) {
@@ -81,14 +82,18 @@ public class RequestController {
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
     ) {
-        return service.getAcceptedRequests(username, role);
+        return service.getAcceptedRequestsForProvider(username, role);
     }
 
     @PutMapping("/{id}/cancel")
     public ServiceRequest cancel(
             @PathVariable Long id,
-            @RequestHeader("X-User-Name") String username
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role
     ) {
+        if (!"USER".equalsIgnoreCase(role)) {
+            throw new RuntimeException("Only USER can cancel request");
+        }
         return service.cancel(id, username);
     }
 
