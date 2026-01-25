@@ -42,21 +42,30 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/accept")
-    public ServiceRequest accept(@PathVariable Long id,
-                                 @RequestHeader("X-User-Role") String role,
-                                 @RequestHeader("X-User-Name") String username) {
-        if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only provider allowed");
+    public ServiceRequest accept(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-User-Name") String username
+    ) {
+        try {
+            System.out.println("➡️ ACCEPT API CALLED");
+            System.out.println("ID=" + id + ", ROLE=" + role + ", USER=" + username);
+            return service.accept(id, role, username);
+        } catch (Exception e) {
+            e.printStackTrace(); // THIS IS KEY
+            throw e;
         }
-        return service.accept(id, role, username);
     }
 
+
     @PutMapping("/{id}/reject")
-    public ServiceRequest reject(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
+    public ServiceRequest reject(@PathVariable Long id,
+                                 @RequestHeader("X-User-Role") String role,
+                                 @RequestHeader("X-User-Name") String username) {
         if (!role.equals("PROVIDER")) {
             throw new RuntimeException("Only provider allowed");
         }
-        return service.reject(id, role);
+        return service.reject(id, role,username);
     }
 
     @GetMapping("/pending")
@@ -88,7 +97,7 @@ public class RequestController {
             @RequestHeader("X-User-Name") String providerUsername,
             @RequestHeader("X-User-Role") String role
     ) {
-        return service.getAcceptedRequestsForProvider(providerUsername,role);
+        return service.getAcceptedRequestsForProvider(providerUsername, role);
     }
 }
 

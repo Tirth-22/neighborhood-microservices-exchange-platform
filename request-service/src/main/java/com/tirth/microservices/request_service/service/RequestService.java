@@ -10,7 +10,7 @@ public interface RequestService {
     ServiceRequest createRequest(CreateRequestDto dto, String username);
     List<ServiceRequest> getMyRequests(String username);
     ServiceRequest accept(Long id, String role, String username);
-    ServiceRequest reject(Long id, String role);
+    ServiceRequest reject(Long id, String role, String username);
     List<ServiceRequest> getPendingRequests();
     List<ServiceRequest> getAcceptedRequests(String username, String role);
     ServiceRequest cancel(Long id, String username);

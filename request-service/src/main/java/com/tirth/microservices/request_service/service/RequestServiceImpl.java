@@ -40,6 +40,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequest accept(Long id, String role, String username) {
+        System.out.println("ACCEPTING REQUEST ID = " + id);
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
@@ -59,11 +60,12 @@ public class RequestServiceImpl implements RequestService {
 
         RequestAcceptedEvent event = new RequestAcceptedEvent(
                 savedRequest.getId(),
-                savedRequest.getRequestedBy(),
-                username,
+                savedRequest.getRequestedBy(), // userId
+                username,                      // providerId
                 savedRequest.getTitle(),
                 LocalDateTime.now().toString()
         );
+
 
 
         requestEventProducer.publishRequestAcceptedEvent(event);
@@ -72,7 +74,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequest reject(Long id, String role) {
+    public ServiceRequest reject(Long id, String role, String username) {
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
