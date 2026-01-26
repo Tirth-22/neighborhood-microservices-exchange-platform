@@ -1,0 +1,9 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: provider-service
+
+  config:
+    import: optional:configserver:http://localhost:8888
