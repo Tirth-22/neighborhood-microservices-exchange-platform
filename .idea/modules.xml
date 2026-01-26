@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/neighbhorhod-microsevices-exchange-platform.iml" filepath="$PROJECT_DIR$/.idea/neighbhorhod-microsevices-exchange-platform.iml" />
-      <module fileurl="file://$PROJECT_DIR$/request-service/request-service.iml" filepath="$PROJECT_DIR$/request-service/request-service.iml" />
     </modules>
   </component>
 </project>
