@@ -51,7 +51,7 @@ public class JwtFilter implements GlobalFilter, Ordered {
         String username = jwtUtil.extractUsername(token);
         String email = jwtUtil.extractEmail(token);
 
-        // 🔒 ROLE-BASED ACCESS
+        // ROLE-BASED ACCESS
         if (path.startsWith("/provider") && !role.equals("PROVIDER")) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
