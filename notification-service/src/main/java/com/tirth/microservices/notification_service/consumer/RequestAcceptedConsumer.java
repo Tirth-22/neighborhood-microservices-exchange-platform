@@ -22,7 +22,7 @@ public class RequestAcceptedConsumer {
     )
     public void consumeAccepted(RequestAcceptedEvent event) {
 
-        System.out.println("🔥 ACCEPT EVENT RECEIVED: " + event);
+        System.out.println("ACCEPT EVENT RECEIVED: " + event);
 
         Notification notification = Notification.builder()
                 .userId(event.getUserId())
@@ -36,7 +36,7 @@ public class RequestAcceptedConsumer {
 
         notificationRepository.save(notification);
 
-        System.out.println("✅ Accepted notification saved for userId = " + event.getUserId());
+        System.out.println("Accepted notification saved for userId = " + event.getUserId());
     }
 
     @KafkaListener(
@@ -45,7 +45,7 @@ public class RequestAcceptedConsumer {
     )
     public void consumeRejected(RequestRejectedEvent event) {
 
-        System.out.println("🔥 REJECT EVENT RECEIVED: " + event);
+        System.out.println("REJECT EVENT RECEIVED: " + event);
 
         Notification notification = Notification.builder()
                 .userId(event.getUserId())
@@ -59,6 +59,6 @@ public class RequestAcceptedConsumer {
 
         notificationRepository.save(notification);
 
-        System.out.println("✅ Rejected notification saved for userId = " + event.getUserId());
+        System.out.println("Rejected notification saved for userId = " + event.getUserId());
     }
 }
