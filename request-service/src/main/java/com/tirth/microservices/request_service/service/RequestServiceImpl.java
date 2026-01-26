@@ -104,19 +104,22 @@ public class RequestServiceImpl implements RequestService {
             throw new InvalidRequestStateException("Request already processed");
         }
 
+        request.setStatus(RequestStatus.REJECTED);
+        request.setRejectedBy(username);
+        request.setAcceptedBy(null);
+
+        ServiceRequest saved =  repository.save(request);
+
         RequestRejectedEvent event = new RequestRejectedEvent(
-                request.getId(),
-                request.getRequestedBy(),
-                username,
-                request.getTitle(),
+                saved.getId(),
+                saved.getRequestedBy(),   // userId
+                username,                 // providerId
+                saved.getTitle(),
                 LocalDateTime.now().toString()
         );
 
         requestEventProducer.publishRequestRejectedEvent(event);
 
-        request.setStatus(RequestStatus.REJECTED);
-        request.setRejectedBy(username);
-        request.setAcceptedBy(null);
         return repository.save(request);
     }
 
