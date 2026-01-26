@@ -40,7 +40,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequestResponseDTO createRequest(CreateRequestDto dto, String username) {
+    public ServiceRequestResponseDTO createRequest(CreateRequestDto dto, String username, String role) {
+
+        if (!"USER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only USER can create request");
+        }
 
         ServiceRequest request = new ServiceRequest();
         request.setTitle(dto.getTitle());
@@ -49,9 +53,9 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(RequestStatus.PENDING);
 
         ServiceRequest saved = repository.save(request);
-
         return mapToDTO(saved);
     }
+
 
     @Override
     public List<ServiceRequest> getMyRequests(String username) {
@@ -120,7 +124,7 @@ public class RequestServiceImpl implements RequestService {
 
         requestEventProducer.publishRequestRejectedEvent(event);
 
-        return repository.save(request);
+        return saved;
     }
 
     @Override
@@ -135,11 +139,11 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new RuntimeException("Only PENDING requests can be cancelled");
+            throw new InvalidRequestStateException("Only PENDING requests can be cancelled");
         }
 
         if (!request.getRequestedBy().equals(username)) {
-            throw new RuntimeException("You can cancel only your own request");
+            throw new UnauthorizedActionException("You can cancel only your own request");
         }
 
         request.setStatus(RequestStatus.CANCELLED);
