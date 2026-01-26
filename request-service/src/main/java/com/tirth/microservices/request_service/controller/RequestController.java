@@ -1,7 +1,11 @@
 package com.tirth.microservices.request_service.controller;
 
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
+import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
+import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
+import com.tirth.microservices.request_service.security.GatewayGuard;
 import com.tirth.microservices.request_service.service.RequestService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,23 +16,22 @@ import java.util.List;
 public class RequestController {
 
     private RequestService service;
+    private final GatewayGuard gatewayGuard;
 
-    public RequestController(RequestService requestService) {
+    public RequestController(RequestService requestService, GatewayGuard gatewayGuard) {
         this.service = requestService;
+        this.gatewayGuard = gatewayGuard;
     }
 
     @PostMapping
-    public ServiceRequest createRequest(
+    public ServiceRequestResponseDTO createRequest(
             @RequestBody CreateRequestDto dto,
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
     ) {
-        if (!role.equalsIgnoreCase("USER")) {
-            throw new RuntimeException("Only USER can create requests");
-        }
-
-        return service.createRequest(dto, username);
+        return service.createRequest(dto, username, role);
     }
+
 
     @GetMapping("/my")
     public List<ServiceRequest> myRequests(
@@ -42,22 +45,32 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/accept")
-    public ServiceRequest accept(@PathVariable Long id,
-                                 @RequestHeader("X-User-Role") String role,
-                                 @RequestHeader("X-User-Name") String username) {
-        if (!role.equals("PROVIDER")) {
-            throw new RuntimeException("Only provider allowed");
-        }
+    public ServiceRequestResponseDTO accept(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
         return service.accept(id, role, username);
     }
 
     @PutMapping("/{id}/reject")
-    public ServiceRequest reject(@PathVariable Long id, @RequestHeader("X-User-Role") String role) {
-        if (!role.equals("PROVIDER")) {
+    public ServiceRequest reject(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
+
+        if (!role.equalsIgnoreCase("PROVIDER")) {
             throw new RuntimeException("Only provider allowed");
         }
-        return service.reject(id, role);
+
+        return service.reject(id, role, username);
     }
+
 
     @GetMapping("/pending")
     public List<ServiceRequest> getPendingRequests() {
@@ -72,14 +85,18 @@ public class RequestController {
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
     ) {
-        return service.getAcceptedRequests(username, role);
+        return service.getAcceptedRequestsForProvider(username, role);
     }
 
     @PutMapping("/{id}/cancel")
     public ServiceRequest cancel(
             @PathVariable Long id,
-            @RequestHeader("X-User-Name") String username
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role
     ) {
+        if (!"USER".equalsIgnoreCase(role)) {
+            throw new RuntimeException("Only USER can cancel request");
+        }
         return service.cancel(id, username);
     }
 
@@ -88,7 +105,7 @@ public class RequestController {
             @RequestHeader("X-User-Name") String providerUsername,
             @RequestHeader("X-User-Role") String role
     ) {
-        return service.getAcceptedRequestsForProvider(providerUsername,role);
+        return service.getAcceptedRequestsForProvider(providerUsername, role);
     }
 }
 

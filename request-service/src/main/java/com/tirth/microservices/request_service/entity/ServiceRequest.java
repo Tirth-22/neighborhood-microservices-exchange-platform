@@ -28,4 +28,7 @@ public class ServiceRequest {
     @Column
     private String acceptedBy;
 
+    @Column(name = "rejected_by")
+    private String rejectedBy;
+
 }

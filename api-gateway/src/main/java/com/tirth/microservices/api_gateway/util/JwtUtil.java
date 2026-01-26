@@ -44,8 +44,7 @@ public class JwtUtil {
         return getClaims(token).get("email", String.class);
     }
 
-
-    // 🔧 INTERNAL CLAIMS PARSER
+    // INTERNAL CLAIMS PARSER
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
