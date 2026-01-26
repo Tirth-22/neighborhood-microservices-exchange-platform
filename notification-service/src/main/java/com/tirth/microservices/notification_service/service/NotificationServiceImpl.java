@@ -6,10 +6,9 @@ import com.tirth.microservices.notification_service.repository.NotificationRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +23,6 @@ public class NotificationServiceImpl implements NotificationService {
                 n.isRead(),
                 n.getCreatedAt()
         );
-    }
-
-    @Override
-    public List<Notification> getMyNotifications(String userId) {
-        return repository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override
@@ -54,7 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
         return repository
                 .findByUserIdOrderByCreatedAtDesc(
                         userId,
-                        PageRequest.of(page, size)
+                        PageRequest.of(page, size, Sort.by("createdAt").descending())
                 )
                 .map(this::map);
     }

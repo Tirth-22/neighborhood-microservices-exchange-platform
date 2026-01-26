@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface NotificationService {
 
-    List<Notification> getMyNotifications(String userId);
     Notification markAsRead(Long id, String userId);
     long getUnreadCount(String userId);
     void markAllAsRead(String userId);
