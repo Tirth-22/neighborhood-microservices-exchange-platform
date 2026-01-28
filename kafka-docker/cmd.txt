@@ -1,0 +1,6 @@
+docker-compose down //down container
+
+docker-compose up -d // run container
+
+docker ps //list of running
+

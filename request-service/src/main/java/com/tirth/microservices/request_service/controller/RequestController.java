@@ -52,6 +52,10 @@ public class RequestController {
             @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
     ) {
         gatewayGuard.validate(gatewayHeader);
+        if (!role.equalsIgnoreCase("PROVIDER")) {
+            throw new UnauthorizedActionException("Only provider allowed");
+        }
+
         return service.accept(id, role, username);
     }
 
@@ -65,7 +69,7 @@ public class RequestController {
         gatewayGuard.validate(gatewayHeader);
 
         if (!role.equalsIgnoreCase("PROVIDER")) {
-            throw new RuntimeException("Only provider allowed");
+            throw new UnauthorizedActionException("Only provider allowed");
         }
 
         return service.reject(id, role, username);
@@ -73,10 +77,10 @@ public class RequestController {
 
 
     @GetMapping("/pending")
-    public List<ServiceRequest> getPendingRequests() {
-//        if (!role.equals("PROVIDER")) {
-//            throw new RuntimeException("Only provider allowed");
-//        }
+    public List<ServiceRequest> getPendingRequests(@RequestHeader("X-User-Role") String role) {
+        if (!role.equals("PROVIDER")) {
+            throw new UnauthorizedActionException("Only provider allowed");
+        }
         return service.getPendingRequests();
     }
 

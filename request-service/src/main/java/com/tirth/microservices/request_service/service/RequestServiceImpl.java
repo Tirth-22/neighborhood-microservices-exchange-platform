@@ -1,5 +1,6 @@
 package com.tirth.microservices.request_service.service;
 
+import com.tirth.microservices.request_service.client.ProviderClient;
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
@@ -25,7 +26,7 @@ public class RequestServiceImpl implements RequestService {
 
     private final ServiceRequestRepository repository;
     private final RequestEventProducer requestEventProducer;
-
+    private final ProviderClient providerClient;
 
     private ServiceRequestResponseDTO mapToDTO(ServiceRequest request) {
         return new ServiceRequestResponseDTO(
@@ -71,6 +72,12 @@ public class RequestServiceImpl implements RequestService {
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can accept request");
+        }
+
+        boolean isActive = providerClient.isProviderActive(username);
+
+        if (!isActive) {
+            throw new UnauthorizedActionException("Provider is not active");
         }
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
