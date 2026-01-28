@@ -1,6 +1,7 @@
 package com.tirth.microservices.provider_service.controller;
 
 import com.tirth.microservices.provider_service.entity.Provider;
+import com.tirth.microservices.provider_service.security.GatewayGuard;
 import com.tirth.microservices.provider_service.service.ProviderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -11,12 +12,16 @@ import org.springframework.web.bind.annotation.*;
 public class ProviderController {
 
     private final ProviderService providerService;
+    private final GatewayGuard gatewayGuard;
 
     @PostMapping("/register")
     public Provider registerProvider(
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Gateway-Request") String gatewayHeader
     ) {
+        gatewayGuard.validate(gatewayHeader);
+
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new RuntimeException("Only PROVIDER role allowed");
         }
@@ -24,18 +29,30 @@ public class ProviderController {
         return providerService.registerProvider(username);
     }
 
-    @GetMapping("/{username}/status")
-    public boolean isProviderActive(@PathVariable String username) {
+    @GetMapping("/check-active/{username}")
+    public boolean isProviderActive(
+            @PathVariable String username,
+            @RequestHeader("X-Gateway-Request") String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
         return providerService.isProviderActive(username);
     }
 
     @PutMapping("/{id}/approve")
-    public Provider approve(@PathVariable Long id) {
+    public Provider approve(
+            @PathVariable Long id,
+            @RequestHeader("X-Gateway-Request") String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
         return providerService.approveProvider(id);
     }
 
     @PutMapping("/{id}/reject")
-    public Provider reject(@PathVariable Long id) {
+    public Provider reject(
+            @PathVariable Long id,
+            @RequestHeader("X-Gateway-Request") String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
         return providerService.rejectProvider(id);
     }
 }

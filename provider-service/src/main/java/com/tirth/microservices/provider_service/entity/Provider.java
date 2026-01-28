@@ -30,7 +30,7 @@ public class Provider {
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private boolean Active;
+    private boolean active;
 
     @PrePersist
     public void onCreate() {
