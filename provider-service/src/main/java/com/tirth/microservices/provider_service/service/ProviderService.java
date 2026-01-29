@@ -8,7 +8,7 @@ public interface ProviderService {
 
     Provider getByUsername(String username);
 
-    Provider approveProvider(Long providerId);
+    Provider approveProvider(Long providerId,String adminUsername);
 
     Provider rejectProvider(Long providerId);
 

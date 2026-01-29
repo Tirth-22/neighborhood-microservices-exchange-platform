@@ -10,6 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -49,7 +51,7 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
-    public Provider approveProvider(Long providerId) {
+    public Provider approveProvider(Long providerId, String adminUsername) {
         Provider provider = repository.findById(providerId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Provider not found"));
@@ -60,6 +62,8 @@ public class ProviderServiceImpl implements ProviderService {
 
         provider.setStatus(ProviderStatus.ACTIVE);
         provider.setActive(true);
+        provider.setApprovedBy(adminUsername);
+        provider.setApprovedAt(LocalDateTime.now());
 
         return repository.save(provider);
     }

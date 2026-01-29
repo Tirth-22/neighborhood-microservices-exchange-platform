@@ -32,10 +32,14 @@ public class Provider {
     @Column(nullable = false)
     private boolean active;
 
+    private String approvedBy;
+    private LocalDateTime approvedAt;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.status = ProviderStatus.PENDING;
+        this.active = false;
     }
 
 }

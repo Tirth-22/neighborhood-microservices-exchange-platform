@@ -86,6 +86,8 @@ public class RequestServiceImpl implements RequestService {
 
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
+//        request.setRequestedBy(null);
+        request.setAcceptedAt(LocalDateTime.now());
 
         ServiceRequest savedRequest = repository.save(request);
 
@@ -117,7 +119,7 @@ public class RequestServiceImpl implements RequestService {
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectedBy(username);
-        request.setAcceptedBy(null);
+        request.setRejectedAt(LocalDateTime.now());
 
         ServiceRequest saved =  repository.save(request);
 

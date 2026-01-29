@@ -1,4 +1,4 @@
-package com.tirth.microservices.request_service.security;
+package com.tirth.microservices.provider_service.security;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -9,13 +9,6 @@ public class FeignGatewayInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
-
-        String url = template.url();
-
-        if (url.contains("/v3/api-docs") || url.contains("/swagger-ui")) {
-            return;
-        }
-
         template.header("X-Gateway-Request", "true");
     }
 }

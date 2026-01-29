@@ -3,6 +3,8 @@ package com.tirth.microservices.request_service.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "service_requests")
 @Data
@@ -30,5 +32,8 @@ public class ServiceRequest {
 
     @Column(name = "rejected_by")
     private String rejectedBy;
+
+    private LocalDateTime acceptedAt;
+    private LocalDateTime rejectedAt;
 
 }

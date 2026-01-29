@@ -10,7 +10,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.9</version>
-        <relativePath/>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>com.tirth.microservices</groupId>
@@ -25,12 +25,11 @@
 
     <dependencies>
 
-        <!-- ✅ MVC REST APIs -->
+        <!-- MVC REST APIs -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <!-- Config Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

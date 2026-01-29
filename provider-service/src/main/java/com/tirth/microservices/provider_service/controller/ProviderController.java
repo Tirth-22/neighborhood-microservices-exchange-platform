@@ -1,6 +1,7 @@
 package com.tirth.microservices.provider_service.controller;
 
 import com.tirth.microservices.provider_service.entity.Provider;
+import com.tirth.microservices.provider_service.exception.ForbiddenException;
 import com.tirth.microservices.provider_service.security.GatewayGuard;
 import com.tirth.microservices.provider_service.service.ProviderService;
 import lombok.RequiredArgsConstructor;
@@ -41,18 +42,32 @@ public class ProviderController {
     @PutMapping("/{id}/approve")
     public Provider approve(
             @PathVariable Long id,
+            @RequestHeader("X-User-Name") String adminUsername,
+            @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-Gateway-Request") String gatewayHeader
     ) {
         gatewayGuard.validate(gatewayHeader);
-        return providerService.approveProvider(id);
+        System.out.println("ROLE RECEIVED = " + role);
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            throw new ForbiddenException("Only ADMIN role allowed");
+        }
+
+        return providerService.approveProvider(id,adminUsername);
     }
 
     @PutMapping("/{id}/reject")
     public Provider reject(
             @PathVariable Long id,
+            @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-Gateway-Request") String gatewayHeader
     ) {
         gatewayGuard.validate(gatewayHeader);
+
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            throw new ForbiddenException("Only ADMIN role allowed");
+        }
+
         return providerService.rejectProvider(id);
     }
+
 }
