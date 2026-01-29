@@ -6,6 +6,7 @@ import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.event.RequestAcceptedEvent;
+import com.tirth.microservices.request_service.event.RequestCompletedEvent;
 import com.tirth.microservices.request_service.event.RequestRejectedEvent;
 import com.tirth.microservices.request_service.exception.InvalidRequestStateException;
 import com.tirth.microservices.request_service.exception.ResourceNotFoundException;
@@ -171,4 +172,41 @@ public class RequestServiceImpl implements RequestService {
                 RequestStatus.ACCEPTED
         );
     }
+
+    @Override
+    public ServiceRequestResponseDTO complete(Long id, String username, String role) {
+
+        if (!"USER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only USER can complete request");
+        }
+
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+        if (request.getStatus() != RequestStatus.ACCEPTED) {
+            throw new InvalidRequestStateException("Only ACCEPTED requests can be completed");
+        }
+
+        if (!request.getRequestedBy().equals(username)) {
+            throw new UnauthorizedActionException("You can complete only your own request");
+        }
+
+        request.setStatus(RequestStatus.COMPLETED);
+        request.setCompletedAt(LocalDateTime.now());
+
+        ServiceRequest saved = repository.save(request);
+
+        RequestCompletedEvent event = new RequestCompletedEvent(
+                saved.getId(),
+                saved.getRequestedBy(),
+                saved.getAcceptedBy(),
+                saved.getTitle(),
+                saved.getCompletedAt().toString()
+        );
+
+        requestEventProducer.publishRequestCompleted(event);
+
+        return mapToDTO(saved);
+    }
+
 }

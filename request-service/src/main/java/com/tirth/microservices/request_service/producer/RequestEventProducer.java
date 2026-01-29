@@ -2,6 +2,7 @@ package com.tirth.microservices.request_service.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tirth.microservices.request_service.event.RequestAcceptedEvent;
+import com.tirth.microservices.request_service.event.RequestCompletedEvent;
 import com.tirth.microservices.request_service.event.RequestRejectedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,6 +17,7 @@ public class RequestEventProducer {
 
     private static final String ACCEPT_TOPIC = "request.accepted";
     private static final String REJECT_TOPIC = "request.rejected";
+    private static final String COMPLETED_TOPIC = "request.completed";
 
     public void publishRequestAcceptedEvent(RequestAcceptedEvent event) {
         try {
@@ -33,6 +35,16 @@ public class RequestEventProducer {
             kafkaTemplate.send(REJECT_TOPIC, json);
             System.out.println("SENT REJECT EVENT: " + json);
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void publishRequestCompleted(RequestCompletedEvent event) {
+        try {
+            String json = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(COMPLETED_TOPIC, json);
+            System.out.println(" SENT COMPLETED EVENT: " + json);
+        }catch(Exception e) {
             throw new RuntimeException(e);
         }
     }

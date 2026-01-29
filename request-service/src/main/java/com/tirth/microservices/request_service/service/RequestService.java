@@ -15,5 +15,5 @@ public interface RequestService {
     List<ServiceRequest> getPendingRequests();
     ServiceRequest cancel(Long id, String username);
     List<ServiceRequest> getAcceptedRequestsForProvider(String providerUsername, String role);
-
+    ServiceRequestResponseDTO complete(Long id, String username, String role);
 }

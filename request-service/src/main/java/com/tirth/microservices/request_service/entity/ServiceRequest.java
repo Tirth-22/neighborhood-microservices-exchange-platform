@@ -35,5 +35,5 @@ public class ServiceRequest {
 
     private LocalDateTime acceptedAt;
     private LocalDateTime rejectedAt;
-
+    private LocalDateTime completedAt;
 }

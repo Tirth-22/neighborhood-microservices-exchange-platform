@@ -1,7 +1,9 @@
 package com.tirth.microservices.notification_service.consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tirth.microservices.notification_service.entity.Notification;
 import com.tirth.microservices.notification_service.event.RequestAcceptedEvent;
+import com.tirth.microservices.notification_service.event.RequestCompletedEvent;
 import com.tirth.microservices.notification_service.event.RequestRejectedEvent;
 import com.tirth.microservices.notification_service.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,4 +63,31 @@ public class RequestAcceptedConsumer {
 
         System.out.println("Rejected notification saved for userId = " + event.getUserId());
     }
+
+    @KafkaListener(
+            topics = "request.completed",
+            groupId = "notification-group-final"
+    )
+    public void consumeCompleted(String message) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        RequestCompletedEvent event =
+                mapper.readValue(message, RequestCompletedEvent.class);
+
+        System.out.println("COMPLETED EVENT RECEIVED: " + event);
+
+        Notification notification = Notification.builder()
+                .userId(event.getProviderId())
+                .message(
+                        "User completed request for " + event.getServiceName()
+                )
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
+
 }

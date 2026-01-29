@@ -111,5 +111,17 @@ public class RequestController {
     ) {
         return service.getAcceptedRequestsForProvider(providerUsername, role);
     }
+
+    @PutMapping("/{id}/complete")
+    public ServiceRequestResponseDTO complete(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-Gateway-Request") String gatewayHeader
+    ) {
+        gatewayGuard.validate(gatewayHeader);
+        return service.complete(id, username, role);
+    }
+
 }
 
