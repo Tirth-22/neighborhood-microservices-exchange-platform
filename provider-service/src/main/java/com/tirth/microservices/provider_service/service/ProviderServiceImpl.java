@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -89,5 +90,15 @@ public class ProviderServiceImpl implements ProviderService {
         return repository.findByUsername(username)
                 .map(Provider::isActive)
                 .orElse(false);
+    }
+
+    @Override
+    public List<Provider> getAllProviders() {
+        return repository.findAll();
+    }
+
+    @Override
+    public List<Provider> getProvidersByStatus(ProviderStatus status) {
+        return repository.findByStatus(status);
     }
 }

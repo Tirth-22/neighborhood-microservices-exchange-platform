@@ -209,4 +209,16 @@ public class RequestServiceImpl implements RequestService {
         return mapToDTO(saved);
     }
 
+    @Override
+    public List<ServiceRequest> getMyCompletedRequests(String username, String role) {
+
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only PROVIDER allowed");
+        }
+
+        return repository.findByAcceptedByAndStatus(
+                username,
+                RequestStatus.COMPLETED
+        );
+    }
 }

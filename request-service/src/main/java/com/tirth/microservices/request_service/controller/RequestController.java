@@ -92,6 +92,14 @@ public class RequestController {
         return service.getAcceptedRequestsForProvider(username, role);
     }
 
+    @GetMapping("/provider/completed")
+    public List<ServiceRequest> myCompletedRequests(
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role
+    ) {
+        return service.getMyCompletedRequests(username, role);
+    }
+
     @PutMapping("/{id}/cancel")
     public ServiceRequest cancel(
             @PathVariable Long id,

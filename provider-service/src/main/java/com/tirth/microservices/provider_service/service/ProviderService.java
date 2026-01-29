@@ -1,6 +1,9 @@
 package com.tirth.microservices.provider_service.service;
 
 import com.tirth.microservices.provider_service.entity.Provider;
+import com.tirth.microservices.provider_service.entity.ProviderStatus;
+
+import java.util.List;
 
 public interface ProviderService {
 
@@ -13,4 +16,7 @@ public interface ProviderService {
     Provider rejectProvider(Long providerId);
 
     boolean isProviderActive(String username);
+
+    List<Provider> getAllProviders();
+    List<Provider> getProvidersByStatus(ProviderStatus status);
 }
