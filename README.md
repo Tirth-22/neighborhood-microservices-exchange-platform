@@ -15,8 +15,7 @@ Track transactions and service status
 The platform follows domain-driven microservices design, making it easy to scale and extend.
 
 ## 🧩 Microservices Architecture
-<img width="1347" height="592" alt="final-architecture" src="https://github.com/user-attachments/assets/7dc3c213-fd1c-44ad-90f9-c3d1e6745777" />
-
+<img width="1482" height="646" alt="final-architecture" src="https://github.com/user-attachments/assets/8ec076b8-c456-4405-a82c-b6d0c9e07585" />
 ## 🛠️ Tech Stack
 
 ### Backend
