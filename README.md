@@ -28,7 +28,7 @@ The platform follows domain-driven microservices design, making it easy to scale
 - Spring Cloud Gateway
 - JWT Authentication
 - REST APIs
-- Postgresql / MongoDB
+- Postgresql 
 - Docker 
 
 ### Frontend
