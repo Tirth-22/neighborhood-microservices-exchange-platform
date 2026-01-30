@@ -37,11 +37,19 @@ The platform follows domain-driven microservices design, making it easy to scale
 - Axios
 - Vite
 - Git & GitHub
-
 - Postman
 - Maven
 - Docker Compose 
 
+### System Design Concepts
+- Microservices architecture
+- Load Balancer
+- Circuit Breaker
+- Service Discovery (Eureka)
+- Centralized Configuration (Config Server)
+- Loose Coupling
+- saga pattern
+  
 ## 🔑 Microservices Breakdown
 ### 1️⃣ Auth Service
 User authentication & authorization
