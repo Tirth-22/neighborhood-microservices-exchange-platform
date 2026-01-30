@@ -4,11 +4,6 @@ server:
 spring:
   application:
     name: auth-service
-  security:
-    user:
-      name: tirth
-      password: tirth123
-
   datasource:
     url: jdbc:postgresql://localhost:5432/auth_db
     username: postgres

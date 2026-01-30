@@ -5,12 +5,8 @@ spring:
   application:
     name: notification-service
 
-  # 🔥 DISABLE CONFIG SERVER FOR NOW
-  # config:
-  #   import: optional:configserver:http://localhost:8888
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/notification_db
+    url: jdbc:postgresql://localhost:5432/notification_db # here same localhost
     username: postgres
     password: Tirth_22
     driver-class-name: org.postgresql.Driver
@@ -21,7 +17,7 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9092 # localhost for ide
     consumer:
       group-id: notification-group-final
       auto-offset-reset: earliest
