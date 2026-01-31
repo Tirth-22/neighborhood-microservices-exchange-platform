@@ -2,9 +2,11 @@ package com.tirth.microservices.request_service.service;
 
 import com.tirth.microservices.request_service.client.ProviderClient;
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
+import com.tirth.microservices.request_service.entity.ServiceType;
 import com.tirth.microservices.request_service.event.RequestAcceptedEvent;
 import com.tirth.microservices.request_service.event.RequestCompletedEvent;
 import com.tirth.microservices.request_service.event.RequestRejectedEvent;
@@ -42,20 +44,38 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequestResponseDTO createRequest(CreateRequestDto dto, String username, String role) {
-
-        if (!"USER".equalsIgnoreCase(role)) {
-            throw new UnauthorizedActionException("Only USER can create request");
+    public ServiceRequestResponseDTO createRequest(
+            String username,
+            CreateRequestRequest request
+    ) {
+        ServiceType serviceType;
+        try {
+            serviceType = ServiceType.valueOf(request.getServiceType().toUpperCase());
+        } catch (Exception e) {
+            serviceType = ServiceType.OTHER;
         }
 
-        ServiceRequest request = new ServiceRequest();
-        request.setTitle(dto.getTitle());
-        request.setDescription(dto.getDescription());
-        request.setRequestedBy(username);
-        request.setProviderUsername(dto.getProviderUsername()); // Isolation Fix
-        request.setStatus(RequestStatus.PENDING);
+        ServiceRequest serviceRequest = ServiceRequest.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .requestedBy(username)
+                .serviceType(serviceType)
+                .status(RequestStatus.PENDING)
+                .build();
 
-        ServiceRequest saved = repository.save(request);
+        ServiceRequest saved = repository.save(serviceRequest);
+
+        // 🔥 Publish Event for Notification
+        com.tirth.microservices.request_service.event.RequestCreatedEvent event = new com.tirth.microservices.request_service.event.RequestCreatedEvent(
+                saved.getId(),
+                saved.getRequestedBy(),
+                saved.getProviderUsername(),
+                saved.getTitle(),
+                java.time.LocalDateTime.now().toString()
+        );
+        requestEventProducer.publishRequestCreatedEvent(event);
+
+        // Always return DTO
         return mapToDTO(saved);
     }
 
@@ -64,6 +84,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ServiceRequest> getMyRequests(String username) {
         return repository.findByRequestedBy(username);
     }
+
 
     @Override
     public ServiceRequestResponseDTO accept(Long id, String role, String username) {
@@ -140,7 +161,11 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ServiceRequest> getPendingRequests(String providerUsername) {
-        return repository.findByProviderUsernameAndStatus(providerUsername, RequestStatus.PENDING);
+        return repository.findByAcceptedByAndStatus(
+                providerUsername,
+                RequestStatus.PENDING
+        );
+
     }
 
     @Override

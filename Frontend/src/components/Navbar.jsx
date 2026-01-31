@@ -21,11 +21,13 @@ const Navbar = () => {
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
   ].filter(link => {
-    if (user?.role === 'provider') {
+    const role = user?.role?.toLowerCase()?.trim();
+
+    if (role === 'provider') {
       return link.path !== '/my-requests';
     }
     // For regular users (role === 'user'), hide Offer Service
-    if (user?.role === 'user') {
+    if (role === 'user') {
       return link.path !== '/offer-service';
     }
     return true;

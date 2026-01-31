@@ -4,13 +4,24 @@ import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
 import { Calendar, Clock, MapPin, User, ChevronRight } from "lucide-react";
+import { requestApi } from "../api/requestApi";
 
 const MyRequests = () => {
     const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storageRequest = JSON.parse(localStorage.getItem("requests")) || [];
-        setRequests(storageRequest);
+        const fetchRequests = async () => {
+            try {
+                const response = await requestApi.getMyRequests();
+                setRequests(response.data); // Axios returns data in .data
+            } catch (error) {
+                console.error("Failed to fetch requests", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchRequests();
     }, []);
 
     const getStatusVariant = (status) => {

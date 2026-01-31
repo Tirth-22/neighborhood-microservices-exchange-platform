@@ -1,6 +1,7 @@
 package com.tirth.microservices.request_service.controller;
 
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
@@ -25,11 +26,10 @@ public class RequestController {
 
     @PostMapping
     public ServiceRequestResponseDTO createRequest(
-            @RequestBody CreateRequestDto dto,
-            @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
+            @RequestBody CreateRequestRequest request,
+            @RequestHeader("X-User-Name") String username
     ) {
-        return service.createRequest(dto, username, role);
+        return service.createRequest(username, request);
     }
 
 

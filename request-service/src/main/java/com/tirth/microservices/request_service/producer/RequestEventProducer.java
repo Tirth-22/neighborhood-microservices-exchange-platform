@@ -18,6 +18,17 @@ public class RequestEventProducer {
     private static final String ACCEPT_TOPIC = "request.accepted";
     private static final String REJECT_TOPIC = "request.rejected";
     private static final String COMPLETED_TOPIC = "request.completed";
+    private static final String CREATED_TOPIC = "request.created"; // 🔥 ADDED
+
+    public void publishRequestCreatedEvent(com.tirth.microservices.request_service.event.RequestCreatedEvent event) {
+        try {
+            String json = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(CREATED_TOPIC, json);
+            System.out.println("SENT CREATED EVENT: " + json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void publishRequestAcceptedEvent(RequestAcceptedEvent event) {
         try {

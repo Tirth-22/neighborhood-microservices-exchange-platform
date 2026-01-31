@@ -23,7 +23,7 @@ public class Provider {
     private String username;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private ServiceType serviceType;
 
     @Enumerated(EnumType.STRING)
@@ -42,8 +42,8 @@ public class Provider {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.status = ProviderStatus.PENDING;
-        this.active = false;
+        this.status = ProviderStatus.ACTIVE; // Default to ACTIVE
+        this.active = true; // Default to TRUE
     }
 
 }

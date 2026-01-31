@@ -2,6 +2,9 @@ package com.tirth.microservices.provider_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "service_offerings")
@@ -15,7 +18,8 @@ public class ServiceOffering {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // 🔥 MUST MATCH DB COLUMN EXACTLY
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(length = 1000)
@@ -24,12 +28,24 @@ public class ServiceOffering {
     @Column(nullable = false)
     private Double price;
 
-    @Column(name = "provider_username", nullable = false)
-    private String providerUsername;
-
     @Column(nullable = false)
     private String category;
 
     @Builder.Default
     private boolean active = true;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "provider_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Provider provider;
+
+    @Column(name = "provider_username", nullable = false)
+    private String providerUsername;
+
+    @Column(name = "provider_name", nullable = false)
+    private String providerName;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

@@ -1,11 +1,9 @@
 package com.tirth.microservices.provider_service.controller;
 
-import com.tirth.microservices.provider_service.dto.ApiResponse;
-import com.tirth.microservices.provider_service.dto.ProviderLookupResponse;
-import com.tirth.microservices.provider_service.dto.ProviderRegisterRequest;
-import com.tirth.microservices.provider_service.dto.ProviderRegisterResponse;
+import com.tirth.microservices.provider_service.dto.*;
 import com.tirth.microservices.provider_service.entity.Provider;
 import com.tirth.microservices.provider_service.entity.ProviderStatus;
+import com.tirth.microservices.provider_service.entity.ServiceOffering;
 import com.tirth.microservices.provider_service.entity.ServiceType;
 import com.tirth.microservices.provider_service.exception.ForbiddenException;
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
@@ -96,16 +94,24 @@ public class ProviderController {
     }
 
     @PostMapping("/services")
-    public com.tirth.microservices.provider_service.entity.ServiceOffering createService(
+    public ServiceOffering createService(
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role,
-            @RequestBody com.tirth.microservices.provider_service.dto.ServiceOfferingRequest request
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader,
+            @RequestBody ServiceOfferingRequest request
     ) {
-        if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only PROVIDER can create services");
+        if (gatewayHeader != null) {
+            gatewayGuard.validate(gatewayHeader);
         }
+        System.out.println("DEBUG: createService called with role: " + role);
+
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
+            throw new ForbiddenException("Only PROVIDER can create services");
+        }
+
         return providerService.createService(username, request);
     }
+
 
     @GetMapping("/services")
     public java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllServices() {

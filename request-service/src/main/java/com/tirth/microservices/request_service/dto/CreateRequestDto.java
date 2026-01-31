@@ -8,4 +8,5 @@ public class CreateRequestDto {
     private String title;
     private String description;
     private String providerUsername;
+    private String serviceType; // 🔥 Added missing field
 }

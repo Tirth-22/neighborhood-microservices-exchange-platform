@@ -21,10 +21,21 @@ const RequestService = () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
     const handleSubmit = async () => {
+        // Validate Date
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            alert("Whoops! You cannot book a service in the past. Please select a future date.");
+            return;
+        }
+
         try {
             const payload = {
-                title: `${selectedService?.category} Request`, // Or description derived
-                description: description,
+                title: `${selectedService?.category} Request`,
+                serviceType: selectedService?.category?.toUpperCase() || "OTHER",
+                description: `${description} \n\n[Scheduled: ${date} at ${time}]`, // Send Schedule Info
                 providerUsername: selectedService?.providerUsername || selectedService?.name, // Ensure we pass the username
                 // Add other fields if backend supports them or pack them in description
             };
