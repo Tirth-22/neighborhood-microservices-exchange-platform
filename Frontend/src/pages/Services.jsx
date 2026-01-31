@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import ServiceCard from "../components/ServiceCard";
+import { providerApi } from "../api/providerApi";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import { Search, Filter } from "lucide-react";
@@ -8,50 +9,31 @@ import { Search, Filter } from "lucide-react";
 const Services = () => {
 
   const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedServices = JSON.parse(localStorage.getItem("services"));
-    if (storedServices && storedServices.length > 0) {
-      setServices(storedServices);
-    } else {
-      const initialServices = [
-        {
-          id: 1,
-          name: "Tirth",
-          category: "IT-DSA",
-          price: "1000",
-          providerId: "provider_tirth"
-        }, {
-          id: 2,
-          name: "Harshit",
-          category: "IT-python",
-          price: "800",
-          providerId: "provider_harshit"
-        },
-        {
-          id: 3,
-          name: "Rushil",
-          category: "Construction",
-          price: "700",
-          providerId: "provider_rushil"
-        },
-        {
-          id: 4,
-          name: "Yash",
-          category: "Electrician",
-          price: "700",
-          providerId: "provider_yash"
-        }
-      ];
-      setServices(initialServices);
-      localStorage.setItem("services", JSON.stringify(initialServices));
-    }
+    const fetchServices = async () => {
+      try {
+        const response = await providerApi.getAllServices();
+        setServices(response.data);
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
   }, []);
 
   const navigate = useNavigate();
   const handleRequest = (service) => {
+    const user = localStorage.getItem("currentUser");
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     localStorage.setItem("selectedService", JSON.stringify(service))
-    navigate(`/request-service?serviceId=${service}`)
+    navigate(`/request-service?serviceId=${service.id}`)
   }
 
   return (

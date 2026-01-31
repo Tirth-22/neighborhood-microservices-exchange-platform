@@ -24,6 +24,10 @@ public class Provider {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private ServiceType serviceType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ProviderStatus status;
 
     @Column(nullable = false)

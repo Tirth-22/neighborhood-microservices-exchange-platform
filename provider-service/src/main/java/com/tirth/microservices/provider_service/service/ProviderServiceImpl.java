@@ -1,7 +1,10 @@
 package com.tirth.microservices.provider_service.service;
 
+import com.tirth.microservices.provider_service.dto.ProviderRegisterRequest;
+import com.tirth.microservices.provider_service.dto.ProviderRegisterResponse;
 import com.tirth.microservices.provider_service.entity.Provider;
 import com.tirth.microservices.provider_service.entity.ProviderStatus;
+import com.tirth.microservices.provider_service.entity.ServiceType;
 import com.tirth.microservices.provider_service.exception.DuplicateProviderException;
 import com.tirth.microservices.provider_service.exception.ResourceNotFoundException;
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
@@ -19,9 +22,12 @@ import java.util.List;
 public class ProviderServiceImpl implements ProviderService {
 
     private final ProviderRepository repository;
+    private final com.tirth.microservices.provider_service.repository.ServiceOfferingRepository serviceOfferingRepository;
 
     @Override
-    public Provider registerProvider(String username) {
+    public ProviderRegisterResponse registerProvider(String username, ProviderRegisterRequest request) {
+        ServiceType serviceType = ServiceType.valueOf(request.getServiceType());
+
         try {
             if (repository.existsByUsername(username)) {
                 throw new DuplicateProviderException(
@@ -29,13 +35,16 @@ public class ProviderServiceImpl implements ProviderService {
                 );
             }
 
-            Provider provider = new Provider();
-            provider.setUsername(username);
-            provider.setStatus(ProviderStatus.PENDING);
-            provider.setActive(false);
+            Provider provider = Provider.builder()
+                    .username(username)
+                    .serviceType(serviceType) // already added
+                    .status(ProviderStatus.PENDING)
+                    .active(false)
+                    .build();
 
-            return repository.save(provider);
-
+            repository.save(provider);
+            return new ProviderRegisterResponse("Pending Approval");
+            
         } catch (DataIntegrityViolationException ex) {
             // DB-level safety net (race condition)
             throw new DuplicateProviderException(
@@ -100,5 +109,55 @@ public class ProviderServiceImpl implements ProviderService {
     @Override
     public List<Provider> getProvidersByStatus(ProviderStatus status) {
         return repository.findByStatus(status);
+    }
+
+    @Override
+    public com.tirth.microservices.provider_service.entity.ServiceOffering createService(String username, com.tirth.microservices.provider_service.dto.ServiceOfferingRequest request) {
+        // Ensure provider exists
+        // Ensure provider exists or create it
+        if (!repository.existsByUsername(username)) {
+            // Auto-create provider profile
+            Provider newProvider = Provider.builder()
+                    .username(username)
+                    .status(ProviderStatus.ACTIVE) // Auto-activate for now or PENDING
+                    .active(true)
+                    .serviceType(com.tirth.microservices.provider_service.entity.ServiceType.valueOf("OTHER")) // Default
+                    .createdAt(java.time.LocalDateTime.now())
+                    .build();
+            repository.save(newProvider);
+        }
+
+        com.tirth.microservices.provider_service.entity.ServiceOffering service = com.tirth.microservices.provider_service.entity.ServiceOffering.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .category(request.getCategory())
+                .providerUsername(username)
+                .active(true)
+                .build();
+
+        return serviceOfferingRepository.save(service);
+    }
+
+    @Override
+    public List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllActiveServices() {
+        return serviceOfferingRepository.findByActiveTrue();
+    }
+
+    @Override
+    public List<com.tirth.microservices.provider_service.entity.ServiceOffering> getMyServices(String username) {
+        return serviceOfferingRepository.findByProviderUsername(username);
+    }
+
+    @Override
+    public void deleteService(Long id, String username, String role) {
+        com.tirth.microservices.provider_service.entity.ServiceOffering service = serviceOfferingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
+
+        if (!"ADMIN".equals(role) && !service.getProviderUsername().equals(username)) {
+            throw new RuntimeException("Unauthorized to delete this service");
+        }
+        
+        serviceOfferingRepository.delete(service);
     }
 }

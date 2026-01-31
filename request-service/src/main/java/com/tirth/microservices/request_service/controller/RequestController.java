@@ -77,11 +77,14 @@ public class RequestController {
 
 
     @GetMapping("/pending")
-    public List<ServiceRequest> getPendingRequests(@RequestHeader("X-User-Role") String role) {
+    public List<ServiceRequest> getPendingRequests(
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-User-Name") String username
+    ) {
         if (!role.equals("PROVIDER")) {
             throw new UnauthorizedActionException("Only provider allowed");
         }
-        return service.getPendingRequests();
+        return service.getPendingRequests(username);
     }
 
     @GetMapping("/accepted")

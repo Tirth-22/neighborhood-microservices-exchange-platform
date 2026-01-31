@@ -15,7 +15,7 @@ public interface RequestService {
     ServiceRequestResponseDTO complete(Long id, String username, String role);
 
     List<ServiceRequest> getMyRequests(String username);
-    List<ServiceRequest> getPendingRequests();
+    List<ServiceRequest> getPendingRequests(String providerUsername);
     List<ServiceRequest> getMyCompletedRequests(String providerUsername, String role);
     List<ServiceRequest> getAcceptedRequestsForProvider(String providerUsername, String role);
 

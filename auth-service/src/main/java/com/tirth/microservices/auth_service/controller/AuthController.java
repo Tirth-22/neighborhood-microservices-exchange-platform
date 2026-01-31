@@ -1,5 +1,6 @@
 package com.tirth.microservices.auth_service.controller;
 
+import com.tirth.microservices.auth_service.dto.ApiResponse;
 import com.tirth.microservices.auth_service.dto.LoginRequest;
 import com.tirth.microservices.auth_service.dto.LoginResponse;
 import com.tirth.microservices.auth_service.dto.RegisterRequest;
@@ -36,13 +37,23 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
+        // Hardcoded Admin Check
+        if ("admin@neighborhood.com".equalsIgnoreCase(request.getUsername()) || "admin".equalsIgnoreCase(request.getUsername())) {
+             if ("admin123".equals(request.getPassword())) {
+                 String token = jwtUtil.generateToken("admin", "ADMIN", "admin@neighborhood.com");
+                 return new LoginResponse(true, "ADMIN", token);
+             } else {
+                 return new LoginResponse(false, "Wrong password", null);
+             }
+        }
+
         User user = userRepository.findByUsername(request.getUsername());
 
         if (user == null) {
             return new  LoginResponse(false, "User not found",null);
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return new  LoginResponse(true, "Wrong password",null);
+            return new  LoginResponse(false, "Wrong password",null);
         }
 
         String token = jwtUtil.generateToken(
@@ -55,11 +66,11 @@ public class AuthController {
     }
 
     @PostMapping("/auth/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public ApiResponse register(@RequestBody RegisterRequest request) {
         User existingUser = userRepository.findByUsername(request.getUsername());
 
         if (existingUser != null) {
-            return "User already exists";
+            return new ApiResponse(false, "User already exists", null);
         }
 
         User user = new User();
@@ -70,7 +81,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return "USER REGISTERED";
+        return new ApiResponse(true, "USER REGISTERED", null);
     }
 
 

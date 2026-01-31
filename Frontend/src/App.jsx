@@ -9,6 +9,7 @@ import OfferService from "./pages/OfferService";
 import Notification from "./pages/Notifications";
 import SignUp from "./pages/SignUp";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import Navbar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
@@ -40,6 +41,7 @@ function App() {
             <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
             <Route path="/request-service" element={<ProtectedRoute><RequestService /></ProtectedRoute>} />
             <Route path="/offer-service" element={<ProtectedRoute><OfferService /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
 
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

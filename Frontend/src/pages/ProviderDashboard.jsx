@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/ui/Card";
+import { requestApi } from "../api/requestApi";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import { Check, X, Clock, LayoutDashboard, History, Zap } from "lucide-react";
@@ -10,30 +11,35 @@ const ProviderDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
-    const storedRequests =
-      JSON.parse(localStorage.getItem("requests")) || [];
-    setRequests(storedRequests);
+    const fetchRequests = async () => {
+      try {
+        const response = await requestApi.getPendingRequests();
+        // Also fetch accepted/completed if API supports
+        setRequests(response.data);
+      } catch (error) {
+        console.error("Failed to fetch requests", error);
+      }
+    };
+    fetchRequests();
   }, []);
 
-  const providerRequests = requests.filter(
-    (req) => req.providerId === provider?.id
-  );
+  const pendingRequests = requests.filter(req => req.status === "PENDING" || req.status === "Pending");
+  const historyRequests = requests.filter(req => req.status !== "PENDING" && req.status !== "Pending");
 
-  const pendingRequests = providerRequests.filter(
-    (req) => req.status === "Pending"
-  );
+  const updateStatus = async (id, newStatus) => {
+    try {
+      if (newStatus === "accepted") {
+        await requestApi.acceptRequest(id);
+      } else if (newStatus === "rejected") {
+        await requestApi.rejectRequest(id);
+      }
 
-  const historyRequests = providerRequests.filter(
-    (req) => req.status !== "Pending"
-  );
-
-  const updateStatus = (id, newStatus) => {
-    const updatedRequests = requests.map((req) =>
-      req.id === id ? { ...req, status: newStatus } : req
-    );
-
-    setRequests(updatedRequests);
-    localStorage.setItem("requests", JSON.stringify(updatedRequests));
+      // Refresh list
+      const response = await requestApi.getPendingRequests();
+      setRequests(response.data);
+    } catch (error) {
+      console.error("Failed to update status", error);
+    }
   };
 
   const stats = [

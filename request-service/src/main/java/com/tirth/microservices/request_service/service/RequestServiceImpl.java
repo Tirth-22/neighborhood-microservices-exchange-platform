@@ -52,6 +52,7 @@ public class RequestServiceImpl implements RequestService {
         request.setTitle(dto.getTitle());
         request.setDescription(dto.getDescription());
         request.setRequestedBy(username);
+        request.setProviderUsername(dto.getProviderUsername()); // Isolation Fix
         request.setStatus(RequestStatus.PENDING);
 
         ServiceRequest saved = repository.save(request);
@@ -138,8 +139,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ServiceRequest> getPendingRequests() {
-        return repository.findByStatus(RequestStatus.PENDING);
+    public List<ServiceRequest> getPendingRequests(String providerUsername) {
+        return repository.findByProviderUsernameAndStatus(providerUsername, RequestStatus.PENDING);
     }
 
     @Override

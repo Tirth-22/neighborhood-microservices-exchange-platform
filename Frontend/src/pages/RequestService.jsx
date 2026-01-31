@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
+import { requestApi } from '../api/requestApi';
 
 const RequestService = () => {
     const navigate = useNavigate();
@@ -19,26 +20,22 @@ const RequestService = () => {
     const [payment, setPayment] = useState("Cash");
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-    const handleSubmit = () => {
-        const newRequest = {
-            id: Date.now(),
-            userId: currentUser.id,
-            serviceName: selectedService?.category,
-            provider: selectedService?.name,
-            providerId: selectedService?.providerId,
-            description,
-            date,
-            time,
-            address,
-            payment,
-            status: "Pending",
-        };
+    const handleSubmit = async () => {
+        try {
+            const payload = {
+                title: `${selectedService?.category} Request`, // Or description derived
+                description: description,
+                providerUsername: selectedService?.providerUsername || selectedService?.name, // Ensure we pass the username
+                // Add other fields if backend supports them or pack them in description
+            };
 
-        const existingRequests = JSON.parse(localStorage.getItem("requests")) || [];
-        existingRequests.push(newRequest)
-        localStorage.setItem("requests", JSON.stringify(existingRequests));
-        navigate("/my-requests");
-        localStorage.removeItem("selectedService");
+            await requestApi.createRequest(payload);
+            navigate("/my-requests");
+            localStorage.removeItem("selectedService");
+        } catch (error) {
+            console.error("Failed to create request", error);
+            alert("Failed to submit request.");
+        }
     }
 
     if (!selectedService) {

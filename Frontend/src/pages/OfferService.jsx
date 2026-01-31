@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { providerApi } from "../api/providerApi";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
@@ -23,44 +24,34 @@ const OfferService = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    const newService = {
-      id: Date.now(),
-      name: formData.name, // Provider Name
-      email: formData.email,
-      category: formData.category === "Select category" ? formData.serviceName : formData.category, // Use category or custom name if needed, aligning with ServiceCard expectation
-      // Actually ServiceCard uses 'category' for the tag and 'name' for the provider name? 
-      // Let's check ServiceCard. 
-      // ServiceCard: {service.name} is displayed as the main title? No.
-      // ServiceCard line 18: {service.name} is the Title.
-      // ServiceCard line 14: {service.category} is the Badge.
-      // Wait, in previous mock data: name="Tirth", category="IT-DSA".
-      // So 'name' is the Provider Name? Or Service Name?
-      // "Tirth" sounds like Provider Name. "IT-DSA" is category.
-      // Let's look at RequestService.jsx:
-      // provider: selectedService?.name
-      // serviceName: selectedService?.category
-      // So 'name' IS the Provider Name.
-      // And 'category' is the Service Name/Type.
+  const handleSubmit = async () => {
+    try {
+      // Map frontend category to backend Enum
+      const categoryMap = {
+        "Plumbing": "PLUMBER",
+        "Electrical": "ELECTRICIAN",
+        "Teaching": "OTHER", // Or add TEACHER to backend if needed
+        "Cleaning": "CLEANING",
+        "Delivery": "OTHER", // Or add DELIVERY
+        "Other": "OTHER"
+      };
 
-      // So we should map:
-      // service.name = formData.name (Provider Name)
-      // service.category = formData.serviceName (The actual service title, e.g. "Plumbing Repair")
+      const backendCategory = categoryMap[formData.category] || "OTHER";
 
-      // Wait, existing data: category="IT-DSA", name="Tirth".
-      // If I offer "Plumbing", category should be "Plumbing". name should be "Tirth".
+      const payload = {
+        name: formData.serviceName, // Service Title (e.g. "Home Cleaning")
+        description: formData.description || "No description provided.",
+        price: parseFloat(formData.price),
+        category: backendCategory
+      };
 
-      name: formData.name,
-      category: formData.serviceName, // Using 'serviceName' input as the main Category/Service Title
-      price: formData.price,
-      providerId: currentUser?.id || "guest_provider_" + Date.now(),
-      description: formData.description
-    };
-
-    const existingServices = JSON.parse(localStorage.getItem("services")) || [];
-    existingServices.push(newService);
-    localStorage.setItem("services", JSON.stringify(existingServices));
-    navigate("/services");
+      await providerApi.createService(payload);
+      alert("Service Created Successfully!");
+      navigate("/services");
+    } catch (error) {
+      console.error("Failed to create service", error);
+      alert("Failed to offer service: " + (error.response?.data?.message || error.message));
+    }
   };
 
   return (
@@ -115,7 +106,7 @@ const OfferService = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                className="w-full relative z-10 rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
               >
                 <option>Select category</option>
                 <option>Plumbing</option>
@@ -135,6 +126,7 @@ const OfferService = () => {
                 value={formData.price}
                 onChange={handleChange}
                 placeholder="₹ Amount"
+                className="relative z-10"
               />
 
               <div>
@@ -145,7 +137,7 @@ const OfferService = () => {
                   name="availability"
                   value={formData.availability}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  className="w-full relative z-10 rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
                 >
                   <option>Select availability</option>
                   <option>Morning</option>
@@ -166,7 +158,7 @@ const OfferService = () => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Describe your service experience, qualifications, and what you offer..."
-                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full relative z-10 rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
