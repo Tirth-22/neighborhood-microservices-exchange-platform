@@ -1,5 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Card from "../components/ui/Card";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -36,74 +39,87 @@ const SignUp = () => {
     !name || !email || !password || !confirmPassword || !role;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+    <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl">
+            N
+          </div>
+          <h2 className="mt-6 text-3xl font-extrabold text-secondary-900">
+            Create your account
+          </h2>
+          <p className="mt-2 text-sm text-secondary-600">
+            Join our community of neighbors today.
+          </p>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border p-2 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <Card className="p-8 space-y-6">
+          <div className="space-y-4">
+            <Input
+              label="Full Name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+            <Input
+              label="Email address"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-        <input
-          type="password"
-          placeholder="New Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full border p-2 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
 
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="w-full border p-2 mb-6 rounded bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="" disabled>
-            Select Role
-          </option>
-          <option value="user">User</option>
-          <option value="provider">Provider</option>
-          <option value="admin">Admin</option>
-        </select>
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
+                I am joining as a...
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              >
+                <option value="" disabled>Select Role</option>
+                <option value="user">User (Looking for help)</option>
+                <option value="provider">Provider (Providing help)</option>
+              </select>
+            </div>
+          </div>
 
-        <button
-          onClick={handleSignup}
-          disabled={isDisabled}
-          className={`w-full py-2 rounded text-white transition
-            ${
-              isDisabled
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-        >
-          Sign Up
-        </button>
+          <Button
+            onClick={handleSignup}
+            disabled={isDisabled}
+            className="w-full py-2.5"
+          >
+            Create Account
+          </Button>
 
-        <p className="text-center mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </p>
+          <div className="text-center">
+            <p className="text-sm text-secondary-600">
+              Already have an account?{" "}
+              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </Card>
       </div>
     </div>
   );

@@ -1,62 +1,100 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from "react";
 import ServiceCard from "../components/ServiceCard";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { Search, Filter } from "lucide-react";
 
 const Services = () => {
 
-  const services = [
-    {
-      id: 1,
-      name: "Tirth",
-      category: "IT-DSA",
-      price: "1000",
-      providerId:"provider_tirth"
-    }, {
-      id: 2,
-      name: "Harshit",
-      category: "IT-python",
-      price: "800",
-      providerId:"provider_harshit"
-    },
-    {
-      id: 3,
-      name: "Rushil",
-      category: "construction issue",
-      price: "700",
-      providerId:"provider_rushil"
-    },
-    {
-      id: 4,
-      name: "Yash",
-      category: "Electric",
-      price: "700",
-      providerId:"provider_yash"
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    const storedServices = JSON.parse(localStorage.getItem("services"));
+    if (storedServices && storedServices.length > 0) {
+      setServices(storedServices);
+    } else {
+      const initialServices = [
+        {
+          id: 1,
+          name: "Tirth",
+          category: "IT-DSA",
+          price: "1000",
+          providerId: "provider_tirth"
+        }, {
+          id: 2,
+          name: "Harshit",
+          category: "IT-python",
+          price: "800",
+          providerId: "provider_harshit"
+        },
+        {
+          id: 3,
+          name: "Rushil",
+          category: "Construction",
+          price: "700",
+          providerId: "provider_rushil"
+        },
+        {
+          id: 4,
+          name: "Yash",
+          category: "Electrician",
+          price: "700",
+          providerId: "provider_yash"
+        }
+      ];
+      setServices(initialServices);
+      localStorage.setItem("services", JSON.stringify(initialServices));
     }
-  ]
+  }, []);
 
   const navigate = useNavigate();
   const handleRequest = (service) => {
-    localStorage.setItem("selectedService",JSON.stringify(service))
+    localStorage.setItem("selectedService", JSON.stringify(service))
     navigate(`/request-service?serviceId=${service}`)
   }
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto px-6 py-10 ">
-        <h2 className="text-3xl font-bold mb-6">Available Services</h2>
+    <div className="min-h-screen bg-secondary-50 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {services.map((service) => {
-            console.log("SERVICES:", services);
-            return (
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-secondary-900">Available Services</h2>
+            <p className="text-secondary-500 mt-1">Find the best local experts for your needs.</p>
+          </div>
+
+          <div className="flex gap-2 w-full md:w-auto">
+            <div className="relative flex-grow md:flex-grow-0">
+              <Search className="absolute left-3 top-2.5 text-secondary-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search services..."
+                className="pl-9 pr-4 py-2 rounded-lg border border-secondary-300 w-full md:w-64 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+              />
+            </div>
+            <Button variant="secondary" className="flex items-center gap-2">
+              <Filter size={18} /> Filter
+            </Button>
+          </div>
+        </div>
+
+        {services.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {services.map((service) => (
               <ServiceCard
                 key={service.id}
                 service={service}
                 onRequest={handleRequest}
               />
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-xl shadow-sm">
+            <p className="text-secondary-500">No services found matching your criteria.</p>
+          </div>
+        )}
+
       </div>
     </div>
   );

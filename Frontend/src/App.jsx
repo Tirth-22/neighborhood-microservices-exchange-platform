@@ -12,6 +12,13 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import Navbar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
+import HelpCenter from "./pages/HelpCenter";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import ContactUs from "./pages/ContactUs";
+
+import FAQ from "./pages/FAQ";
+import HowItWorks from "./pages/HowItWorks";
 import "./App.css";
 
 function App() {
@@ -33,6 +40,14 @@ function App() {
             <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
             <Route path="/request-service" element={<ProtectedRoute><RequestService /></ProtectedRoute>} />
             <Route path="/offer-service" element={<ProtectedRoute><OfferService /></ProtectedRoute>} />
+
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/contact" element={<ContactUs />} />
+
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
           </Routes>
         </div>
 
@@ -41,7 +56,7 @@ function App() {
       </div>
     </BrowserRouter>
   );
-  
+
 }
 
 export default App;
