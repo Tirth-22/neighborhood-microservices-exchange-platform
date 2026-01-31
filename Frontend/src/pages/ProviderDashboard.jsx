@@ -43,7 +43,7 @@ const ProviderDashboard = () => {
   };
 
   const stats = [
-    { label: "Total Requests", value: providerRequests.length, icon: LayoutDashboard, color: "bg-blue-100 text-blue-600" },
+    { label: "Total Requests", value: requests.length, icon: LayoutDashboard, color: "bg-blue-100 text-blue-600" },
     { label: "Pending", value: pendingRequests.length, icon: Clock, color: "bg-yellow-100 text-yellow-600" },
     { label: "Completed", value: historyRequests.filter(r => r.status === 'Completed' || r.status === 'accepted').length, icon: Check, color: "bg-green-100 text-green-600" },
   ];

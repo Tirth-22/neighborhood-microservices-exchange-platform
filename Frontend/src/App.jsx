@@ -10,7 +10,7 @@ import Notification from "./pages/Notifications";
 import SignUp from "./pages/SignUp";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import Navbar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 import HelpCenter from "./pages/HelpCenter";

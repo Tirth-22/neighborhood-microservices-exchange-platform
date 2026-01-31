@@ -7,29 +7,27 @@ import { Link } from "react-router-dom";
 
 const Notifications = () => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
-    const [requests, setRequests] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem("requests")) || [];
-        setRequests(stored);
+        const fetchNotifications = async () => {
+            if (!user) return;
+            try {
+                // We need to implement this API call in a new file or inline it here
+                // For now assuming we add it to 'requestApi' or similar, but let's use fetch directly or axios
+                // Actually, let's create a notificationApi helper first? Or just cheat and use axiosInstance
+                const { default: api } = await import("../api/axiosInstance");
+                const response = await api.get("/notifications/my");
+                setNotifications(response.data.content || []);
+            } catch (error) {
+                console.error("Failed to fetch notifications", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNotifications();
     }, []);
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-secondary-50">
-                <Card className="p-8 text-center max-w-md">
-                    <p className="text-secondary-600 mb-4">Please login to view notifications</p>
-                    <Link to="/login">
-                        <Button>Login Now</Button>
-                    </Link>
-                </Card>
-            </div>
-        );
-    }
-
-    const notifications = requests
-        .filter(req => req.userId === user.id)
-        .filter(req => req.status !== "Pending");
 
     const getStatusIcon = (status) => {
         if (status === 'accepted' || status === 'Accepted' || status === 'Completed') return <CheckCircle size={20} className="text-green-500" />;
@@ -57,26 +55,24 @@ const Notifications = () => {
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {notifications.map((req, index) => (
-                            <Card key={index} className="p-5 flex gap-4 items-start hover:bg-secondary-50/50 transition-colors">
+                        {notifications.map((notif) => (
+                            <Card key={notif.id} className="p-5 flex gap-4 items-start hover:bg-secondary-50/50 transition-colors">
                                 <div className="mt-1">
-                                    {getStatusIcon(req.status)}
+                                    <Clock size={20} className="text-primary-500" />
                                 </div>
-                                <div>
+                                <div className="flex-grow">
                                     <p className="text-secondary-900 font-medium">
-                                        Your request for <span className="font-bold">{req.serviceName}</span> was <span className="lowercase">{req.status}</span>.
+                                        {notif.message}
                                     </p>
                                     <p className="text-sm text-secondary-500 mt-1">
-                                        Provider: {req.provider}
+                                        {new Date(notif.createdAt).toLocaleString()}
                                     </p>
                                 </div>
-                                <div className="ml-auto">
-                                    <Badge variant={
-                                        ['accepted', 'Accepted', 'Completed'].includes(req.status) ? 'success' : 'danger'
-                                    }>
-                                        {req.status}
-                                    </Badge>
-                                </div>
+                                {!notif.read && (
+                                    <div className="ml-auto">
+                                        <span className="w-3 h-3 bg-red-500 rounded-full inline-block"></span>
+                                    </div>
+                                )}
                             </Card>
                         ))}
                     </div>

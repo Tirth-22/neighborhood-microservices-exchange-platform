@@ -63,13 +63,27 @@ const Services = () => {
 
         {services.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {services.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                onRequest={handleRequest}
-              />
-            ))}
+            {services.map((service) => {
+              // Robust role check helper
+              const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+              const getRole = (u) => {
+                if (!u) return '';
+                let r = u.role;
+                if (Array.isArray(r)) r = r[0];
+                if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+                return String(r || '').toLowerCase().trim();
+              };
+              const isProvider = getRole(currentUser).includes('provider');
+
+              return (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onRequest={handleRequest}
+                  isProvider={isProvider}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-xl shadow-sm">
