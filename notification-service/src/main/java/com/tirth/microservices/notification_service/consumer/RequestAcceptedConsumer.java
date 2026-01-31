@@ -89,5 +89,31 @@ public class RequestAcceptedConsumer {
         notificationRepository.save(notification);
     }
 
+    @KafkaListener(
+            topics = "request.created",
+            groupId = "notification-group-final"
+    )
+    public void consumeCreated(String message) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        com.tirth.microservices.notification_service.event.RequestCreatedEvent event =
+                mapper.readValue(message, com.tirth.microservices.notification_service.event.RequestCreatedEvent.class);
+
+        System.out.println("CREATED EVENT RECEIVED: " + event);
+
+        Notification notification = Notification.builder()
+                .userId(event.getProviderUsername()) // Send to Provider
+                .message(
+                        "New Request Received: " + event.getTitle() +
+                                " from " + event.getRequestedBy()
+                )
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+        System.out.println("Created notification saved for provider = " + event.getProviderUsername());
+    }
+
 
 }
