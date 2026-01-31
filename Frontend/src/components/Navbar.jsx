@@ -24,6 +24,10 @@ const Navbar = () => {
     if (user?.role === 'provider') {
       return link.path !== '/my-requests';
     }
+    // For regular users (role === 'user'), hide Offer Service
+    if (user?.role === 'user') {
+      return link.path !== '/offer-service';
+    }
     return true;
   });
 
@@ -64,7 +68,6 @@ const Navbar = () => {
               {user && (
                 <Link to="/notifications" className="relative text-secondary-500 hover:text-primary-600 transition-colors">
                   <Bell size={20} />
-                  {/* <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" /> */}
                 </Link>
               )}
 
@@ -73,7 +76,7 @@ const Navbar = () => {
                   <Link to="/login">
                     <Button variant="ghost" size="sm">Log In</Button>
                   </Link>
-                  <Link to="/signup"> {/* Assuming signup route exists, formerly generic login link */}
+                  <Link to="/signup">
                     <Button size="sm">Get Started</Button>
                   </Link>
                 </div>
