@@ -55,14 +55,16 @@ public class RequestServiceImpl implements RequestService {
             serviceType = ServiceType.OTHER;
         }
 
-        String providerUsername = null;
-        try {
-            var lookupResponse = providerClient.getProviderByService(serviceType.name());
-            if (lookupResponse != null) {
-                providerUsername = lookupResponse.getUsername();
+        String providerUsername = request.getProviderUsername();
+        if (providerUsername == null || providerUsername.isBlank()) {
+            try {
+                var lookupResponse = providerClient.getProviderByService(serviceType.name());
+                if (lookupResponse != null) {
+                    providerUsername = lookupResponse.getUsername();
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to lookup provider: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Failed to lookup provider: " + e.getMessage());
         }
 
         ServiceRequest serviceRequest = ServiceRequest.builder()

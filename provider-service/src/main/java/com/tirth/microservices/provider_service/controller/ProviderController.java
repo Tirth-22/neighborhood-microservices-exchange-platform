@@ -86,9 +86,14 @@ public class ProviderController {
             @PathVariable String serviceType
     ) {
         ServiceType type = ServiceType.valueOf(serviceType);
-        Provider provider = repository
-                .findByServiceTypeAndStatus(type, ProviderStatus.ACTIVE)
-                .orElseThrow(() -> new RuntimeException("No provider available"));
+        java.util.List<Provider> providers = repository
+                .findByServiceTypeAndStatus(type, ProviderStatus.ACTIVE);
+                
+        if (providers.isEmpty()) {
+            throw new RuntimeException("No provider available");
+        }
+        
+        Provider provider = providers.get(0);
 
         return new ProviderLookupResponse(provider.getId(), provider.getUsername());
     }

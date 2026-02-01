@@ -38,8 +38,8 @@ public class RequestController {
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
     ) {
-        if (!role.equalsIgnoreCase("USER")) {
-            throw new RuntimeException("Only USER can view their requests");
+        if (!role.equalsIgnoreCase("USER") && !role.equalsIgnoreCase("PROVIDER")) {
+            throw new RuntimeException("Only USER/PROVIDER can view their requests");
         }
         return service.getMyRequests(username);
     }
@@ -109,8 +109,8 @@ public class RequestController {
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role
     ) {
-        if (!"USER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only USER can cancel request");
+        if (!"USER".equalsIgnoreCase(role) && !"PROVIDER".equalsIgnoreCase(role)) {
+            throw new RuntimeException("Only USER/PROVIDER can cancel request");
         }
         return service.cancel(id, username);
     }

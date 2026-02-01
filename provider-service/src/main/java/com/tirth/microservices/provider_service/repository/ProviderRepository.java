@@ -12,5 +12,5 @@ public interface ProviderRepository extends JpaRepository<Provider, Long> {
     Optional<Provider> findByUsername(String username);
     List<Provider> findByStatus(ProviderStatus status);
     boolean existsByUsername(String username);
-    java.util.Optional<Provider> findByServiceTypeAndStatus(com.tirth.microservices.provider_service.entity.ServiceType serviceType, ProviderStatus status);
+    java.util.List<Provider> findByServiceTypeAndStatus(com.tirth.microservices.provider_service.entity.ServiceType serviceType, ProviderStatus status);
 }

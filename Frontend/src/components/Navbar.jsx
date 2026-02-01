@@ -7,44 +7,50 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
-    navigate('/login');
+    navigate("/login");
     setIsMobileMenuOpen(false);
-  }
+  };
 
-  // Robust role check helper
+  // ---- ROLE HANDLING (SAFE) ----
   const getRole = (u) => {
-    if (!u) return '';
-    let r = u.role;
+    if (!u) return "";
+    let r = u.role || u.roles || u.authorities || "";
     if (Array.isArray(r)) r = r[0];
-    if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
-    return String(r || '').toLowerCase().trim();
+    if (typeof r === "object" && r !== null)
+      r = r.name || r.authority || "";
+    return String(r || "").toLowerCase().trim();
   };
 
   const role = getRole(user);
-  const isProvider = role.includes('provider');
-  const isUser = role.includes('user') && !isProvider;
+  if (user) console.log("DEBUG: Navbar Role Detection", { role, raw: user });
 
+  const isProvider = role.includes("provider");
+  const isUser = role.includes("user") || role === "client" || (!isProvider && user);
+
+  // ---- NAV LINKS (IMAGE-2 LOGIC) ----
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
-    { name: "Dashboard", path: "/provider-dashboard" },
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
-  ].filter(link => {
-    if (!user) return link.path === "/" || link.path === "/services";
+  ].filter((link) => {
+    if (!user) {
+      return link.path === "/" || link.path === "/services";
+    }
 
     if (isProvider) {
-      // Providers see Dashboard and Offer Service, but not My Requests (synced with dashboard)
-      return link.path !== '/my-requests';
+      // IMAGE-2 provider navbar: Home, Services, Offer Service
+      return link.path !== "/my-requests";
     }
 
     if (isUser) {
-      // Users see My Requests, but not Dashboard or Offer Service
-      return link.path !== '/offer-service' && link.path !== '/provider-dashboard';
+      // User navbar: Home, Services, My Requests
+      return link.path !== "/offer-service";
     }
 
     return true;
@@ -57,22 +63,38 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          {/* LOGO */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="bg-primary-600 p-2 rounded-lg">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-white"
+              >
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
             </div>
-            <span className="text-xl font-bold text-secondary-900 tracking-tight">NeighborHub</span>
+            <span className="text-xl font-bold text-secondary-900">
+              NeighborHub
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* DESKTOP NAV */}
           <div className="hidden md:flex items-center space-x-8">
             <ul className="flex space-x-6">
               {navLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className={`text-sm font-medium transition-colors duration-200 ${isActive(link.path)
+                    className={`text-sm font-medium ${isActive(link.path)
                       ? "text-primary-600"
                       : "text-secondary-600 hover:text-primary-600"
                       }`}
@@ -83,9 +105,9 @@ const Navbar = () => {
               ))}
             </ul>
 
-            <div className="flex items-center gap-4 pl-6 border-l border-secondary-200">
+            <div className="flex items-center gap-4 pl-6 border-l">
               {user && (
-                <Link to="/notifications" className="relative text-secondary-500 hover:text-primary-600 transition-colors">
+                <Link to="/notifications">
                   <Bell size={20} />
                 </Link>
               )}
@@ -100,45 +122,35 @@ const Navbar = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
-                  <div className="relative group">
-                    <button className="flex items-center gap-2 text-sm font-medium text-secondary-700 hover:text-primary-600 transition-colors focus:outline-none">
-                      <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center border-2 border-transparent group-hover:border-primary-200 transition-all">
-                        <User size={18} />
-                      </div>
-                    </button>
+                <div className="relative group">
+                  <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center cursor-pointer">
+                    <User size={18} />
+                  </div>
 
-                    {/* User Profile Card */}
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-secondary-200 p-4 opacity-0 invisible transform translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center">
-                          <User size={24} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-secondary-900">{user.name || "User"}</h4>
-                          <p className="text-secondary-500 text-xs uppercase tracking-wider font-semibold">{user.role}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-2 pt-3 border-t border-secondary-100">
-                        <p className="text-sm text-secondary-600 truncate">{user.email}</p>
-                        <div className="pt-2">
-                          <Button variant="secondary" size="sm" className="w-full justify-center" onClick={handleLogout}>
-                            Logout
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg p-4 opacity-0 group-hover:opacity-100 transition translate-y-2 group-hover:translate-y-0 invisible group-hover:visible z-50 border border-secondary-100">
+                    <p className="font-semibold text-secondary-900">{user.name}</p>
+                    <p className="text-xs text-secondary-500 uppercase tracking-wider">
+                      {role}
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full mt-3"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          {/* MOBILE MENU BUTTON */}
+          <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-secondary-500 hover:text-secondary-700 focus:outline-none"
+              className="p-2 text-secondary-600 hover:text-secondary-900"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -146,9 +158,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-secondary-200 shadow-lg">
+        <div className="md:hidden bg-white border-t border-secondary-200 shadow-lg animate-in slide-in-from-top duration-200">
           <div className="px-4 pt-2 pb-6 space-y-2">
             {navLinks.map((link) => (
               <Link
@@ -190,7 +202,10 @@ const Navbar = () => {
                     <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
                       <User size={16} />
                     </div>
-                    <span className="text-sm font-medium text-secondary-900">{user.name || "User"}</span>
+                    <div>
+                      <span className="block text-sm font-bold text-secondary-900">{user.name || "User"}</span>
+                      <span className="block text-xs text-secondary-500 uppercase">{role}</span>
+                    </div>
                   </div>
                   <Button variant="outline" className="w-full" onClick={handleLogout}>
                     Logout
@@ -206,4 +221,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
