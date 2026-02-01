@@ -22,38 +22,37 @@ const Navbar = () => {
     let r = u.role || u.roles || u.authorities || "";
     if (Array.isArray(r)) r = r[0];
     if (typeof r === "object" && r !== null)
-      r = r.name || r.authority || "";
-    return String(r || "").toLowerCase().trim();
+      r = r.name || r.authority || r.role || "";
+    return String(r || "").toUpperCase().trim(); // Use UPPERCASE to match database/footer
   };
 
   const role = getRole(user);
   if (user) console.log("DEBUG: Navbar Role Detection", { role, raw: user });
 
-  const isProvider = role.includes("provider");
-  const isUser = role.includes("user") || role === "client" || (!isProvider && user);
+  // Use strictly normalized checks
+  const isProvider = role === "PROVIDER" || role.includes("PROVIDER");
 
-  // ---- NAV LINKS (IMAGE-2 LOGIC) ----
+  // ---- NAV LINKS ----
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
+    { name: "Provider Dashboard", path: "/provider-dashboard" },
   ].filter((link) => {
+    // Guest view
     if (!user) {
       return link.path === "/" || link.path === "/services";
     }
 
+    // Provider view
     if (isProvider) {
-      // IMAGE-2 provider navbar: Home, Services, Offer Service
+      // Providers see Home, Services, Offer Service, Provider Dashboard
       return link.path !== "/my-requests";
     }
 
-    if (isUser) {
-      // User navbar: Home, Services, My Requests
-      return link.path !== "/offer-service";
-    }
-
-    return true;
+    // User view (Default)
+    return link.path !== "/offer-service" && link.path !== "/provider-dashboard";
   });
 
   const isActive = (path) => location.pathname === path;
@@ -107,7 +106,7 @@ const Navbar = () => {
 
             <div className="flex items-center gap-4 pl-6 border-l">
               {user && (
-                <Link to="/notifications">
+                <Link to="/notifications" className="text-secondary-600 hover:text-primary-600 transition-colors">
                   <Bell size={20} />
                 </Link>
               )}
@@ -122,25 +121,28 @@ const Navbar = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="relative group">
-                  <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center cursor-pointer">
-                    <User size={18} />
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 rounded-lg border border-secondary-100">
+                    <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+                      <User size={14} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-secondary-900 leading-none">
+                        {user.name || user.username || "Account"}
+                      </span>
+                      <span className="text-[10px] text-secondary-500 uppercase font-medium tracking-tight">
+                        {role}
+                      </span>
+                    </div>
                   </div>
-
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg p-4 opacity-0 group-hover:opacity-100 transition translate-y-2 group-hover:translate-y-0 invisible group-hover:visible z-50 border border-secondary-100">
-                    <p className="font-semibold text-secondary-900">{user.name}</p>
-                    <p className="text-xs text-secondary-500 uppercase tracking-wider">
-                      {role}
-                    </p>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="w-full mt-3"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-4 border-secondary-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all font-medium"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
                 </div>
               )}
             </div>

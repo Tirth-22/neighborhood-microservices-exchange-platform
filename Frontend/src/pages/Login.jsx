@@ -24,21 +24,24 @@ const Login = () => {
       const response = await authApi.login({ username, password });
 
       if (response.data.success) {
-        const { token, role: backendRole } = response.data;
+        let { token, role: backendRole } = response.data;
+
+        // Normalize backend role or fallback to selected role
+        const finalRole = String(backendRole || role).toUpperCase().trim();
 
         const userData = {
-          name: username, // Or fetch profile
-          role: backendRole, // Trust backend role
+          name: username,
+          role: finalRole,
           token: token,
-          id: username // Use username as ID for now
+          id: username
         };
 
         localStorage.setItem("currentUser", JSON.stringify(userData));
         localStorage.setItem("token", token);
 
-        if (backendRole === "ADMIN") {
+        if (finalRole === "ADMIN") {
           navigate("/admin");
-        } else if (backendRole === "PROVIDER") {
+        } else if (finalRole === "PROVIDER") {
           navigate("/provider-dashboard");
         } else {
           navigate("/services");
