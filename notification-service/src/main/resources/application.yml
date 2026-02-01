@@ -5,8 +5,17 @@ spring:
   application:
     name: notification-service
 
+  config:
+    import: optional:configserver:http://config-server:8888
+    fail-fast: false
+    retry:
+      enabled: true
+      initial-interval: 2000
+      max-interval: 10000
+      max-attempts: 10
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/notification_db # here same localhost
+    url: jdbc:postgresql://postgres:5432/notification_db 
     username: postgres
     password: Tirth_22
     driver-class-name: org.postgresql.Driver
@@ -17,7 +26,7 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092 # localhost for ide
+    bootstrap-servers: kafka:9092 
     consumer:
       group-id: notification-group-final
       auto-offset-reset: earliest

@@ -6,7 +6,13 @@ spring:
     name: request-service
 
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://config-server:8888
+    fail-fast: false
+    retry:
+      enabled: true
+      initial-interval: 2000
+      max-interval: 10000
+      max-attempts: 10
 
   cloud:
     compatibility-verifier:
@@ -18,7 +24,7 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
