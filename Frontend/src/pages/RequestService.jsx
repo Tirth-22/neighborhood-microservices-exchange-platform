@@ -1,197 +1,222 @@
-import { ArrowLeft, Calendar, Clock, MapPin, CreditCard, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import Badge from '../components/ui/Badge';
+import { Calendar, Clock, MapPin, MessageSquare, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { requestApi } from '../api/requestApi';
 
 const RequestService = () => {
     const navigate = useNavigate();
+    const [step, setStep] = useState(1);
+    const selectedService = JSON.parse(localStorage.getItem("selectedService"));
+    const user = JSON.parse(localStorage.getItem("currentUser"));
 
-    const selectedService = JSON.parse(
-        localStorage.getItem("selectedService")
-    );
+    const [formData, setFormData] = useState({
+        date: '',
+        time: '',
+        address: '',
+        description: '',
+        payment: 'cash'
+    });
 
-    const [description, setDescription] = useState("");
-    const [date, setDate] = useState("");
-    const [time, setTime] = useState("");
-    const [address, setAddress] = useState("");
-    const [payment, setPayment] = useState("Cash");
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async () => {
-        // Validate Date
-        const selectedDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-            alert("Whoops! You cannot book a service in the past. Please select a future date.");
-            return;
-        }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
 
         try {
             const payload = {
                 title: `${selectedService?.category} Request`,
                 serviceType: selectedService?.category?.toUpperCase() || "OTHER",
-                description: `${description} \n\n[Scheduled: ${date} at ${time}]`, // Send Schedule Info
-                providerUsername: selectedService?.providerUsername || selectedService?.name, // Ensure we pass the username
-                // Add other fields if backend supports them or pack them in description
+                description: `${formData.description} \n\n[Scheduled: ${formData.date} at ${formData.time}] \nAddress: ${formData.address}`,
+                providerUsername: selectedService?.providerUsername || selectedService?.name,
             };
 
             await requestApi.createRequest(payload);
-            navigate("/my-requests");
+            setStep(3);
             localStorage.removeItem("selectedService");
         } catch (error) {
             console.error("Failed to create request", error);
-            alert("Failed to submit request.");
+            alert("Failed to submit request. Please try again.");
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     if (!selectedService) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <p className="mb-4 text-secondary-600">No service selected.</p>
-                    <Button onClick={() => navigate('/services')}>Go to Services</Button>
-                </div>
+            <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+                <Card className="max-w-md w-full p-8 text-center border-none shadow-xl">
+                    <div className="w-16 h-16 bg-secondary-100 text-secondary-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin size={32} />
+                    </div>
+                    <h2 className="text-xl font-bold text-secondary-900 mb-2">No Service Selected</h2>
+                    <p className="text-secondary-500 mb-6">Please choose a service from the marketplace first.</p>
+                    <Button onClick={() => navigate('/services')} className="w-full">Browse Services</Button>
+                </Card>
             </div>
-        )
+        );
     }
 
-    // Visual Stepper
-    const steps = [
-        { number: 1, title: 'Details' },
-        { number: 2, title: 'Schedule' },
-        { number: 3, title: 'Confirm' },
-    ];
-
     return (
-        <div className="min-h-screen bg-secondary-50 py-12">
-            <div className="max-w-2xl mx-auto px-4 sm:px-6">
-
-                {/* Stepper Visual */}
-                <div className="flex items-center justify-center mb-8">
-                    {steps.map((step, index) => (
-                        <div key={index} className="flex items-center">
-                            <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${index === 0 ? 'bg-primary-600 text-white' : 'bg-white text-secondary-400 border border-secondary-200'}`}>
-                                {step.number}
-                            </div>
-                            <span className={`ml-2 text-sm font-medium ${index === 0 ? 'text-primary-700' : 'text-secondary-400'} hidden sm:block`}>
-                                {step.title}
-                            </span>
-                            {index < steps.length - 1 && (
-                                <div className="w-12 h-px bg-secondary-200 mx-4" />
-                            )}
-                        </div>
-                    ))}
+        <div className="min-h-screen bg-secondary-50 py-12 px-4">
+            <div className="max-w-4xl mx-auto">
+                {/* Stepper */}
+                <div className="flex items-center justify-center mb-10 gap-4">
+                    <div className={`flex items-center gap-2 ${step >= 1 ? 'text-primary-600' : 'text-secondary-400'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-secondary-200'}`}>1</div>
+                        <span className="font-medium hidden sm:inline">Details</span>
+                    </div>
+                    <div className="w-12 h-px bg-secondary-200"></div>
+                    <div className={`flex items-center gap-2 ${step >= 2 ? 'text-primary-600' : 'text-secondary-400'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-secondary-200'}`}>2</div>
+                        <span className="font-medium hidden sm:inline">Confirm</span>
+                    </div>
+                    <div className="w-12 h-px bg-secondary-200"></div>
+                    <div className={`flex items-center gap-2 ${step >= 3 ? 'text-primary-600' : 'text-secondary-400'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-secondary-200'}`}>3</div>
+                        <span className="font-medium hidden sm:inline">Success</span>
+                    </div>
                 </div>
 
-                <Button
-                    variant="ghost"
-                    className="mb-4 pl-0 hover:bg-transparent hover:text-primary-600"
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowLeft size={20} className="mr-2" /> Back
-                </Button>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Form Side */}
+                    <div className="lg:col-span-2">
+                        {step === 1 && (
+                            <Card className="p-8 border-none shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <h2 className="text-2xl font-bold text-secondary-900 mb-6 flex items-center gap-2">
+                                    Service Details
+                                </h2>
+                                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-secondary-700 flex items-center gap-2">
+                                                <Calendar size={16} className="text-primary-500" /> Preferred Date
+                                            </label>
+                                            <Input
+                                                type="date"
+                                                required
+                                                value={formData.date}
+                                                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-secondary-700 flex items-center gap-2">
+                                                <Clock size={16} className="text-primary-500" /> Time
+                                            </label>
+                                            <Input
+                                                type="time"
+                                                required
+                                                value={formData.time}
+                                                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
 
-                <Card className="p-8 shadow-lg border-none">
-                    <div className="text-center mb-8">
-                        <h2 className="text-2xl font-bold text-secondary-900">Request {selectedService?.category}</h2>
-                        <p className="text-secondary-500 mt-1">Provider: <span className="font-semibold text-primary-600">{selectedService?.name}</span> • <span className="text-secondary-700 font-medium">₹{selectedService?.price}/hr</span></p>
-                    </div>
+                                            />
+                                        </div>
+                                    </div>
 
-                    <div className="space-y-8">
-                        {/* Section 1: Details */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-secondary-900 font-medium border-b border-secondary-100 pb-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary-100 text-secondary-600 text-xs">1</span>
-                                Describe the issue
-                            </div>
-                            <textarea
-                                rows="3"
-                                placeholder="What help do you need exactly?"
-                                className="w-full rounded-lg border border-secondary-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-secondary-50 focus:bg-white transition-colors"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                            />
-                        </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-secondary-700 flex items-center gap-2">
+                                            <MapPin size={16} className="text-primary-500" /> Service Address
+                                        </label>
+                                        <Input
+                                            placeholder="Enter full address"
+                                            required
+                                            value={formData.address}
+                                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
 
-                        {/* Section 2: Schedule & Location */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-secondary-900 font-medium border-b border-secondary-100 pb-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary-100 text-secondary-600 text-xs">2</span>
-                                When & Where
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <Input
-                                    label="Date"
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className="bg-secondary-50 focus:bg-white"
-                                />
-                                <Input
-                                    label="Time"
-                                    type="time"
-                                    value={time}
-                                    onChange={(e) => setTime(e.target.value)}
-                                    className="bg-secondary-50 focus:bg-white"
-                                />
-                            </div>
-                            <Input
-                                label="Address"
-                                placeholder="House no, Street, Area"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                className="bg-secondary-50 focus:bg-white"
-                            />
-                        </div>
-
-                        {/* Section 3: Payment */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-secondary-900 font-medium border-b border-secondary-100 pb-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary-100 text-secondary-600 text-xs">3</span>
-                                Payment Method
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                {['Cash', 'Online', 'Exchange'].map((method) => (
-                                    <label
-                                        key={method}
-                                        className={`
-                                            flex-1 flex items-center justify-center p-3 rounded-lg border cursor-pointer transition-all
-                                            ${payment === method
-                                                ? 'border-primary-600 bg-primary-50 text-primary-700 font-bold ring-1 ring-primary-600 shadow-sm'
-                                                : 'border-secondary-200 hover:border-secondary-300 text-secondary-600 hover:bg-secondary-50'
-                                            }
-                                        `}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value={method}
-                                            checked={payment === method}
-                                            onChange={(e) => setPayment(e.target.value)}
-                                            className="sr-only"
                                         />
-                                        {method === 'Exchange' ? 'Service Exchange' : method}
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
+                                    </div>
 
-                        <div className="pt-4">
-                            <Button
-                                size="lg"
-                                className="w-full py-4 text-lg shadow-lg shadow-primary-500/20"
-                                onClick={handleSubmit}
-                            >
-                                Confirm & Submit Request
-                            </Button>
-                        </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-secondary-700 flex items-center gap-2">
+                                            <MessageSquare size={16} className="text-primary-500" /> Notes for Provider
+                                        </label>
+                                        <textarea
+                                            className="w-full p-4 rounded-xl border border-secondary-200 focus:ring-2 focus:ring-primary-500 outline-none min-h-[120px] transition-all"
+                                            placeholder="Tell the provider more about your requirements..."
+                                            value={formData.description}
+                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <Button className="w-full py-4 text-lg font-bold group" type="submit">
+                                        Continue to Review <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </form>
+                            </Card>
+                        )}
+
+                        {step === 2 && (
+                            <Card className="p-8 border-none shadow-xl animate-in fade-in zoom-in-95 duration-500">
+                                <h2 className="text-2xl font-bold text-secondary-900 mb-6">Review & Confirm</h2>
+                                <div className="space-y-6 bg-secondary-50/50 p-6 rounded-2xl border border-secondary-100">
+                                    <div className="flex justify-between border-b border-secondary-100 pb-4">
+                                        <span className="text-secondary-500">Service</span>
+                                        <span className="font-bold text-secondary-900">{selectedService.name}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-secondary-100 pb-4">
+                                        <span className="text-secondary-500">Schedule</span>
+                                        <span className="font-bold text-secondary-900">{formData.date} at {formData.time}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-secondary-100 pb-4">
+                                        <span className="text-secondary-500">Location</span>
+                                        <span className="font-bold text-secondary-900">{formData.address}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4 mt-8">
+                                    <Button variant="outline" className="flex-1" onClick={() => setStep(1)} disabled={loading}>Go Back</Button>
+                                    <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
+                                        {loading ? 'Submitting...' : 'Confirm Request'}
+                                    </Button>
+                                </div>
+                            </Card>
+                        )}
+
+                        {step === 3 && (
+                            <Card className="p-12 text-center border-none shadow-2xl animate-in zoom-in-95 duration-500">
+                                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <CheckCircle2 size={40} />
+                                </div>
+                                <h2 className="text-3xl font-bold text-secondary-900 mb-4">Request Sent!</h2>
+                                <p className="text-secondary-600 mb-8 max-w-sm mx-auto">
+                                    Your request has been successfully sent to <span className="font-bold text-secondary-900">{selectedService.name}</span>. You'll be notified once they respond.
+                                </p>
+                                <div className="flex flex-col gap-3">
+                                    <Button onClick={() => navigate('/notifications')} className="w-full">View My Notifications</Button>
+                                    <Button variant="ghost" onClick={() => navigate('/services')} className="w-full text-secondary-500">Return to Marketplace</Button>
+                                </div>
+                            </Card>
+                        )}
                     </div>
-                </Card>
+
+                    {/* Summary Side */}
+                    <div className="lg:col-span-1">
+                        <Card className="p-6 border-none shadow-lg sticky top-24 bg-primary-600 text-white overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                            <h3 className="text-lg font-bold mb-4 relative z-10">Service Summary</h3>
+                            <div className="space-y-4 relative z-10">
+                                <div>
+                                    <Badge className="bg-white/20 text-white border-none mb-2">{selectedService.category}</Badge>
+                                    <h4 className="font-bold text-xl">{selectedService.name}</h4>
+                                </div>
+                                <div className="pt-4 border-t border-white/20">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-primary-100 text-sm">Provider</span>
+                                        <span className="font-medium">{selectedService.providerUsername || selectedService.name}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-primary-100 text-sm">Hourly Rate</span>
+                                        <span className="font-bold text-lg">₹{selectedService.price}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );

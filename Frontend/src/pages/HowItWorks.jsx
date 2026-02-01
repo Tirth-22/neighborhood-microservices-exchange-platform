@@ -5,6 +5,18 @@ import { Search, UserPlus, Calendar, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const HowItWorks = () => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    // Robust role check helper
+    const getRole = (u) => {
+        if (!u) return '';
+        let r = u.role;
+        if (Array.isArray(r)) r = r[0];
+        if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+        return String(r || '').toLowerCase().trim();
+    };
+    const isProvider = getRole(user).includes('provider');
+
     const steps = [
         {
             icon: UserPlus,
@@ -59,24 +71,26 @@ const HowItWorks = () => {
                 </div>
 
                 {/* For Providers Section */}
-                <div className="mt-24">
-                    <Card className="bg-primary-600 text-white p-12 text-center rounded-3xl relative overflow-hidden">
-                        <div className="relative z-10">
-                            <h2 className="text-3xl font-bold mb-6">Want to earn money?</h2>
-                            <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
-                                Apply to become a provider. List your skills, set your prices, and start getting requests from your neighbors.
-                            </p>
-                            <div className="flex justify-center gap-4">
-                                <Link to="/offer-service">
-                                    <Button className="bg-white text-primary-600 hover:bg-primary-50 border-none">
-                                        Become a Provider
-                                    </Button>
-                                </Link>
+                {!isProvider && (
+                    <div className="mt-24">
+                        <Card className="bg-primary-600 text-white p-12 text-center rounded-3xl relative overflow-hidden">
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-bold mb-6">Want to earn money?</h2>
+                                <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+                                    Apply to become a provider. List your skills, set your prices, and start getting requests from your neighbors.
+                                </p>
+                                <div className="flex justify-center gap-4">
+                                    <Link to="/offer-service">
+                                        <Button className="bg-white text-primary-600 hover:bg-primary-50 border-none">
+                                            Become a Provider
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                    </Card>
-                </div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                        </Card>
+                    </div>
+                )}
             </div>
         </div>
     );

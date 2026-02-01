@@ -32,11 +32,23 @@ const RequestDetails = () => {
   };
 
   if (!request) {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const getRole = (u) => {
+      if (!u) return '';
+      let r = u.role;
+      if (Array.isArray(r)) r = r[0];
+      if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+      return String(r || '').toLowerCase().trim();
+    };
+    const isProvider = getRole(user).includes('provider');
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-secondary-50">
         <Card className="p-8 text-center">
           <p className="text-secondary-500 mb-4">Request not found</p>
-          <Button onClick={() => navigate('/my-requests')}>Back to Requests</Button>
+          <Button onClick={() => navigate(isProvider ? '/provider-dashboard' : '/my-requests')}>
+            Back to {isProvider ? 'Dashboard' : 'Requests'}
+          </Button>
         </Card>
       </div>
     );

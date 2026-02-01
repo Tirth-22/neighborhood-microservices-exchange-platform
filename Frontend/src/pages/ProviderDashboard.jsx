@@ -3,63 +3,79 @@ import Card from "../components/ui/Card";
 import { requestApi } from "../api/requestApi";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
-import { Check, X, Clock, LayoutDashboard, History, Zap } from "lucide-react";
+import { Check, Clock, LayoutDashboard, History } from "lucide-react";
 
 const ProviderDashboard = () => {
   const provider = JSON.parse(localStorage.getItem("currentUser"));
-  const [requests, setRequests] = useState([]);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [acceptedRequests, setAcceptedRequests] = useState([]);
+  const [completedRequests, setCompletedRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await requestApi.getPendingRequests();
-        // Also fetch accepted/completed if API supports
-        setRequests(response.data);
-      } catch (error) {
-        console.error("Failed to fetch requests", error);
-      }
-    };
-    fetchRequests();
-  }, []);
-
-  const pendingRequests = requests.filter(req => req.status === "PENDING" || req.status === "Pending");
-  const historyRequests = requests.filter(req => req.status !== "PENDING" && req.status !== "Pending");
-
-  const updateStatus = async (id, newStatus) => {
+  const fetchHistory = async () => {
+    setLoading(true);
     try {
-      if (newStatus === "accepted") {
-        await requestApi.acceptRequest(id);
-      } else if (newStatus === "rejected") {
-        await requestApi.rejectRequest(id);
-      }
-
-      // Refresh list
-      const response = await requestApi.getPendingRequests();
-      setRequests(response.data);
+      const [acceptedRes, completedRes] = await Promise.all([
+        requestApi.getAcceptedRequests(),
+        requestApi.getCompletedRequests()
+      ]);
+      setAcceptedRequests(acceptedRes.data || []);
+      setCompletedRequests(completedRes.data || []);
     } catch (error) {
-      console.error("Failed to update status", error);
+      console.error("Failed to fetch requests", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const historyRequests = [...acceptedRequests, ...completedRequests].sort((a, b) =>
+    new Date(b.createdAt || b.id) - new Date(a.createdAt || a.id)
+  );
+
   const stats = [
-    { label: "Total Requests", value: requests.length, icon: LayoutDashboard, color: "bg-blue-100 text-blue-600" },
-    { label: "Pending", value: pendingRequests.length, icon: Clock, color: "bg-yellow-100 text-yellow-600" },
-    { label: "Completed", value: historyRequests.filter(r => r.status === 'Completed' || r.status === 'accepted').length, icon: Check, color: "bg-green-100 text-green-600" },
+    {
+      label: "Active Jobs",
+      value: acceptedRequests.length,
+      icon: Clock,
+      color: "bg-blue-100 text-blue-600"
+    },
+    {
+      label: "Completed",
+      value: completedRequests.length,
+      icon: Check,
+      color: "bg-green-100 text-green-600"
+    },
+    {
+      label: "Total History",
+      value: historyRequests.length,
+      icon: LayoutDashboard,
+      color: "bg-purple-100 text-purple-600"
+    },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-secondary-50 py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-secondary-900">Provider Dashboard</h1>
-          <p className="text-secondary-600">Welcome back, {provider?.name || 'Provider'}</p>
+          <p className="text-secondary-600">Service Performance & History for {provider?.name || 'Provider'}</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {stats.map((stat, index) => (
-            <Card key={index} className="p-6 flex items-center justify-between">
+            <Card key={index} className="p-6 flex items-center justify-between border-none shadow-sm">
               <div>
                 <p className="text-secondary-500 text-sm font-medium">{stat.label}</p>
                 <p className="text-3xl font-bold text-secondary-900 mt-1">{stat.value}</p>
@@ -71,91 +87,56 @@ const ProviderDashboard = () => {
           ))}
         </div>
 
-        {/* content tabs */}
-        <div className="mb-6 flex space-x-4 border-b border-secondary-200">
-          <button
-            className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'pending' ? 'border-primary-600 text-primary-600' : 'border-transparent text-secondary-500 hover:text-secondary-700'}`}
-            onClick={() => setActiveTab('pending')}
-          >
-            Pending Requests ({pendingRequests.length})
-          </button>
-          <button
-            className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'history' ? 'border-primary-600 text-primary-600' : 'border-transparent text-secondary-500 hover:text-secondary-700'}`}
-            onClick={() => setActiveTab('history')}
-          >
-            History ({historyRequests.length})
-          </button>
+        <div className="mb-6 flex items-center justify-between border-b border-secondary-200 pb-3">
+          <div className="flex items-center gap-2">
+            <History size={20} className="text-secondary-400" />
+            <h2 className="text-xl font-bold text-secondary-900">Service History</h2>
+          </div>
+          <span className="text-sm text-secondary-500 font-medium">
+            Total Records: {historyRequests.length}
+          </span>
         </div>
 
         <div className="space-y-4">
-          {activeTab === 'pending' ? (
-            pendingRequests.length === 0 ? (
-              <Card className="text-center py-12">
-                <Zap className="mx-auto text-secondary-300 mb-3" size={48} />
-                <p className="text-secondary-500">No pending requests at the moment.</p>
-              </Card>
-            ) : (
-              pendingRequests.map((req) => (
-                <Card key={req.id} className="p-6">
-                  <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="warning">Pending Action</Badge>
-                        <span className="text-sm text-secondary-500">ID: #{req.id}</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-secondary-900 mb-1">{req.serviceName}</h3>
-                      <p className="text-secondary-600 mb-4">{req.description || "No description provided."}</p>
-
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-secondary-500">
-                        <p><strong className="text-secondary-700">Date:</strong> {req.date || 'Flexible'}</p>
-                        <p><strong className="text-secondary-700">Time:</strong> {req.time || 'Flexible'}</p>
-                        <p><strong className="text-secondary-700">Location:</strong> {req.address}</p>
-                        <p><strong className="text-secondary-700">Payment:</strong> {req.payment}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2 justify-center min-w-[140px]">
-                      <Button
-                        onClick={() => updateStatus(req.id, "accepted")}
-                        className="bg-green-600 hover:bg-green-700 text-white w-full flex items-center justify-center gap-2"
-                      >
-                        <Check size={16} /> Accept
-                      </Button>
-                      <Button
-                        onClick={() => updateStatus(req.id, "rejected")}
-                        variant="danger" // Assuming danger variant styling exists or generic red
-                        className="bg-red-600 hover:bg-red-700 text-white w-full flex items-center justify-center gap-2"
-
-                      >
-                        <X size={16} /> Reject
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )
+          {historyRequests.length === 0 ? (
+            <Card className="text-center py-12 border-none shadow-sm">
+              <History className="mx-auto text-secondary-300 mb-3" size={48} />
+              <p className="text-secondary-500 text-lg">No service records found.</p>
+              <p className="text-secondary-400 text-sm mt-1">Accept requests from your notifications to see them here.</p>
+            </Card>
           ) : (
-            historyRequests.length === 0 ? (
-              <Card className="text-center py-12">
-                <History className="mx-auto text-secondary-300 mb-3" size={48} />
-                <p className="text-secondary-500">No history available.</p>
-              </Card>
-            ) : (
-              historyRequests.map((req) => (
-                <Card key={req.id} className="p-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-secondary-900">{req.serviceName}</h3>
-                    <p className="text-sm text-secondary-500">{req.date}</p>
+            historyRequests.map((req) => (
+              <Card key={req.id} className="p-5 flex flex-col md:flex-row items-center justify-between hover:shadow-md transition-all border-none shadow-sm group">
+                <div className="flex-grow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-bold text-secondary-900 text-lg group-hover:text-primary-600 transition-colors">
+                      {req.title || "Service Request"}
+                    </h3>
+                    <Badge variant={req.status === 'ACCEPTED' ? 'primary' : req.status === 'COMPLETED' ? 'success' : 'danger'}>
+                      {req.status}
+                    </Badge>
                   </div>
-                  <Badge variant={req.status === 'accepted' ? 'success' : 'danger'}>
-                    {req.status}
-                  </Badge>
-                </Card>
-              ))
-            )
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm text-secondary-500">
+                    <p><span className="font-semibold text-secondary-700">Client:</span> {req.requestedBy}</p>
+                    <p><span className="font-semibold text-secondary-700">Type:</span> {req.serviceType}</p>
+                    {req.acceptedAt && (
+                      <p className="sm:col-span-2">
+                        <span className="font-semibold text-secondary-700">Started:</span> {new Date(req.acceptedAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-4 md:mt-0 flex items-center gap-3">
+                  {req.status === 'ACCEPTED' && (
+                    <Button variant="outline" size="sm" className="hidden sm:flex">
+                      Update Notes
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            ))
           )}
         </div>
-
       </div>
     </div>
   );

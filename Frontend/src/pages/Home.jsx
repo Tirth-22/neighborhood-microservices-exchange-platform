@@ -6,6 +6,18 @@ import { Search, MapPin, ArrowRight, Shield, Clock, ThumbsUp } from 'lucide-reac
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  // Robust role check helper
+  const getRole = (u) => {
+    if (!u) return '';
+    let r = u.role;
+    if (Array.isArray(r)) r = r[0];
+    if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+    return String(r || '').toLowerCase().trim();
+  };
+  const isProvider = getRole(user).includes('provider');
+
   const features = [
     {
       icon: Shield,
@@ -96,27 +108,29 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-primary-600 rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to offer your skills?</h2>
-              <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
-                Join thousands of neighbors earning money by helping others.
-                Sign up as a provider today and start getting requests.
-              </p>
-              <Link to="/offer-service">
-                <button className="bg-white text-primary-600 px-8 py-3 rounded-lg font-bold hover:bg-primary-50 transition-colors inline-flex items-center gap-2">
-                  Become a Provider <ArrowRight size={18} />
-                </button>
-              </Link>
+      {!isProvider && (
+        <section className="py-20 bg-white">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-primary-600 rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden">
+              <div className="relative z-10">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to offer your skills?</h2>
+                <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+                  Join thousands of neighbors earning money by helping others.
+                  Sign up as a provider today and start getting requests.
+                </p>
+                <Link to="/offer-service">
+                  <button className="bg-white text-primary-600 px-8 py-3 rounded-lg font-bold hover:bg-primary-50 transition-colors inline-flex items-center gap-2">
+                    Become a Provider <ArrowRight size={18} />
+                  </button>
+                </Link>
+              </div>
+              {/* Decorative circles */}
+              <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-80 h-80 bg-white opacity-10 rounded-full translate-x-1/3 translate-y-1/3 pointer-events-none" />
             </div>
-            {/* Decorative circles */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white opacity-10 rounded-full translate-x-1/3 translate-y-1/3 pointer-events-none" />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };
