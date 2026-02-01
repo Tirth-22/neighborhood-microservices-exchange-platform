@@ -30,6 +30,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
+    { name: "Dashboard", path: "/provider-dashboard" },
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
   ].filter(link => {
@@ -43,9 +44,9 @@ const Navbar = () => {
       return link.path !== '/my-requests';
     }
 
-    // 3. Regular User Rules: hide Offer Service
+    // 3. Regular User Rules: hide Offer Service and Provider Dashboard
     if (isUser) {
-      return link.path !== '/offer-service';
+      return link.path !== '/offer-service' && link.path !== '/provider-dashboard';
     }
 
     return true;

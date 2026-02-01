@@ -10,47 +10,52 @@ const MyRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const fetchRequests = async () => {
+        setLoading(true);
+        try {
+            const response = await requestApi.getMyRequests();
+            setRequests(response.data);
+        } catch (error) {
+            console.error("Failed to fetch requests", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchRequests = async () => {
-            try {
-                const response = await requestApi.getMyRequests();
-                setRequests(response.data); // Axios returns data in .data
-            } catch (error) {
-                console.error("Failed to fetch requests", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchRequests();
     }, []);
 
     const getStatusVariant = (status) => {
-        switch (status) {
-            case "Pending": return "warning";
-            case "Accepted":
+        switch (String(status).toLowerCase()) {
+            case "pending": return "warning";
             case "accepted": return "primary";
-            case "Completed":
             case "completed": return "success";
-            case "Cancelled": return "danger";
+            case "cancelled":
+            case "rejected": return "danger";
             default: return "default";
         }
     };
 
-    const handleCancel = (id) => {
-        const updateRequests = requests.map((req) =>
-            req.id === id ? { ...req, status: "Cancelled" } : req
-        );
-        localStorage.setItem("requests", JSON.stringify(updateRequests));
-        setRequests(updateRequests);
-    }
+    const handleCancel = async (id) => {
+        try {
+            await requestApi.cancelRequest(id);
+            fetchRequests();
+        } catch (error) {
+            console.error("Failed to cancel request", error);
+            alert("Failed to cancel request");
+        }
+    };
 
-    const handleComplete = (id) => {
-        const updateRequests = requests.map((req) =>
-            req.id === id ? { ...req, status: "Completed" } : req
-        );
-        localStorage.setItem("requests", JSON.stringify(updateRequests));
-        setRequests(updateRequests);
-    }
+    const handleComplete = async (id) => {
+        try {
+            await requestApi.completeRequest(id);
+            fetchRequests();
+        } catch (error) {
+            console.error("Failed to mark request as complete", error);
+            alert("Failed to complete request");
+        }
+    };
 
     return (
         <div className="min-h-screen bg-secondary-50 py-10">
@@ -65,7 +70,11 @@ const MyRequests = () => {
                     </Link>
                 </div>
 
-                {requests.length === 0 ? (
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                    </div>
+                ) : requests.length === 0 ? (
                     <Card className="text-center py-16 px-4">
                         <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Clock className="text-secondary-400" size={32} />
@@ -88,22 +97,22 @@ const MyRequests = () => {
                                             <Badge variant={getStatusVariant(req.status)}>{req.status}</Badge>
                                         </div>
                                         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
-                                            <h3 className="text-lg font-bold text-secondary-900">{req.serviceName}</h3>
+                                            <h3 className="text-lg font-bold text-secondary-900">{req.title || "Service Request"}</h3>
                                             <span className="hidden md:inline-block text-secondary-300">•</span>
                                             <div className="flex items-center text-secondary-600">
                                                 <User size={14} className="mr-1" />
-                                                <span className="text-sm">{req.provider}</span>
+                                                <span className="text-sm">{req.providerUsername || "Checking provider..."}</span>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-secondary-500">
                                             <div className="flex items-center">
                                                 <Calendar size={14} className="mr-1.5" />
-                                                {req.date}
+                                                {new Date(req.createdAt).toLocaleDateString()}
                                             </div>
                                             <div className="flex items-center">
                                                 <Clock size={14} className="mr-1.5" />
-                                                {req.time}
+                                                {new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
                                             {req.address && (
                                                 <div className="flex items-center">
@@ -120,12 +129,12 @@ const MyRequests = () => {
                                         </div>
 
                                         <div className="flex gap-2">
-                                            {req.status === "Pending" && (
+                                            {(String(req.status).toLowerCase() === "pending") && (
                                                 <Button size="sm" variant="danger" onClick={() => handleCancel(req.id)}>
                                                     Cancel
                                                 </Button>
                                             )}
-                                            {req.status === "accepted" && (
+                                            {(String(req.status).toLowerCase() === "accepted") && (
                                                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleComplete(req.id)}>
                                                     Mark Complete
                                                 </Button>

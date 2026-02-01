@@ -3,6 +3,18 @@ import { Link } from 'react-router-dom';
 import { House } from 'lucide-react';
 
 const Footer = () => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    // Robust role check helper
+    const getRole = (u) => {
+        if (!u) return '';
+        let r = u.role;
+        if (Array.isArray(r)) r = r[0];
+        if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+        return String(r || '').toUpperCase().trim();
+    };
+    const userRole = getRole(user);
+
     return (
         <footer className="bg-white border-t border-secondary-200 py-12 mt-auto">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +43,17 @@ const Footer = () => {
                             <Link to="/" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">Home</Link>
                             <Link to="/how-it-works" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">How it Works</Link>
                             <Link to="/services" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">Browse Services</Link>
-                            <Link to="/offer-service" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">Become a Provider</Link>
+
+                            {/* Role-based links */}
+                            {(!user || userRole !== 'PROVIDER') && (
+                                <Link to="/offer-service" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">Become a Provider</Link>
+                            )}
+                            {user && userRole === 'USER' && (
+                                <Link to="/my-requests" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">My Requests</Link>
+                            )}
+                            {user && userRole === 'PROVIDER' && (
+                                <Link to="/provider-dashboard" className="text-sm text-secondary-600 hover:text-primary-600 transition-colors w-fit">Provider Dashboard</Link>
+                            )}
                         </div>
                     </div>
 

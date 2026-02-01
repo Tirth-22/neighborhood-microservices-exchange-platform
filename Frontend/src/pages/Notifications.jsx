@@ -66,14 +66,23 @@ const Notifications = () => {
     return (
         <div className="min-h-screen bg-secondary-50 py-10">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="bg-primary-100 p-2 rounded-lg text-primary-600">
-                        <Bell size={24} />
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary-100 p-2 rounded-lg text-primary-600">
+                            <Bell size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-secondary-900">Notifications</h2>
+                            <p className="text-secondary-500 text-sm">Updates on your service requests</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-secondary-900">Notifications</h2>
-                        <p className="text-secondary-500 text-sm">Updates on your service requests</p>
-                    </div>
+                    {user && String(user.role).toUpperCase().includes('PROVIDER') && (
+                        <Link to="/provider-dashboard">
+                            <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
+                                Back to Dashboard
+                            </Button>
+                        </Link>
+                    )}
                 </div>
 
                 {loading ? (
