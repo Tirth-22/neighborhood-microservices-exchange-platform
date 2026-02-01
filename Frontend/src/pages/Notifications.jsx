@@ -48,10 +48,19 @@ const Notifications = () => {
         }
     };
 
-    const getStatusIcon = (status) => {
-        if (status === 'accepted' || status === 'Accepted' || status === 'Completed') return <CheckCircle size={20} className="text-green-500" />;
-        if (status === 'rejected' || status === 'Rejected' || status === 'Cancelled') return <XCircle size={20} className="text-red-500" />;
-        return <Clock size={20} className="text-yellow-500" />;
+    const getStatusIcon = (type) => {
+        switch (type) {
+            case 'REQUEST_CREATED':
+                return <Clock size={20} className="text-primary-500" />;
+            case 'REQUEST_ACCEPTED':
+                return <CheckCircle size={20} className="text-green-500" />;
+            case 'REQUEST_REJECTED':
+                return <XCircle size={20} className="text-red-500" />;
+            case 'REQUEST_COMPLETED':
+                return <CheckCircle size={20} className="text-blue-500" />;
+            default:
+                return <Bell size={20} className="text-secondary-400" />;
+        }
     };
 
     return (
@@ -82,7 +91,7 @@ const Notifications = () => {
                             <Card key={notif.id} className="p-5 hover:bg-secondary-50/50 transition-colors">
                                 <div className="flex gap-4 items-start">
                                     <div className="mt-1">
-                                        <Clock size={20} className="text-primary-500" />
+                                        {getStatusIcon(notif.type)}
                                     </div>
                                     <div className="flex-grow">
                                         <p className="text-secondary-900 font-medium">
@@ -101,7 +110,7 @@ const Notifications = () => {
                                                     disabled={actionLoading === notif.id}
                                                 >
                                                     <Check size={16} />
-                                                    {actionLoading === notif.id ? 'Processing...' : 'Accept'}
+                                                    {actionLoading === notif.id ? 'Accepting...' : 'Accept'}
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -111,14 +120,14 @@ const Notifications = () => {
                                                     disabled={actionLoading === notif.id}
                                                 >
                                                     <X size={16} />
-                                                    Reject
+                                                    {actionLoading === notif.id ? 'Rejecting...' : 'Reject'}
                                                 </Button>
                                             </div>
                                         )}
                                     </div>
-                                    {!notif.read && !notif.type && (
+                                    {!notif.read && (
                                         <div className="ml-auto">
-                                            <span className="w-3 h-3 bg-red-500 rounded-full inline-block"></span>
+                                            <span className="w-2 h-2 bg-primary-600 rounded-full inline-block"></span>
                                         </div>
                                     )}
                                 </div>
