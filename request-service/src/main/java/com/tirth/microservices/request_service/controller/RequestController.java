@@ -39,7 +39,7 @@ public class RequestController {
             @RequestHeader("X-User-Role") String role
     ) {
         if (!role.equalsIgnoreCase("USER")) {
-            throw new RuntimeException("Only USER can create requests");
+            throw new RuntimeException("Only USER can view their requests");
         }
         return service.getMyRequests(username);
     }

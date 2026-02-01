@@ -35,6 +35,8 @@ public class ServiceRequest {
     @Column(nullable = false)
     private RequestStatus status;
 
+    private String providerUsername;
+
     private String acceptedBy;
     private LocalDateTime acceptedAt;
 

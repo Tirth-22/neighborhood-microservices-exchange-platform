@@ -55,12 +55,23 @@ public class RequestServiceImpl implements RequestService {
             serviceType = ServiceType.OTHER;
         }
 
+        String providerUsername = null;
+        try {
+            var lookupResponse = providerClient.getProviderByService(serviceType.name());
+            if (lookupResponse != null) {
+                providerUsername = lookupResponse.getUsername();
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to lookup provider: " + e.getMessage());
+        }
+
         ServiceRequest serviceRequest = ServiceRequest.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .requestedBy(username)
                 .serviceType(serviceType)
                 .status(RequestStatus.PENDING)
+                .providerUsername(providerUsername)
                 .build();
 
         ServiceRequest saved = repository.save(serviceRequest);
@@ -69,7 +80,7 @@ public class RequestServiceImpl implements RequestService {
         com.tirth.microservices.request_service.event.RequestCreatedEvent event = new com.tirth.microservices.request_service.event.RequestCreatedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
-                saved.getProviderUsername(),
+                providerUsername,
                 saved.getTitle(),
                 java.time.LocalDateTime.now().toString()
         );
@@ -161,7 +172,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ServiceRequest> getPendingRequests(String providerUsername) {
-        return repository.findByAcceptedByAndStatus(
+        return repository.findByProviderUsernameAndStatus(
                 providerUsername,
                 RequestStatus.PENDING
         );

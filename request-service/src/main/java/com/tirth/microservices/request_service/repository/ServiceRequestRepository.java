@@ -13,5 +13,10 @@ public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, 
             RequestStatus status
     );
 
+    List<ServiceRequest> findByProviderUsernameAndStatus(
+            String providerUsername,
+            RequestStatus status
+    );
+
     List<ServiceRequest> findByRequestedBy(String requestedBy);
 }
