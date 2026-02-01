@@ -21,7 +21,9 @@ public class NotificationServiceImpl implements NotificationService {
                 n.getId(),
                 n.getMessage(),
                 n.isRead(),
-                n.getCreatedAt()
+                n.getCreatedAt(),
+                n.getRequestId(),
+                n.getType()
         );
     }
 

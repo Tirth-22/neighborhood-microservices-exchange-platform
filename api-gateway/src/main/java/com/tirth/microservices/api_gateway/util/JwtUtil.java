@@ -11,8 +11,7 @@ import java.security.Key;
 public class JwtUtil {
 
     // SAME SECRET AS AUTH-SERVICE (VERY IMPORTANT)
-    private static final String SECRET =
-            "THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM";
+    private static final String SECRET = "THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM";
 
     private final Key key =
             Keys.hmacShaKeyFor(SECRET.getBytes());

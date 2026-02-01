@@ -18,6 +18,8 @@ public class Notification {
 
     private String userId;     // who receives notification
     private String message;
+    private Long requestId;
+    private String type;
 
     private boolean read;
 

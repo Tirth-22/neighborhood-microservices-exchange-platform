@@ -4,39 +4,61 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Card from "../components/ui/Card";
 
+import { authApi } from "../api/authApi";
+
 const SignUp = () => {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSignup = () => {
-    if (!name || !email || !password || !confirmPassword || !role) {
-      alert("Please fill all fields");
+  const handleSignup = async () => {
+    setError("");
+    if (!username || !email || !password || !confirmPassword || !role) {
+      setError("Please fill all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
-    const fakeUser = {
-      id: "user_" + Date.now(),
-      name,
-      email,
-      role,
-    };
+    setLoading(true);
+    try {
+      // Backend RegisterRequest: { username, password, email, role }
+      const payload = {
+        username,
+        password,
+        email,
+        role: role.toUpperCase() // Backend expects uppercase enum likely, or string
+      };
 
-    localStorage.setItem("currentUser", JSON.stringify(fakeUser));
-    navigate("/");
+      const response = await authApi.register(payload);
+
+      if (response.data.success) {
+        // On success, redirect to login
+        alert("Registration successful! Please login.");
+        navigate("/login");
+      } else {
+        setError(response.data.message || "Registration failed");
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError("Registration failed. Server unavailable or Gateway Error.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isDisabled =
-    !name || !email || !password || !confirmPassword || !role;
+    !username || !email || !password || !confirmPassword || !role || loading;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -55,12 +77,17 @@ const SignUp = () => {
 
         <Card className="p-8 space-y-6">
           <div className="space-y-4">
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                {error}
+              </div>
+            )}
             <Input
-              label="Full Name"
+              label="Username"
               type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
 
             <Input
@@ -108,7 +135,7 @@ const SignUp = () => {
             disabled={isDisabled}
             className="w-full py-2.5"
           >
-            Create Account
+            {loading ? "Creating Account..." : "Create Account"}
           </Button>
 
           <div className="text-center">

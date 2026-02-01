@@ -3,51 +3,54 @@ import { useState } from "react";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Card from "../components/ui/Card";
+import { authApi } from "../api/authApi";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(""); // Backend expects username
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [role, setRole] = useState("user");
-  const isDisabled = !email || !password;
+  const [role, setRole] = useState("user"); // Still useful for UI routing, though backend returns role
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const isDisabled = !username || !password || loading;
 
-  const handleLogin = (role) => {
-    let userData = {
-      email,
-      role,
-      id: email,
-      name: "User"
-    };
+  const handleLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      // Backend LoginRequest expects { username, password }
+      // If user enters email, we assume backend handles it or we map it. 
+      // AuthController uses findByUsername. If users register with email as username, this works.
+      const response = await authApi.login({ username, password });
 
-    if (role === "provider") {
-      const emailLower = email.toLowerCase();
-      if (emailLower.includes("tirth")) {
-        userData.id = "provider_tirth";
-        userData.name = "Tirth";
-      } else if (emailLower.includes("harshit")) {
-        userData.id = "provider_harshit";
-        userData.name = "Harshit";
-      } else if (emailLower.includes("rushil")) {
-        userData.id = "provider_rushil";
-        userData.name = "Rushil";
-      } else if (emailLower.includes("yash")) {
-        userData.id = "provider_yash";
-        userData.name = "Yash";
+      if (response.data.success) {
+        const { token, role: backendRole } = response.data;
+
+        const userData = {
+          name: username, // Or fetch profile
+          role: backendRole, // Trust backend role
+          token: token,
+          id: username // Use username as ID for now
+        };
+
+        localStorage.setItem("currentUser", JSON.stringify(userData));
+        localStorage.setItem("token", token);
+
+        if (backendRole === "ADMIN") {
+          navigate("/admin");
+        } else if (backendRole === "PROVIDER") {
+          navigate("/provider-dashboard");
+        } else {
+          navigate("/services");
+        }
       } else {
-        userData.id = "provider_yash"; // Default fallback
-        userData.name = "Yash";
+        setError(response.data.message || "Login failed");
       }
-    } else {
-      // For normal users, maybe extract name from email for better UI
-      userData.name = email.split('@')[0];
-    }
-
-    localStorage.setItem("currentUser", JSON.stringify(userData));
-
-    if (role === "provider") {
-      navigate("/provider-dashboard");
-    } else {
-      navigate("/services");
+    } catch (err) {
+      console.error(err);
+      setError("Invalid credentials or server error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,12 +71,17 @@ const Login = () => {
 
         <Card className="p-8 space-y-6">
           <div className="space-y-4">
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                {error}
+              </div>
+            )}
             <Input
-              label="Email address"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              label="Username / Email"
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <Input
               label="Password"
@@ -99,11 +107,11 @@ const Login = () => {
           </div>
 
           <Button
-            onClick={() => handleLogin(role)}
+            onClick={handleLogin}
             disabled={isDisabled}
             className="w-full py-2.5"
           >
-            Sign in
+            {loading ? "Signing in..." : "Sign in"}
           </Button>
         </Card>
       </div>

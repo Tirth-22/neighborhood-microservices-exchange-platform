@@ -1,6 +1,7 @@
 package com.tirth.microservices.request_service.controller;
 
 import com.tirth.microservices.request_service.dto.CreateRequestDto;
+import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
@@ -25,11 +26,10 @@ public class RequestController {
 
     @PostMapping
     public ServiceRequestResponseDTO createRequest(
-            @RequestBody CreateRequestDto dto,
-            @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
+            @RequestBody CreateRequestRequest request,
+            @RequestHeader("X-User-Name") String username
     ) {
-        return service.createRequest(dto, username, role);
+        return service.createRequest(username, request);
     }
 
 
@@ -39,7 +39,7 @@ public class RequestController {
             @RequestHeader("X-User-Role") String role
     ) {
         if (!role.equalsIgnoreCase("USER")) {
-            throw new RuntimeException("Only USER can create requests");
+            throw new RuntimeException("Only USER can view their requests");
         }
         return service.getMyRequests(username);
     }
@@ -77,11 +77,14 @@ public class RequestController {
 
 
     @GetMapping("/pending")
-    public List<ServiceRequest> getPendingRequests(@RequestHeader("X-User-Role") String role) {
+    public List<ServiceRequest> getPendingRequests(
+            @RequestHeader("X-User-Role") String role,
+            @RequestHeader("X-User-Name") String username
+    ) {
         if (!role.equals("PROVIDER")) {
             throw new UnauthorizedActionException("Only provider allowed");
         }
-        return service.getPendingRequests();
+        return service.getPendingRequests(username);
     }
 
     @GetMapping("/accepted")

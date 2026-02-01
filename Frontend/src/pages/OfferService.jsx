@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { providerApi } from "../api/providerApi";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
@@ -23,44 +24,34 @@ const OfferService = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    const newService = {
-      id: Date.now(),
-      name: formData.name, // Provider Name
-      email: formData.email,
-      category: formData.category === "Select category" ? formData.serviceName : formData.category, // Use category or custom name if needed, aligning with ServiceCard expectation
-      // Actually ServiceCard uses 'category' for the tag and 'name' for the provider name? 
-      // Let's check ServiceCard. 
-      // ServiceCard: {service.name} is displayed as the main title? No.
-      // ServiceCard line 18: {service.name} is the Title.
-      // ServiceCard line 14: {service.category} is the Badge.
-      // Wait, in previous mock data: name="Tirth", category="IT-DSA".
-      // So 'name' is the Provider Name? Or Service Name?
-      // "Tirth" sounds like Provider Name. "IT-DSA" is category.
-      // Let's look at RequestService.jsx:
-      // provider: selectedService?.name
-      // serviceName: selectedService?.category
-      // So 'name' IS the Provider Name.
-      // And 'category' is the Service Name/Type.
+  const handleSubmit = async () => {
+    try {
+      // Map frontend category to backend Enum
+      const categoryMap = {
+        "Plumbing": "PLUMBER",
+        "Electrical": "ELECTRICIAN",
+        "Teaching": "OTHER", // Or add TEACHER to backend if needed
+        "Cleaning": "CLEANING",
+        "Delivery": "OTHER", // Or add DELIVERY
+        "Other": "OTHER"
+      };
 
-      // So we should map:
-      // service.name = formData.name (Provider Name)
-      // service.category = formData.serviceName (The actual service title, e.g. "Plumbing Repair")
+      const backendCategory = categoryMap[formData.category] || "OTHER";
 
-      // Wait, existing data: category="IT-DSA", name="Tirth".
-      // If I offer "Plumbing", category should be "Plumbing". name should be "Tirth".
+      const payload = {
+        name: formData.serviceName, // Service Title (e.g. "Home Cleaning")
+        description: formData.description || "No description provided.",
+        price: parseFloat(formData.price),
+        category: backendCategory
+      };
 
-      name: formData.name,
-      category: formData.serviceName, // Using 'serviceName' input as the main Category/Service Title
-      price: formData.price,
-      providerId: currentUser?.id || "guest_provider_" + Date.now(),
-      description: formData.description
-    };
-
-    const existingServices = JSON.parse(localStorage.getItem("services")) || [];
-    existingServices.push(newService);
-    localStorage.setItem("services", JSON.stringify(existingServices));
-    navigate("/services");
+      await providerApi.createService(payload);
+      alert("Service Created Successfully!");
+      navigate("/services");
+    } catch (error) {
+      console.error("Failed to create service", error);
+      alert("Failed to offer service: " + (error.response?.data?.message || error.message));
+    }
   };
 
   return (
@@ -82,82 +73,102 @@ const OfferService = () => {
 
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label="Provider Name"
-                name="name"
-                value={formData.name}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Provider Name
+                </label>
+                <input
+                  name="name"
+                  value={formData.name || ''}
+                  onChange={handleChange}
+                  placeholder="Your Name"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Service Title / Category
+              </label>
+              <input
+                name="serviceName"
+                value={formData.serviceName}
                 onChange={handleChange}
-                placeholder="Your Name"
-              />
-              <Input
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
+                placeholder="e.g. Professional Plumbing, Math Tutor"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            <Input
-              label="Service Title / Category"
-              name="serviceName"
-              value={formData.serviceName}
-              onChange={handleChange}
-              placeholder="e.g. Professional Plumbing, Math Tutor"
-            />
-
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category Type
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option>Select category</option>
-                <option>Plumbing</option>
-                <option>Electrical</option>
-                <option>Teaching</option>
-                <option>Cleaning</option>
-                <option>Delivery</option>
-                <option>Other</option>
+                <option value="">Select category</option>
+                <option value="Plumbing">Plumbing</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Teaching">Teaching</option>
+                <option value="Cleaning">Cleaning</option>
+                <option value="Delivery">Delivery</option>
+                <option value="Other">Other</option>
               </select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label="Price (per hour)"
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="₹ Amount"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (per hour)
+                </label>
+                <input
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="₹ Amount"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
               <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Availability
                 </label>
                 <select
                   name="availability"
                   value={formData.availability}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option>Select availability</option>
-                  <option>Morning</option>
-                  <option>Afternoon</option>
-                  <option>Evening</option>
-                  <option>Full Day</option>
+                  <option value="">Select availability</option>
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
+                  <option value="Full Day">Full Day</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Service Description
               </label>
               <textarea
@@ -165,8 +176,8 @@ const OfferService = () => {
                 rows="4"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe your service experience, qualifications, and what you offer..."
-                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Describe your service..."
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 

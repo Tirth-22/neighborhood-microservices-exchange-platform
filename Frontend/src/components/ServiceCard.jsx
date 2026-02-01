@@ -4,7 +4,7 @@ import Button from './ui/Button';
 import Badge from './ui/Badge';
 import { User, Tag, IndianRupee } from 'lucide-react';
 
-const ServiceCard = ({ service, onRequest }) => {
+const ServiceCard = ({ service, onRequest, isProvider }) => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
     return (
@@ -31,19 +31,15 @@ const ServiceCard = ({ service, onRequest }) => {
                 </div>
             </div>
 
-            {currentUser?.role !== 'provider' ? (
-                <Button
-                    variant="primary"
-                    className="w-full mt-auto"
-                    onClick={() => onRequest(service)}
-                >
-                    Request Service
-                </Button>
-            ) : (
-                <div className="w-full mt-auto p-2 bg-secondary-50 text-secondary-500 text-sm text-center rounded-lg border border-secondary-200">
-                    Provider View Only
-                </div>
-            )}
+            <Button
+                variant="primary"
+                className="w-full mt-auto"
+                onClick={() => onRequest(service)}
+                disabled={isProvider}
+                title={isProvider ? "Providers cannot request services" : ""}
+            >
+                {isProvider ? "Provider View Only" : "Request Service"}
+            </Button>
         </Card>
     );
 };

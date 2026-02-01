@@ -22,7 +22,11 @@ public class RequestAcceptedConsumer {
             topics = "request.accepted",
             groupId = "notification-group-final"
     )
-    public void consumeAccepted(RequestAcceptedEvent event) {
+    public void consumeAccepted(String message) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        com.tirth.microservices.notification_service.event.RequestAcceptedEvent event =
+                mapper.readValue(message, com.tirth.microservices.notification_service.event.RequestAcceptedEvent.class);
 
         System.out.println("ACCEPT EVENT RECEIVED: " + event);
 
@@ -45,7 +49,11 @@ public class RequestAcceptedConsumer {
             topics = "request.rejected",
             groupId = "notification-group-final"
     )
-    public void consumeRejected(RequestRejectedEvent event) {
+    public void consumeRejected(String message) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        com.tirth.microservices.notification_service.event.RequestRejectedEvent event =
+                mapper.readValue(message, com.tirth.microservices.notification_service.event.RequestRejectedEvent.class);
 
         System.out.println("REJECT EVENT RECEIVED: " + event);
 
@@ -87,6 +95,34 @@ public class RequestAcceptedConsumer {
                 .build();
 
         notificationRepository.save(notification);
+    }
+
+    @KafkaListener(
+            topics = "request.created",
+            groupId = "notification-group-final"
+    )
+    public void consumeCreated(String message) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        com.tirth.microservices.notification_service.event.RequestCreatedEvent event =
+                mapper.readValue(message, com.tirth.microservices.notification_service.event.RequestCreatedEvent.class);
+
+        System.out.println("CREATED EVENT RECEIVED: " + event);
+
+        Notification notification = Notification.builder()
+                .userId(event.getProviderUsername()) // Send to Provider
+                .message(
+                        "New Request Received: " + event.getTitle() +
+                                " from " + event.getRequestedBy()
+                )
+                .requestId(event.getRequestId())
+                .type("REQUEST_CREATED")
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+        System.out.println("Created notification saved for provider = " + event.getProviderUsername());
     }
 
 
