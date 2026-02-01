@@ -2,32 +2,51 @@ import { useState, useEffect } from "react";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
-import { Bell, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Bell, CheckCircle, XCircle, Clock, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { requestApi } from "../api/requestApi";
 
 const Notifications = () => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(null);
+
+    const fetchNotifications = async () => {
+        if (!user) return;
+        try {
+            const { default: api } = await import("../api/axiosInstance");
+            const response = await api.get("/notifications/my");
+            setNotifications(response.data.content || []);
+        } catch (error) {
+            console.error("Failed to fetch notifications", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchNotifications = async () => {
-            if (!user) return;
-            try {
-                // We need to implement this API call in a new file or inline it here
-                // For now assuming we add it to 'requestApi' or similar, but let's use fetch directly or axios
-                // Actually, let's create a notificationApi helper first? Or just cheat and use axiosInstance
-                const { default: api } = await import("../api/axiosInstance");
-                const response = await api.get("/notifications/my");
-                setNotifications(response.data.content || []);
-            } catch (error) {
-                console.error("Failed to fetch notifications", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchNotifications();
     }, []);
+
+    const handleAction = async (requestId, action, notificationId) => {
+        setActionLoading(notificationId);
+        try {
+            if (action === 'accept') {
+                await requestApi.acceptRequest(requestId);
+            } else {
+                await requestApi.rejectRequest(requestId);
+            }
+            // Mark notification as read or just refresh
+            const { default: api } = await import("../api/axiosInstance");
+            await api.put(`/notifications/${notificationId}/read`);
+            fetchNotifications();
+        } catch (error) {
+            console.error(`Failed to ${action} request`, error);
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     const getStatusIcon = (status) => {
         if (status === 'accepted' || status === 'Accepted' || status === 'Completed') return <CheckCircle size={20} className="text-green-500" />;
@@ -48,7 +67,11 @@ const Notifications = () => {
                     </div>
                 </div>
 
-                {notifications.length === 0 ? (
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                    </div>
+                ) : notifications.length === 0 ? (
                     <Card className="text-center py-12">
                         <Bell className="mx-auto text-secondary-300 mb-3" size={48} />
                         <p className="text-secondary-500">No new notifications</p>
@@ -56,23 +79,49 @@ const Notifications = () => {
                 ) : (
                     <div className="space-y-4">
                         {notifications.map((notif) => (
-                            <Card key={notif.id} className="p-5 flex gap-4 items-start hover:bg-secondary-50/50 transition-colors">
-                                <div className="mt-1">
-                                    <Clock size={20} className="text-primary-500" />
-                                </div>
-                                <div className="flex-grow">
-                                    <p className="text-secondary-900 font-medium">
-                                        {notif.message}
-                                    </p>
-                                    <p className="text-sm text-secondary-500 mt-1">
-                                        {new Date(notif.createdAt).toLocaleString()}
-                                    </p>
-                                </div>
-                                {!notif.read && (
-                                    <div className="ml-auto">
-                                        <span className="w-3 h-3 bg-red-500 rounded-full inline-block"></span>
+                            <Card key={notif.id} className="p-5 hover:bg-secondary-50/50 transition-colors">
+                                <div className="flex gap-4 items-start">
+                                    <div className="mt-1">
+                                        <Clock size={20} className="text-primary-500" />
                                     </div>
-                                )}
+                                    <div className="flex-grow">
+                                        <p className="text-secondary-900 font-medium">
+                                            {notif.message}
+                                        </p>
+                                        <p className="text-sm text-secondary-500 mt-1">
+                                            {new Date(notif.createdAt).toLocaleString()}
+                                        </p>
+
+                                        {notif.type === 'REQUEST_CREATED' && !notif.read && (
+                                            <div className="flex gap-3 mt-4">
+                                                <Button
+                                                    size="sm"
+                                                    className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
+                                                    onClick={() => handleAction(notif.requestId, 'accept', notif.id)}
+                                                    disabled={actionLoading === notif.id}
+                                                >
+                                                    <Check size={16} />
+                                                    {actionLoading === notif.id ? 'Processing...' : 'Accept'}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="flex items-center gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                                                    onClick={() => handleAction(notif.requestId, 'reject', notif.id)}
+                                                    disabled={actionLoading === notif.id}
+                                                >
+                                                    <X size={16} />
+                                                    Reject
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {!notif.read && !notif.type && (
+                                        <div className="ml-auto">
+                                            <span className="w-3 h-3 bg-red-500 rounded-full inline-block"></span>
+                                        </div>
+                                    )}
+                                </div>
                             </Card>
                         ))}
                     </div>
