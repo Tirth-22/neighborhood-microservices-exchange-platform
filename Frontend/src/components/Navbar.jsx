@@ -24,8 +24,9 @@ const Navbar = () => {
     return String(r || '').toLowerCase().trim();
   };
 
-  const isProvider = getRole(user).includes('provider');
-  const isUser = getRole(user).includes('user') && !isProvider;
+  const role = getRole(user);
+  const isProvider = role.includes('provider');
+  const isUser = role.includes('user') && !isProvider;
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -34,18 +35,15 @@ const Navbar = () => {
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
   ].filter(link => {
-    // 1. Guest Check: only Home and Services are public
-    if (!user) {
-      return link.path === "/" || link.path === "/services";
-    }
+    if (!user) return link.path === "/" || link.path === "/services";
 
-    // 2. Provider Rules: hide My Requests (they see it in dashboard)
     if (isProvider) {
+      // Providers see Dashboard and Offer Service, but not My Requests (synced with dashboard)
       return link.path !== '/my-requests';
     }
 
-    // 3. Regular User Rules: hide Offer Service and Provider Dashboard
     if (isUser) {
+      // Users see My Requests, but not Dashboard or Offer Service
       return link.path !== '/offer-service' && link.path !== '/provider-dashboard';
     }
 
@@ -64,7 +62,7 @@ const Navbar = () => {
             <div className="bg-primary-600 p-2 rounded-lg group-hover:bg-primary-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
             </div>
-            <span className="text-xl font-bold text-secondary-900 tracking-tight">NeighborHub <span className="text-[10px] text-primary-500 font-mono">v1.1</span></span>
+            <span className="text-xl font-bold text-secondary-900 tracking-tight">NeighborHub</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -208,3 +206,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

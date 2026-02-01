@@ -4,8 +4,19 @@ import Button from './ui/Button';
 import Badge from './ui/Badge';
 import { User, Tag, IndianRupee } from 'lucide-react';
 
-const ServiceCard = ({ service, onRequest, isProvider }) => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const ServiceCard = ({ service, onRequest }) => {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    // Robust role check helper
+    const getRole = (u) => {
+        if (!u) return '';
+        let r = u.role;
+        if (Array.isArray(r)) r = r[0];
+        if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
+        return String(r || '').toLowerCase().trim();
+    };
+
+    const isProvider = getRole(user).includes('provider');
 
     return (
         <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col h-full border-secondary-200 cursor-default">
@@ -45,3 +56,4 @@ const ServiceCard = ({ service, onRequest, isProvider }) => {
 };
 
 export default ServiceCard;
+

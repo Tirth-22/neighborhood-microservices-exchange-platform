@@ -5,6 +5,7 @@ import Button from "../components/ui/Button";
 import { Bell, CheckCircle, XCircle, Clock, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { requestApi } from "../api/requestApi";
+import api from "../api/axiosInstance";
 
 const Notifications = () => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -13,9 +14,11 @@ const Notifications = () => {
     const [actionLoading, setActionLoading] = useState(null);
 
     const fetchNotifications = async () => {
-        if (!user) return;
+        if (!user) {
+            setLoading(false);
+            return;
+        }
         try {
-            const { default: api } = await import("../api/axiosInstance");
             const response = await api.get("/notifications/my");
             setNotifications(response.data.content || []);
         } catch (error) {
@@ -38,17 +41,18 @@ const Notifications = () => {
                 await requestApi.rejectRequest(requestId);
             }
             // Mark notification as read or just refresh
-            const { default: api } = await import("../api/axiosInstance");
             await api.put(`/notifications/${notificationId}/read`);
             fetchNotifications();
         } catch (error) {
             console.error(`Failed to ${action} request`, error);
+            alert(`Failed to ${action} request`);
         } finally {
             setActionLoading(null);
         }
     };
 
     const getStatusIcon = (type) => {
+        if (!type) return <Bell size={20} className="text-secondary-400" />;
         switch (type) {
             case 'REQUEST_CREATED':
                 return <Clock size={20} className="text-primary-500" />;
@@ -63,6 +67,26 @@ const Notifications = () => {
         }
     };
 
+    const getBadgeVariant = (type) => {
+        if (!type) return 'primary';
+        if (type.includes('ACCEPTED') || type.includes('COMPLETED')) return 'success';
+        if (type.includes('REJECTED') || type.includes('CANCELLED')) return 'danger';
+        return 'primary';
+    };
+
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-secondary-50">
+                <Card className="p-8 text-center max-w-md border-none shadow-lg">
+                    <p className="text-secondary-600 mb-4">Please login to view notifications</p>
+                    <Link to="/login">
+                        <Button>Login Now</Button>
+                    </Link>
+                </Card>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-secondary-50 py-10">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,13 +100,6 @@ const Notifications = () => {
                             <p className="text-secondary-500 text-sm">Updates on your service requests</p>
                         </div>
                     </div>
-                    {user && String(user.role).toUpperCase().includes('PROVIDER') && (
-                        <Link to="/provider-dashboard">
-                            <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
-                                Back to Dashboard
-                            </Button>
-                        </Link>
-                    )}
                 </div>
 
                 {loading ? (
@@ -90,24 +107,29 @@ const Notifications = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                     </div>
                 ) : notifications.length === 0 ? (
-                    <Card className="text-center py-12">
+                    <Card className="text-center py-12 border-none shadow-sm">
                         <Bell className="mx-auto text-secondary-300 mb-3" size={48} />
                         <p className="text-secondary-500">No new notifications</p>
                     </Card>
                 ) : (
                     <div className="space-y-4">
                         {notifications.map((notif) => (
-                            <Card key={notif.id} className="p-5 hover:bg-secondary-50/50 transition-colors">
+                            <Card key={notif.id} className="p-5 hover:bg-white transition-all border-secondary-200 hover:shadow-md group">
                                 <div className="flex gap-4 items-start">
-                                    <div className="mt-1">
+                                    <div className="mt-1 transition-transform group-hover:scale-110 duration-200">
                                         {getStatusIcon(notif.type)}
                                     </div>
                                     <div className="flex-grow">
-                                        <p className="text-secondary-900 font-medium">
-                                            {notif.message}
-                                        </p>
-                                        <p className="text-sm text-secondary-500 mt-1">
-                                            {new Date(notif.createdAt).toLocaleString()}
+                                        <div className="flex justify-between items-start mb-1">
+                                            <p className="text-secondary-900 font-medium">
+                                                {notif.message}
+                                            </p>
+                                            <Badge variant={getBadgeVariant(notif.type || '')} className="text-[10px] uppercase tracking-wider">
+                                                {(notif.type || 'INFO').replace('REQUEST_', '')}
+                                            </Badge>
+                                        </div>
+                                        <p className="text-xs text-secondary-500">
+                                            {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Recent'}
                                         </p>
 
                                         {notif.type === 'REQUEST_CREATED' && !notif.read && (
@@ -135,8 +157,8 @@ const Notifications = () => {
                                         )}
                                     </div>
                                     {!notif.read && (
-                                        <div className="ml-auto">
-                                            <span className="w-2 h-2 bg-primary-600 rounded-full inline-block"></span>
+                                        <div className="ml-2">
+                                            <span className="w-2 h-2 bg-primary-600 rounded-full inline-block animate-pulse"></span>
                                         </div>
                                     )}
                                 </div>
