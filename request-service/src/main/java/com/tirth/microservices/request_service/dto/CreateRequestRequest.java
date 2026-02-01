@@ -8,4 +8,5 @@ public class CreateRequestRequest {
     private String title;
     private String serviceType;   // ELECTRICIAN
     private String description;
+    private String providerUsername;
 }
