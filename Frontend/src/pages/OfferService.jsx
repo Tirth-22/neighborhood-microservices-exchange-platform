@@ -26,20 +26,19 @@ const OfferService = () => {
 
   const handleSubmit = async () => {
     try {
-      // Map frontend category to backend Enum
       const categoryMap = {
         "Plumbing": "PLUMBER",
         "Electrical": "ELECTRICIAN",
-        "Teaching": "OTHER", // Or add TEACHER to backend if needed
+        "Teaching": "OTHER",
         "Cleaning": "CLEANING",
-        "Delivery": "OTHER", // Or add DELIVERY
+        "Delivery": "OTHER",
         "Other": "OTHER"
       };
 
       const backendCategory = categoryMap[formData.category] || "OTHER";
 
       const payload = {
-        name: formData.serviceName, // Service Title (e.g. "Home Cleaning")
+        name: formData.serviceName,
         description: formData.description || "No description provided.",
         price: parseFloat(formData.price),
         category: backendCategory
@@ -65,7 +64,7 @@ const OfferService = () => {
           <ArrowLeft size={20} className="mr-2" /> Back
         </Button>
 
-        <Card className="p-8">
+        <Card className="p-8 bg-white border-secondary-200">
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-secondary-900">Offer a Service</h2>
             <p className="text-secondary-500 mt-2">Become a provider and start earning.</p>
@@ -74,7 +73,7 @@ const OfferService = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
                   Provider Name
                 </label>
                 <input
@@ -82,11 +81,11 @@ const OfferService = () => {
                   value={formData.name || ''}
                   onChange={handleChange}
                   placeholder="Your Name"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
                   Email
                 </label>
                 <input
@@ -95,13 +94,13 @@ const OfferService = () => {
                   value={formData.email || ''}
                   onChange={handleChange}
                   placeholder="your@email.com"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Service Title / Category
               </label>
               <input
@@ -109,19 +108,19 @@ const OfferService = () => {
                 value={formData.serviceName}
                 onChange={handleChange}
                 placeholder="e.g. Professional Plumbing, Math Tutor"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Category Type
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="">Select category</option>
                 <option value="Plumbing">Plumbing</option>
@@ -135,7 +134,7 @@ const OfferService = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
                   Price (per hour)
                 </label>
                 <input
@@ -144,19 +143,18 @@ const OfferService = () => {
                   value={formData.price}
                   onChange={handleChange}
                   placeholder="₹ Amount"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
                   Availability
                 </label>
                 <select
                   name="availability"
                   value={formData.availability}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">Select availability</option>
                   <option value="Morning">Morning</option>
@@ -168,7 +166,7 @@ const OfferService = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
                 Service Description
               </label>
               <textarea
@@ -177,7 +175,7 @@ const OfferService = () => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Describe your service..."
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-secondary-300 rounded-md px-3 py-2 text-secondary-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
 

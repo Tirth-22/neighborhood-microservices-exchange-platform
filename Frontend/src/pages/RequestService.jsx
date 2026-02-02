@@ -47,7 +47,7 @@ const RequestService = () => {
     if (!selectedService) {
         return (
             <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
-                <Card className="max-w-md w-full p-8 text-center border-none shadow-xl">
+                <Card className="max-w-md w-full p-8 text-center border-none shadow-xl bg-white">
                     <div className="w-16 h-16 bg-secondary-100 text-secondary-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <MapPin size={32} />
                     </div>
@@ -60,9 +60,8 @@ const RequestService = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-8 px-4">
+        <div className="min-h-screen bg-secondary-50 py-8 px-4">
             <div className="max-w-2xl mx-auto">
-                {/* Back Button */}
                 <button
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-2 text-secondary-600 hover:text-secondary-900 transition-colors mb-8 font-medium"
@@ -71,7 +70,6 @@ const RequestService = () => {
                     Back
                 </button>
 
-                {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-3xl font-bold text-secondary-900 mb-2">Request {selectedService.name}</h1>
                     <p className="text-secondary-500 font-medium">
@@ -81,8 +79,6 @@ const RequestService = () => {
 
                 <Card className="p-10 border-none shadow-sm rounded-3xl bg-white">
                     <form onSubmit={handleSubmit} className="space-y-10">
-
-                        {/* Section 1: Describe the issue */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-bold text-secondary-900 flex items-center gap-3">
                                 <span className="w-6 h-6 rounded-full bg-blue-50 text-primary-600 flex items-center justify-center text-xs">1</span>
@@ -99,7 +95,6 @@ const RequestService = () => {
                             </div>
                         </div>
 
-                        {/* Section 2: When & Where */}
                         <div className="space-y-6">
                             <h3 className="text-lg font-bold text-secondary-900 flex items-center gap-3">
                                 <span className="w-6 h-6 rounded-full bg-blue-50 text-primary-600 flex items-center justify-center text-xs">2</span>
@@ -109,27 +104,23 @@ const RequestService = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-secondary-600">Date</label>
-                                    <div className="relative">
-                                        <Input
-                                            type="date"
-                                            required
-                                            className="bg-secondary-50 border-none h-12"
-                                            value={formData.date}
-                                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                        />
-                                    </div>
+                                    <Input
+                                        type="date"
+                                        required
+                                        className="bg-secondary-50 border-none h-12 text-secondary-900"
+                                        value={formData.date}
+                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-secondary-600">Time</label>
-                                    <div className="relative">
-                                        <Input
-                                            type="time"
-                                            required
-                                            className="bg-secondary-50 border-none h-12"
-                                            value={formData.time}
-                                            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                        />
-                                    </div>
+                                    <Input
+                                        type="time"
+                                        required
+                                        className="bg-secondary-50 border-none h-12 text-secondary-900"
+                                        value={formData.time}
+                                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                    />
                                 </div>
                             </div>
 
@@ -138,14 +129,13 @@ const RequestService = () => {
                                 <Input
                                     placeholder="House no, Street, Area"
                                     required
-                                    className="bg-secondary-50 border-none h-12"
+                                    className="bg-secondary-50 border-none h-12 text-secondary-900"
                                     value={formData.address}
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                 />
                             </div>
                         </div>
 
-                        {/* Section 3: Payment Method */}
                         <div className="space-y-6">
                             <h3 className="text-lg font-bold text-secondary-900 flex items-center gap-3">
                                 <span className="w-6 h-6 rounded-full bg-blue-50 text-primary-600 flex items-center justify-center text-xs">3</span>
@@ -159,8 +149,8 @@ const RequestService = () => {
                                         type="button"
                                         onClick={() => setFormData({ ...formData, payment: method })}
                                         className={`py-4 px-2 rounded-xl border-2 transition-all font-bold text-sm capitalize ${formData.payment === method
-                                                ? 'border-primary-600 bg-primary-50 text-primary-600'
-                                                : 'border-secondary-100 bg-white text-secondary-500 hover:border-secondary-200'
+                                            ? 'border-primary-600 bg-primary-50 text-primary-600'
+                                            : 'border-secondary-100 bg-white text-secondary-500 hover:border-secondary-200'
                                             }`}
                                     >
                                         {method === 'exchange' ? 'Service Exchange' : method}
@@ -169,7 +159,6 @@ const RequestService = () => {
                             </div>
                         </div>
 
-                        {/* Submit Button */}
                         <Button
                             type="submit"
                             className="w-full py-5 text-lg font-bold rounded-2xl bg-primary-600 hover:bg-primary-700 shadow-lg shadow-primary-200 transition-all mt-4"
@@ -177,7 +166,6 @@ const RequestService = () => {
                         >
                             {loading ? 'Processing...' : 'Confirm & Submit Request'}
                         </Button>
-
                     </form>
                 </Card>
             </div>

@@ -39,7 +39,7 @@ const Home = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative bg-white overflow-hidden">
+      <section className="relative bg-white overflow-hidden transition-all duration-300">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-white z-0" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 md:py-32 flex flex-col items-center text-center">
 
@@ -65,7 +65,7 @@ const Home = () => {
               <input
                 type="text"
                 placeholder="What service do you need?"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 placeholder-secondary-400"
               />
             </div>
             <div className="relative flex-1">
@@ -73,7 +73,7 @@ const Home = () => {
               <input
                 type="text"
                 placeholder="Zip Code or Area"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 placeholder-secondary-400"
               />
             </div>
             <Button size="lg" className="md:w-auto w-full">
@@ -84,7 +84,7 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-secondary-50">
+      <section className="py-20 bg-secondary-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-secondary-900 mb-4">Why Choose NeighborHub?</h2>
@@ -93,7 +93,7 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-secondary-100 text-center hover:shadow-md transition-shadow">
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-secondary-100 text-center hover:shadow-md transition-shadow transition-all duration-300">
                 <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                   <feature.icon size={28} />
                 </div>
@@ -109,7 +109,7 @@ const Home = () => {
 
       {/* CTA Section */}
       {!isProvider && (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-white transition-all duration-300">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-primary-600 rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden">
               <div className="relative z-10">

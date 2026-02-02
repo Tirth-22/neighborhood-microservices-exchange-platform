@@ -17,11 +17,8 @@ import HelpCenter from "./pages/HelpCenter";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ContactUs from "./pages/ContactUs";
-
 import FAQ from "./pages/FAQ";
 import HowItWorks from "./pages/HowItWorks";
-import "./App.css";
-
 function App() {
   return (
     <BrowserRouter>

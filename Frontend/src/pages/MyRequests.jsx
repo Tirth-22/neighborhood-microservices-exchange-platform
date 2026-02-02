@@ -65,7 +65,7 @@ const MyRequests = () => {
 
     const closeModal = () => {
         setShowModal(false);
-        setTimeout(() => setSelectedRequest(null), 300); // Delay to allow animation
+        setTimeout(() => setSelectedRequest(null), 300);
     };
 
     return (
@@ -161,20 +161,18 @@ const MyRequests = () => {
                 )}
             </div>
 
-            {/* Modal Overlay */}
             {showModal && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {selectedRequest && (
                             <>
-                                {/* Modal Header */}
-                                <div className="sticky top-0 bg-white border-b border-secondary-200 px-6 py-4 flex justify-between items-center rounded-t-xl">
+                                <div className="sticky top-0 bg-white border-b border-secondary-200 px-6 py-4 flex justify-between items-center rounded-t-xl z-20">
                                     <div>
                                         <h3 className="text-2xl font-bold text-secondary-900">Request Details</h3>
                                         <p className="text-sm text-secondary-500 mt-1">ID: #{selectedRequest.id}</p>
@@ -187,9 +185,7 @@ const MyRequests = () => {
                                     </button>
                                 </div>
 
-                                {/* Modal Content */}
                                 <div className="p-6 space-y-6">
-                                    {/* Status Badge */}
                                     <div className="flex items-center justify-between">
                                         <Badge variant={getStatusVariant(selectedRequest.status)} className="px-4 py-2 text-sm">
                                             {selectedRequest.status}
@@ -199,7 +195,6 @@ const MyRequests = () => {
                                         </span>
                                     </div>
 
-                                    {/* Service Title */}
                                     <div>
                                         <label className="text-xs font-semibold text-secondary-500 uppercase tracking-wider">Service</label>
                                         <p className="text-lg font-bold text-secondary-900 mt-1">
@@ -207,7 +202,6 @@ const MyRequests = () => {
                                         </p>
                                     </div>
 
-                                    {/* Provider Info */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="text-xs font-semibold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
@@ -227,7 +221,6 @@ const MyRequests = () => {
                                         </div>
                                     </div>
 
-                                    {/* Address */}
                                     {selectedRequest.address && (
                                         <div>
                                             <label className="text-xs font-semibold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
@@ -239,7 +232,6 @@ const MyRequests = () => {
                                         </div>
                                     )}
 
-                                    {/* Description */}
                                     {selectedRequest.description && (
                                         <div>
                                             <label className="text-xs font-semibold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
@@ -251,7 +243,6 @@ const MyRequests = () => {
                                         </div>
                                     )}
 
-                                    {/* Timeline */}
                                     <div className="border-t border-secondary-200 pt-4">
                                         <label className="text-xs font-semibold text-secondary-500 uppercase tracking-wider">Timeline</label>
                                         <div className="mt-3 space-y-2">
@@ -270,7 +261,6 @@ const MyRequests = () => {
                                         </div>
                                     </div>
 
-                                    {/* Action Buttons */}
                                     <div className="flex gap-3 pt-4 border-t border-secondary-200">
                                         {(String(selectedRequest.status).toLowerCase() === "pending") && (
                                             <Button

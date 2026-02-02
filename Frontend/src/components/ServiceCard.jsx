@@ -6,7 +6,6 @@ import { User, Tag, IndianRupee } from 'lucide-react';
 const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
 
-    // Robust role check helper fallback
     const getRole = (u) => {
         if (!u) return '';
         let r = u.role || u.roles || u.authorities || '';
@@ -17,7 +16,6 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
 
     const isProvider = isProviderProp !== undefined ? isProviderProp : getRole(user).includes('provider');
 
-    // Extract provider first name from providerName
     const getFirstName = (fullName) => {
         if (!fullName) return '?';
         const parts = fullName.trim().split(' ');
@@ -52,7 +50,7 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
                     <span>{service.category} Service</span>
                 </div>
 
-                <div className="flex items-center text-sm font-medium text-secondary-900">
+                <div className="flex items-center text-sm font-bold text-secondary-900">
                     <IndianRupee size={16} className="mr-2 text-secondary-400" />
                     <span>₹{service.price} / hour</span>
                 </div>
@@ -63,7 +61,7 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
                 variant={isProvider ? "secondary" : "primary"}
                 className={`w-full mt-auto ${isProvider
                     ? "bg-secondary-50 border-secondary-200 text-secondary-500 hover:bg-secondary-50 cursor-not-allowed shadow-none"
-                    : ""
+                    : "shadow-primary-100"
                     }`}
                 onClick={() => !isProvider && onRequest(service)}
                 title={isProvider ? "Providers cannot request services" : ""}

@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 const HowItWorks = () => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
 
-    // Robust role check helper
     const getRole = (u) => {
         if (!u) return '';
         let r = u.role;
@@ -50,9 +49,7 @@ const HowItWorks = () => {
                     </p>
                 </div>
 
-                {/* Visual Workflow */}
                 <div className="relative">
-                    {/* Connecting Line (Desktop) */}
                     <div className="hidden md:block absolute top-12 left-0 w-full h-1 bg-gradient-to-r from-primary-200 via-primary-400 to-primary-200 rounded-full -z-10" />
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -70,7 +67,6 @@ const HowItWorks = () => {
                     </div>
                 </div>
 
-                {/* For Providers Section */}
                 {!isProvider && (
                     <div className="mt-24">
                         <Card className="bg-primary-600 text-white p-12 text-center rounded-3xl relative overflow-hidden">

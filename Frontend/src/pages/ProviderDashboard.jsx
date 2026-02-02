@@ -72,10 +72,9 @@ const ProviderDashboard = () => {
           <p className="text-secondary-600">Service Performance & History for {provider?.name || 'Provider'}</p>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {stats.map((stat, index) => (
-            <Card key={index} className="p-6 flex items-center justify-between border-none shadow-sm">
+            <Card key={index} className="p-6 flex items-center justify-between border-none shadow-sm bg-white">
               <div>
                 <p className="text-secondary-500 text-sm font-medium">{stat.label}</p>
                 <p className="text-3xl font-bold text-secondary-900 mt-1">{stat.value}</p>
@@ -99,14 +98,14 @@ const ProviderDashboard = () => {
 
         <div className="space-y-4">
           {historyRequests.length === 0 ? (
-            <Card className="text-center py-12 border-none shadow-sm">
+            <Card className="text-center py-12 border-none shadow-sm bg-white">
               <History className="mx-auto text-secondary-300 mb-3" size={48} />
               <p className="text-secondary-500 text-lg">No service records found.</p>
               <p className="text-secondary-400 text-sm mt-1">Accept requests from your notifications to see them here.</p>
             </Card>
           ) : (
             historyRequests.map((req) => (
-              <Card key={req.id} className="p-5 flex flex-col md:flex-row items-center justify-between hover:shadow-md transition-all border-none shadow-sm group">
+              <Card key={req.id} className="p-5 flex flex-col md:flex-row items-center justify-between hover:shadow-md transition-all border-none shadow-sm group bg-white">
                 <div className="flex-grow">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-bold text-secondary-900 text-lg group-hover:text-primary-600 transition-colors">

@@ -21,23 +21,22 @@ const ContactUs = () => {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {/* Contact Info */}
                     <div className="md:col-span-1 space-y-6">
-                        <Card className="p-6 flex items-start space-x-4">
+                        <Card className="p-6 flex items-start space-x-4 bg-white border-secondary-200">
                             <Mail className="text-primary-600 mt-1" />
                             <div>
                                 <h3 className="font-semibold text-secondary-900">Email</h3>
                                 <p className="text-secondary-600 text-sm">support@neighborhub.com</p>
                             </div>
                         </Card>
-                        <Card className="p-6 flex items-start space-x-4">
+                        <Card className="p-6 flex items-start space-x-4 bg-white border-secondary-200">
                             <Phone className="text-primary-600 mt-1" />
                             <div>
                                 <h3 className="font-semibold text-secondary-900">Phone</h3>
                                 <p className="text-secondary-600 text-sm">+1 (555) 123-4567</p>
                             </div>
                         </Card>
-                        <Card className="p-6 flex items-start space-x-4">
+                        <Card className="p-6 flex items-start space-x-4 bg-white border-secondary-200">
                             <MapPin className="text-primary-600 mt-1" />
                             <div>
                                 <h3 className="font-semibold text-secondary-900">Office</h3>
@@ -46,8 +45,7 @@ const ContactUs = () => {
                         </Card>
                     </div>
 
-                    {/* Contact Form */}
-                    <Card className="md:col-span-2 p-8">
+                    <Card className="md:col-span-2 p-8 bg-white border-secondary-200">
                         {submitted ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -68,7 +66,7 @@ const ContactUs = () => {
                                     <label className="block text-sm font-medium text-secondary-700 mb-1">Message</label>
                                     <textarea
                                         rows="4"
-                                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 appearance-none"
                                         placeholder="Tell us more..."
                                         required
                                     />

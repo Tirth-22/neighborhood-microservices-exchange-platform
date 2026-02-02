@@ -48,7 +48,7 @@ const FAQ = () => {
                     {faqs.map((faq, index) => (
                         <Card
                             key={index}
-                            className={`cursor-pointer transition-all duration-200 overflow-hidden ${openIndex === index ? 'ring-2 ring-primary-500' : 'hover:shadow-md'}`}
+                            className={`cursor-pointer transition-all duration-200 overflow-hidden bg-white ${openIndex === index ? 'ring-2 ring-primary-500' : 'hover:shadow-md'}`}
                             onClick={() => toggleFAQ(index)}
                         >
                             <div className="p-6 flex justify-between items-center">

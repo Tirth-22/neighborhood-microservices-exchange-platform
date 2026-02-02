@@ -48,7 +48,7 @@ const Services = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50 py-10">
+    <div className="min-h-screen bg-secondary-50 py-10 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* HEADER */}
@@ -71,7 +71,7 @@ const Services = () => {
               <input
                 type="text"
                 placeholder="Search services..."
-                className="pl-9 pr-4 py-2 rounded-lg border border-secondary-300 w-full md:w-64"
+                className="pl-9 pr-4 py-2 rounded-lg border border-secondary-300 bg-white text-secondary-900 placeholder-secondary-400 w-full md:w-64 transition-all"
               />
             </div>
             <Button variant="secondary" className="flex items-center gap-2">
@@ -95,7 +95,7 @@ const Services = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm">
+          <div className="text-center py-20 bg-white rounded-xl shadow-sm transition-all duration-300">
             <p className="text-secondary-500">
               No services found matching your criteria.
             </p>

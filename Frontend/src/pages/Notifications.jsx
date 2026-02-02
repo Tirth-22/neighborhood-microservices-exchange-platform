@@ -40,7 +40,6 @@ const Notifications = () => {
             } else {
                 await requestApi.rejectRequest(requestId);
             }
-            // Mark notification as read or just refresh
             await api.put(`/notifications/${notificationId}/read`);
             fetchNotifications();
         } catch (error) {
@@ -77,7 +76,7 @@ const Notifications = () => {
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-secondary-50">
-                <Card className="p-8 text-center max-w-md border-none shadow-lg">
+                <Card className="p-8 text-center max-w-md border-none shadow-lg bg-white">
                     <p className="text-secondary-600 mb-4">Please login to view notifications</p>
                     <Link to="/login">
                         <Button>Login Now</Button>
@@ -107,14 +106,14 @@ const Notifications = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                     </div>
                 ) : notifications.length === 0 ? (
-                    <Card className="text-center py-12 border-none shadow-sm">
+                    <Card className="text-center py-12 border-none shadow-sm bg-white">
                         <Bell className="mx-auto text-secondary-300 mb-3" size={48} />
                         <p className="text-secondary-500">No new notifications</p>
                     </Card>
                 ) : (
                     <div className="space-y-4">
                         {notifications.map((notif) => (
-                            <Card key={notif.id} className="p-5 hover:bg-white transition-all border-secondary-200 hover:shadow-md group">
+                            <Card key={notif.id} className="p-5 hover:bg-white transition-all border-secondary-200 hover:shadow-md bg-white group">
                                 <div className="flex gap-4 items-start">
                                     <div className="mt-1 transition-transform group-hover:scale-110 duration-200">
                                         {getStatusIcon(notif.type)}

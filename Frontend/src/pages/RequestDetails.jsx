@@ -1,54 +1,56 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
-import Badge from "../components/ui/Badge";
-import { ArrowLeft, User, Calendar, Clock, MapPin, IndianRupee, CreditCard } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { requestApi } from '../api/requestApi';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import { Calendar, Clock, MapPin, User, ArrowLeft, CreditCard } from 'lucide-react';
 
 const RequestDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedRequests =
-      JSON.parse(localStorage.getItem("requests")) || [];
-
-    const foundRequest = storedRequests.find(
-      (req) => req.id === Number(id)
-    );
-
-    setRequest(foundRequest);
+    const fetchRequest = async () => {
+      try {
+        const response = await requestApi.getRequestById(id);
+        setRequest(response.data);
+      } catch (error) {
+        console.error("Failed to fetch request details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequest();
   }, [id]);
 
   const getStatusVariant = (status) => {
-    switch (status) {
-      case "Pending": return "warning";
-      case "Accepted": return "primary";
-      case "Completed": return "success";
-      case "Cancelled": return "danger";
+    switch (String(status).toLowerCase()) {
+      case "pending": return "warning";
+      case "accepted": return "primary";
+      case "completed": return "success";
+      case "cancelled":
+      case "rejected": return "danger";
       default: return "default";
     }
   };
 
-  if (!request) {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    const getRole = (u) => {
-      if (!u) return '';
-      let r = u.role;
-      if (Array.isArray(r)) r = r[0];
-      if (typeof r === 'object' && r !== null) r = r.name || r.authority || '';
-      return String(r || '').toLowerCase().trim();
-    };
-    const isProvider = getRole(user).includes('provider');
-
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-secondary-50">
-        <Card className="p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (!request) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary-50">
+        <Card className="p-8 text-center bg-white border-none shadow-lg">
           <p className="text-secondary-500 mb-4">Request not found</p>
-          <Button onClick={() => navigate(isProvider ? '/provider-dashboard' : '/my-requests')}>
-            Back to {isProvider ? 'Dashboard' : 'Requests'}
-          </Button>
+          <Button onClick={() => navigate('/my-requests')}>Back to Requests</Button>
         </Card>
       </div>
     );
@@ -56,36 +58,36 @@ const RequestDetails = () => {
 
   return (
     <div className="min-h-screen bg-secondary-50 py-10">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          className="mb-6 pl-0 hover:bg-transparent hover:text-primary-600"
+      <div className="max-w-4xl mx-auto px-4">
+        <button
           onClick={() => navigate(-1)}
+          className="flex items-center text-secondary-600 hover:text-secondary-900 mb-6 transition-colors font-medium"
         >
-          <ArrowLeft size={20} className="mr-2" /> Back
-        </Button>
+          <ArrowLeft size={20} className="mr-2" />
+          Back to list
+        </button>
 
-        <Card className="bg-white overflow-hidden">
+        <Card className="bg-white overflow-hidden border-secondary-200">
           {/* Header */}
           <div className="bg-secondary-50 border-b border-secondary-200 p-6 flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold text-secondary-900">{request.serviceName}</h2>
               <p className="text-secondary-500 text-sm mt-1">Request ID: #{request.id}</p>
             </div>
-            <Badge variant={getStatusVariant(request.status)} className="px-3 py-1 text-sm">{request.status}</Badge>
+            <Badge variant={getStatusVariant(request.status)} className="px-4 py-1.5 text-sm uppercase tracking-wider">
+              {request.status}
+            </Badge>
           </div>
 
-          <div className="p-6 md:p-8 space-y-8">
-            {/* Description */}
-            <div>
+          <div className="p-8">
+            <div className="mb-8 font-serif">
               <h3 className="text-sm font-semibold text-secondary-900 uppercase tracking-wider mb-2">Description</h3>
               <p className="text-secondary-600 leading-relaxed bg-secondary-50 p-4 rounded-lg">
-                {request.description || "No description provided."}
+                {request.description}
               </p>
             </div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="flex items-start">
                 <User className="text-primary-500 mt-1 mr-3" size={20} />
                 <div>

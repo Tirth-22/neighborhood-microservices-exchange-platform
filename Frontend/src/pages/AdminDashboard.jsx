@@ -68,12 +68,12 @@ const AdminDashboard = () => {
 
                 <div className="grid gap-4">
                     {providers.length === 0 ? (
-                        <Card className="p-8 text-center text-secondary-500">
+                        <Card className="p-8 text-center text-secondary-500 bg-white border-secondary-200 shadow-sm">
                             No providers found.
                         </Card>
                     ) : (
                         providers.map(provider => (
-                            <Card key={provider.id} className="p-6 flex items-center justify-between">
+                            <Card key={provider.id} className="p-6 flex items-center justify-between bg-white border-secondary-200 shadow-sm">
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-lg font-bold text-secondary-900">{provider.username}</h3>

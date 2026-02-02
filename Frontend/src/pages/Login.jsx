@@ -6,10 +6,10 @@ import Card from "../components/ui/Card";
 import { authApi } from "../api/authApi";
 
 const Login = () => {
-  const [username, setUsername] = useState(""); // Backend expects username
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const [role, setRole] = useState("user"); // Still useful for UI routing, though backend returns role
+  const [role, setRole] = useState("user");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const isDisabled = !username || !password || loading;
@@ -18,15 +18,10 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      // Backend LoginRequest expects { username, password }
-      // If user enters email, we assume backend handles it or we map it. 
-      // AuthController uses findByUsername. If users register with email as username, this works.
       const response = await authApi.login({ username, password });
 
       if (response.data.success) {
         let { token, role: backendRole } = response.data;
-
-        // Normalize backend role or fallback to selected role
         const finalRole = String(backendRole || role).toUpperCase().trim();
 
         const userData = {
@@ -61,18 +56,18 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-primary-500/20 transform hover:scale-105 transition-transform duration-300">
             N
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-secondary-900">
-            Sign in to your account
+          <h2 className="mt-8 text-4xl font-extrabold text-secondary-900 tracking-tight">
+            Sign in to NeighborHub
           </h2>
-          <p className="mt-2 text-sm text-secondary-600">
-            Or <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-500">create a new account</Link>
+          <p className="mt-3 text-secondary-600 text-lg">
+            Ready to help or get help? <Link to="/signup" className="font-semibold text-primary-600 hover:text-primary-500 underline underline-offset-4 decoration-primary-300/30">Sign up here</Link>
           </p>
         </div>
 
-        <Card className="p-8 space-y-6">
+        <Card className="p-8 space-y-6 bg-white">
           <div className="space-y-4">
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
@@ -94,27 +89,34 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
-                I am a...
+            <div className="group">
+              <label className="block text-sm font-semibold text-secondary-700 mb-2 ml-1">
+                I am signing in as...
               </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              >
-                <option value="user">User (Looking for help)</option>
-                <option value="provider">Provider (Offering services)</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full rounded-xl border border-secondary-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-secondary-900 appearance-none cursor-pointer hover:border-primary-400 transition-all"
+                >
+                  <option value="user">User (Looking for help)</option>
+                  <option value="provider">Provider (Offering services)</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-secondary-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
           <Button
             onClick={handleLogin}
             disabled={isDisabled}
-            className="w-full py-2.5"
+            className="w-full py-4 text-lg font-bold rounded-2xl bg-primary-600 hover:bg-primary-700 shadow-lg shadow-primary-500/20 transition-all active:scale-[0.98]"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Verifying..." : "Sign in to Dashboard"}
           </Button>
         </Card>
       </div>

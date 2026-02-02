@@ -16,23 +16,18 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  // ---- ROLE HANDLING (SAFE) ----
   const getRole = (u) => {
     if (!u) return "";
     let r = u.role || u.roles || u.authorities || "";
     if (Array.isArray(r)) r = r[0];
     if (typeof r === "object" && r !== null)
       r = r.name || r.authority || r.role || "";
-    return String(r || "").toUpperCase().trim(); // Use UPPERCASE to match database/footer
+    return String(r || "").toUpperCase().trim();
   };
 
   const role = getRole(user);
-  if (user) console.log("DEBUG: Navbar Role Detection", { role, raw: user });
-
-  // Use strictly normalized checks
   const isProvider = role === "PROVIDER" || role.includes("PROVIDER");
 
-  // ---- NAV LINKS ----
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
@@ -40,25 +35,19 @@ const Navbar = () => {
     { name: "My Requests", path: "/my-requests" },
     { name: "Provider Dashboard", path: "/provider-dashboard" },
   ].filter((link) => {
-    // Guest view
     if (!user) {
       return link.path === "/" || link.path === "/services";
     }
-
-    // Provider view
     if (isProvider) {
-      // Providers see Home, Services, Offer Service, Provider Dashboard
       return link.path !== "/my-requests";
     }
-
-    // User view (Default)
     return link.path !== "/offer-service" && link.path !== "/provider-dashboard";
   });
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-secondary-200 sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-md border-b border-secondary-200 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
 
@@ -93,7 +82,7 @@ const Navbar = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className={`text-sm font-medium ${isActive(link.path)
+                    className={`text-sm font-medium transition-colors ${isActive(link.path)
                       ? "text-primary-600"
                       : "text-secondary-600 hover:text-primary-600"
                       }`}
@@ -104,7 +93,7 @@ const Navbar = () => {
               ))}
             </ul>
 
-            <div className="flex items-center gap-4 pl-6 border-l">
+            <div className="flex items-center gap-4 pl-6 border-l border-secondary-200">
               {user && (
                 <Link to="/notifications" className="text-secondary-600 hover:text-primary-600 transition-colors">
                   <Bell size={20} />
@@ -122,7 +111,7 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 rounded-lg border border-secondary-100">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 rounded-lg border border-secondary-100 transition-all duration-300">
                     <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
                       <User size={14} />
                     </div>
@@ -138,7 +127,7 @@ const Navbar = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 px-4 border-secondary-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all font-medium"
+                    className="h-9 px-4 border-secondary-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all font-medium text-secondary-700"
                     onClick={handleLogout}
                   >
                     Logout
@@ -152,7 +141,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-secondary-600 hover:text-secondary-900"
+              className="p-2 text-secondary-600 hover:text-secondary-900 transition-colors"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -169,7 +158,7 @@ const Navbar = () => {
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.path)
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive(link.path)
                   ? "bg-primary-50 text-primary-700"
                   : "text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900"
                   }`}
@@ -180,7 +169,7 @@ const Navbar = () => {
             <Link
               to="/notifications"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/notifications')
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive('/notifications')
                 ? "bg-primary-50 text-primary-700"
                 : "text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900"
                 }`}
