@@ -4,6 +4,7 @@ import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import { Search, MapPin, ArrowRight, Shield, Clock, ThumbsUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ServiceMarquee from '../components/ServiceMarquee';
 
 const Home = () => {
   const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -106,6 +107,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Service Marquee */}
+      <ServiceMarquee />
 
       {/* CTA Section */}
       {!isProvider && (
