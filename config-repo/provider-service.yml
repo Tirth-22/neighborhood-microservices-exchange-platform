@@ -10,11 +10,22 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
   application:
     name: provider-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: provider-rating-group
+      auto-offset-reset: earliest
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.tirth.microservices.provider_service.event.RequestCompletedEvent
+        spring.json.use.type.headers: false
 
 eureka:
   client:
