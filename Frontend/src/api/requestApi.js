@@ -12,6 +12,6 @@ export const requestApi = {
     // Actions
     acceptRequest: (id) => api.put(`/requests/${id}/accept`),
     rejectRequest: (id) => api.put(`/requests/${id}/reject`),
-    completeRequest: (id) => api.put(`/requests/${id}/complete`),
+    completeRequest: (id, rating) => api.put(`/requests/${id}/complete?rating=${rating}`),
     cancelRequest: (id) => api.put(`/requests/${id}/cancel`),
 };

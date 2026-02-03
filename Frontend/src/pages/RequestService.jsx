@@ -16,7 +16,11 @@ const RequestService = () => {
         time: '',
         address: '',
         description: '',
-        payment: 'cash'
+        payment: 'cash',
+        cardNumber: '',
+        expiry: '',
+        cvv: '',
+        cardHolder: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -24,6 +28,14 @@ const RequestService = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        if (formData.payment === 'online') {
+            if (!formData.cardNumber || !formData.expiry || !formData.cvv || !formData.cardHolder) {
+                alert("Please fill in all card details for online payment.");
+                setLoading(false);
+                return;
+            }
+        }
 
         try {
             const payload = {
@@ -33,7 +45,9 @@ const RequestService = () => {
                 providerUsername: selectedService?.providerUsername || selectedService?.name,
                 price: selectedService?.price,
                 address: formData.address,
-                scheduledAt: `${formData.date}T${formData.time}:00`
+                scheduledAt: `${formData.date}T${formData.time}:00`,
+                paymentMethod: formData.payment.toUpperCase(),
+                serviceOfferingId: selectedService?.id
             };
 
             await requestApi.createRequest(payload);
@@ -161,6 +175,50 @@ const RequestService = () => {
                                     </button>
                                 ))}
                             </div>
+
+                            {formData.payment === 'online' && (
+                                <div className="mt-6 p-6 bg-secondary-50 rounded-2xl border border-secondary-100 animate-in fade-in slide-in-from-top-4 duration-300">
+                                    <h4 className="text-sm font-bold text-secondary-700 mb-4 uppercase tracking-wider">Card Details</h4>
+                                    <div className="space-y-4">
+                                        <Input
+                                            label="Cardholder Name"
+                                            placeholder="John Doe"
+                                            required={formData.payment === 'online'}
+                                            value={formData.cardHolder}
+                                            onChange={(e) => setFormData({ ...formData, cardHolder: e.target.value })}
+                                            className="bg-white"
+                                        />
+                                        <Input
+                                            label="Card Number"
+                                            placeholder="0000 0000 0000 0000"
+                                            required={formData.payment === 'online'}
+                                            value={formData.cardNumber}
+                                            onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
+                                            className="bg-white"
+                                        />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input
+                                                label="Expiry Date"
+                                                placeholder="MM/YY"
+                                                required={formData.payment === 'online'}
+                                                value={formData.expiry}
+                                                onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
+                                                className="bg-white"
+                                            />
+                                            <Input
+                                                label="CVV"
+                                                placeholder="123"
+                                                type="password"
+                                                maxLength="3"
+                                                required={formData.payment === 'online'}
+                                                value={formData.cvv}
+                                                onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
+                                                className="bg-white"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <Button

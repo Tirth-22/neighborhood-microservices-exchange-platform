@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
-import { Calendar, Clock, MapPin, User, X, FileText, DollarSign } from "lucide-react";
+import { Calendar, Clock, MapPin, User, X, FileText, DollarSign, Star } from "lucide-react";
 import { requestApi } from "../api/requestApi";
 
 const MyRequests = () => {
@@ -10,6 +10,9 @@ const MyRequests = () => {
     const [loading, setLoading] = useState(true);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showRatingModal, setShowRatingModal] = useState(false);
+    const [rating, setRating] = useState(5);
+    const [completingId, setCompletingId] = useState(null);
 
     const fetchRequests = async () => {
         setLoading(true);
@@ -48,13 +51,24 @@ const MyRequests = () => {
         }
     };
 
-    const handleComplete = async (id) => {
+    const handleComplete = (id) => {
+        setCompletingId(id);
+        setShowRatingModal(true);
+    };
+
+    const submitRating = async () => {
         try {
-            await requestApi.completeRequest(id);
+            setLoading(true);
+            await requestApi.completeRequest(completingId, rating);
+            setShowRatingModal(false);
+            setRating(5);
+            setCompletingId(null);
             fetchRequests();
         } catch (error) {
             console.error("Failed to mark request as complete", error);
             alert("Failed to complete request");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -161,6 +175,7 @@ const MyRequests = () => {
                 )}
             </div>
 
+            {/* DETAILS MODAL */}
             {showModal && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -296,6 +311,61 @@ const MyRequests = () => {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* RATING MODAL */}
+            {showRatingModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Star className="text-yellow-400 fill-yellow-400" size={32} />
+                            </div>
+                            <h3 className="text-2xl font-bold text-secondary-900">Rate the Service</h3>
+                            <p className="text-secondary-500 mt-2">
+                                How was your experience with this provider?
+                            </p>
+
+                            <div className="flex justify-center gap-2 my-8">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        onClick={() => setRating(star)}
+                                        className="transition-transform active:scale-90 hover:scale-110"
+                                    >
+                                        <Star
+                                            size={40}
+                                            className={`${rating >= star
+                                                ? "text-yellow-400 fill-yellow-400"
+                                                : "text-secondary-200"
+                                                } transition-colors duration-200`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="secondary"
+                                    className="flex-1"
+                                    onClick={() => {
+                                        setShowRatingModal(false);
+                                        setCompletingId(null);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
+                                    onClick={submitRating}
+                                    loading={loading}
+                                >
+                                    Submit & Complete
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

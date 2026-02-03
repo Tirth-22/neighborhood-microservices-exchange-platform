@@ -1,7 +1,7 @@
 import Card from './ui/Card';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
-import { User, Tag, IndianRupee } from 'lucide-react';
+import { User, Tag, IndianRupee, Star } from 'lucide-react';
 
 const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
@@ -40,9 +40,22 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
                 </div>
             </div>
 
-            <h3 className="text-xl font-bold text-secondary-900 mb-2">
+            <h3 className="text-xl font-bold text-secondary-900 mb-1">
                 {service.name}
             </h3>
+
+            <div className="flex items-center gap-1 mb-3">
+                <div className="flex items-center text-yellow-400">
+                    <Star size={14} className="fill-yellow-400" />
+                    <span className="ml-1 text-sm font-bold text-secondary-900">
+                        {service.averageRating ? service.averageRating.toFixed(1) : "0.0"}
+                    </span>
+                </div>
+                <span className="text-secondary-300 mx-1">•</span>
+                <span className="text-xs text-secondary-500">
+                    {service.reviewCount || 0} reviews
+                </span>
+            </div>
 
             <div className="space-y-3 mb-6 flex-grow">
                 <div className="flex items-center text-sm text-secondary-600">
