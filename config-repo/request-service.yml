@@ -18,6 +18,24 @@ spring:
       hibernate:
         format_sql: true
 
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      provider-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+feign:
+  circuitbreaker:
+    enabled: true
+
 eureka:
   client:
     service-url:
