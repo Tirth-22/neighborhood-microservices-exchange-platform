@@ -52,15 +52,22 @@ public class JwtFilter implements GlobalFilter, Ordered {
         String email = jwtUtil.extractEmail(token);
 
         // ROLE-BASED ACCESS
-//        if (path.startsWith("/provider") && !role.equals("PROVIDER")) {
-//            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-//            return exchange.getResponse().setComplete();
-//        }
-//
-//        if (path.startsWith("/user") && !role.equals("USER")) {
-//            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-//            return exchange.getResponse().setComplete();
-//        }
+        if (path.startsWith("/providers/approve") || path.startsWith("/providers/reject")
+                || (path.startsWith("/providers") && exchange.getRequest().getMethod().name().equals("GET")
+                        && !path.contains("/services"))) {
+            if (!role.equals("ADMIN")) {
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+        }
+
+        if (path.startsWith("/requests/accept") || path.startsWith("/requests/reject")
+                || path.startsWith("/requests/pending")) {
+            if (!role.equals("PROVIDER")) {
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+        }
 
         // ADD USER CONTEXT HEADERS
         ServerWebExchange mutatedExchange = exchange.mutate()
@@ -68,8 +75,7 @@ public class JwtFilter implements GlobalFilter, Ordered {
                         .header("X-User-Name", username)
                         .header("X-User-Role", role)
                         .header("X-User-Email", email)
-                        .header("X-Gateway-Request", "true")
-                )
+                        .header("X-Gateway-Request", "true"))
                 .build();
 
         return chain.filter(mutatedExchange);
