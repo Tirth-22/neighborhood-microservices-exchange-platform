@@ -6,7 +6,10 @@ import lombok.Data;
 public class CreateRequestRequest {
 
     private String title;
-    private String serviceType;   // ELECTRICIAN
+    private String serviceType; // ELECTRICIAN
     private String description;
     private String providerUsername;
+    private Double price;
+    private String address;
+    private java.time.LocalDateTime scheduledAt;
 }

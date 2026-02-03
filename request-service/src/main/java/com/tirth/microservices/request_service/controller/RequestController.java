@@ -1,10 +1,7 @@
 package com.tirth.microservices.request_service.controller;
 
-import com.tirth.microservices.request_service.dto.CreateRequestDto;
 import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
-import com.tirth.microservices.request_service.entity.RequestStatus;
-import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
 import com.tirth.microservices.request_service.security.GatewayGuard;
 import com.tirth.microservices.request_service.service.RequestService;
@@ -27,17 +24,14 @@ public class RequestController {
     @PostMapping
     public ServiceRequestResponseDTO createRequest(
             @RequestBody CreateRequestRequest request,
-            @RequestHeader("X-User-Name") String username
-    ) {
+            @RequestHeader("X-User-Name") String username) {
         return service.createRequest(username, request);
     }
 
-
     @GetMapping("/my")
-    public List<ServiceRequest> myRequests(
+    public List<ServiceRequestResponseDTO> myRequests(
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
-    ) {
+            @RequestHeader("X-User-Role") String role) {
         if (!role.equalsIgnoreCase("USER") && !role.equalsIgnoreCase("PROVIDER")) {
             throw new RuntimeException("Only USER/PROVIDER can view their requests");
         }
@@ -49,8 +43,7 @@ public class RequestController {
             @PathVariable Long id,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
-    ) {
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader) {
         gatewayGuard.validate(gatewayHeader);
         if (!role.equalsIgnoreCase("PROVIDER")) {
             throw new UnauthorizedActionException("Only provider allowed");
@@ -60,12 +53,11 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/reject")
-    public ServiceRequest reject(
+    public ServiceRequestResponseDTO reject(
             @PathVariable Long id,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
-    ) {
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader) {
         gatewayGuard.validate(gatewayHeader);
 
         if (!role.equalsIgnoreCase("PROVIDER")) {
@@ -75,12 +67,10 @@ public class RequestController {
         return service.reject(id, role, username);
     }
 
-
     @GetMapping("/pending")
-    public List<ServiceRequest> getPendingRequests(
+    public List<ServiceRequestResponseDTO> getPendingRequests(
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader("X-User-Name") String username
-    ) {
+            @RequestHeader("X-User-Name") String username) {
         if (!role.equals("PROVIDER")) {
             throw new UnauthorizedActionException("Only provider allowed");
         }
@@ -88,27 +78,24 @@ public class RequestController {
     }
 
     @GetMapping("/accepted")
-    public List<ServiceRequest> acceptedRequests(
+    public List<ServiceRequestResponseDTO> acceptedRequests(
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
-    ) {
+            @RequestHeader("X-User-Role") String role) {
         return service.getAcceptedRequestsForProvider(username, role);
     }
 
     @GetMapping("/provider/completed")
-    public List<ServiceRequest> myCompletedRequests(
+    public List<ServiceRequestResponseDTO> myCompletedRequests(
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
-    ) {
+            @RequestHeader("X-User-Role") String role) {
         return service.getMyCompletedRequests(username, role);
     }
 
     @PutMapping("/{id}/cancel")
-    public ServiceRequest cancel(
+    public ServiceRequestResponseDTO cancel(
             @PathVariable Long id,
             @RequestHeader("X-User-Name") String username,
-            @RequestHeader("X-User-Role") String role
-    ) {
+            @RequestHeader("X-User-Role") String role) {
         if (!"USER".equalsIgnoreCase(role) && !"PROVIDER".equalsIgnoreCase(role)) {
             throw new RuntimeException("Only USER/PROVIDER can cancel request");
         }
@@ -116,10 +103,9 @@ public class RequestController {
     }
 
     @GetMapping("/provider/accepted")
-    public List<ServiceRequest> providerAcceptedRequests(
+    public List<ServiceRequestResponseDTO> providerAcceptedRequests(
             @RequestHeader("X-User-Name") String providerUsername,
-            @RequestHeader("X-User-Role") String role
-    ) {
+            @RequestHeader("X-User-Role") String role) {
         return service.getAcceptedRequestsForProvider(providerUsername, role);
     }
 
@@ -128,11 +114,9 @@ public class RequestController {
             @PathVariable Long id,
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader("X-Gateway-Request") String gatewayHeader
-    ) {
+            @RequestHeader("X-Gateway-Request") String gatewayHeader) {
         gatewayGuard.validate(gatewayHeader);
         return service.complete(id, username, role);
     }
 
 }
-

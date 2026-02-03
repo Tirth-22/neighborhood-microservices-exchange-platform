@@ -14,4 +14,9 @@ public class ServiceRequestResponseDTO {
     private String requestedBy;
     private String acceptedBy;
     private String rejectedBy;
+    private String providerUsername;
+    private Double price;
+    private String address;
+    private String scheduledAt;
+    private String createdAt;
 }

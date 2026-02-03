@@ -37,6 +37,10 @@ public class ServiceRequest {
 
     private String providerUsername;
 
+    private Double price;
+    private String address;
+    private LocalDateTime scheduledAt;
+
     private String acceptedBy;
     private LocalDateTime acceptedAt;
 

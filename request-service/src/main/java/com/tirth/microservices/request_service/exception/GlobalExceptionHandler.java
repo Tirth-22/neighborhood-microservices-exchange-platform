@@ -32,11 +32,18 @@ public class GlobalExceptionHandler {
                 .body(errorResponse(ex.getMessage(), 400));
     }
 
+    // 4️⃣ Generic Exception
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleAll(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse("An unexpected error occurred: " + ex.getMessage(), 500));
+    }
+
     private Map<String, Object> errorResponse(String message, int status) {
         return Map.of(
+                "success", false,
                 "timestamp", LocalDateTime.now(),
                 "status", status,
-                "error", message
-        );
+                "message", message);
     }
 }

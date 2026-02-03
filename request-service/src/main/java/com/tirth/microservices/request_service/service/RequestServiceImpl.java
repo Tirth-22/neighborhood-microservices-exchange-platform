@@ -1,7 +1,6 @@
 package com.tirth.microservices.request_service.service;
 
 import com.tirth.microservices.request_service.client.ProviderClient;
-import com.tirth.microservices.request_service.dto.CreateRequestDto;
 import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
@@ -39,15 +38,25 @@ public class RequestServiceImpl implements RequestService {
                 request.getStatus().name(),
                 request.getRequestedBy(),
                 request.getAcceptedBy(),
-                request.getRejectedBy()
-        );
+                request.getRejectedBy(),
+                request.getProviderUsername(),
+                request.getPrice(),
+                request.getAddress(),
+                request.getScheduledAt() != null ? request.getScheduledAt().toString() : null,
+                request.getCreatedAt() != null ? request.getCreatedAt().toString() : null);
     }
 
     @Override
     public ServiceRequestResponseDTO createRequest(
             String username,
-            CreateRequestRequest request
-    ) {
+            CreateRequestRequest request) {
+
+        // 📅 Date Validation: Cannot request for past days
+        if (request.getScheduledAt() != null
+                && request.getScheduledAt().isBefore(java.time.LocalDateTime.now().minusMinutes(1))) {
+            throw new InvalidRequestStateException("Cannot schedule service for a past date/time.");
+        }
+
         ServiceType serviceType;
         try {
             serviceType = ServiceType.valueOf(request.getServiceType().toUpperCase());
@@ -74,6 +83,9 @@ public class RequestServiceImpl implements RequestService {
                 .serviceType(serviceType)
                 .status(RequestStatus.PENDING)
                 .providerUsername(providerUsername)
+                .price(request.getPrice())
+                .address(request.getAddress())
+                .scheduledAt(request.getScheduledAt())
                 .build();
 
         ServiceRequest saved = repository.save(serviceRequest);
@@ -84,20 +96,17 @@ public class RequestServiceImpl implements RequestService {
                 saved.getRequestedBy(),
                 providerUsername,
                 saved.getTitle(),
-                java.time.LocalDateTime.now().toString()
-        );
+                java.time.LocalDateTime.now().toString());
         requestEventProducer.publishRequestCreatedEvent(event);
 
         // Always return DTO
         return mapToDTO(saved);
     }
 
-
     @Override
-    public List<ServiceRequest> getMyRequests(String username) {
-        return repository.findByRequestedBy(username);
+    public List<ServiceRequestResponseDTO> getMyRequests(String username) {
+        return repository.findByRequestedBy(username).stream().map(this::mapToDTO).toList();
     }
-
 
     @Override
     public ServiceRequestResponseDTO accept(Long id, String role, String username) {
@@ -122,7 +131,7 @@ public class RequestServiceImpl implements RequestService {
 
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
-//        request.setRequestedBy(null);
+        // request.setRequestedBy(null);
         request.setAcceptedAt(LocalDateTime.now());
 
         ServiceRequest savedRequest = repository.save(request);
@@ -130,17 +139,16 @@ public class RequestServiceImpl implements RequestService {
         RequestAcceptedEvent event = new RequestAcceptedEvent(
                 savedRequest.getId(),
                 savedRequest.getRequestedBy(), // userId
-                username,                      // providerId
+                username, // providerId
                 savedRequest.getTitle(),
-                LocalDateTime.now().toString()
-        );
+                LocalDateTime.now().toString());
         requestEventProducer.publishRequestAcceptedEvent(event);
 
         return mapToDTO(savedRequest);
     }
 
     @Override
-    public ServiceRequest reject(Long id, String role, String username) {
+    public ServiceRequestResponseDTO reject(Long id, String role, String username) {
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can reject request");
@@ -157,32 +165,30 @@ public class RequestServiceImpl implements RequestService {
         request.setRejectedBy(username);
         request.setRejectedAt(LocalDateTime.now());
 
-        ServiceRequest saved =  repository.save(request);
+        ServiceRequest saved = repository.save(request);
 
         RequestRejectedEvent event = new RequestRejectedEvent(
                 saved.getId(),
-                saved.getRequestedBy(),   // userId
-                username,                 // providerId
+                saved.getRequestedBy(), // userId
+                username, // providerId
                 saved.getTitle(),
-                LocalDateTime.now().toString()
-        );
+                LocalDateTime.now().toString());
 
         requestEventProducer.publishRequestRejectedEvent(event);
 
-        return saved;
+        return mapToDTO(saved);
     }
 
     @Override
-    public List<ServiceRequest> getPendingRequests(String providerUsername) {
+    public List<ServiceRequestResponseDTO> getPendingRequests(String providerUsername) {
         return repository.findByProviderUsernameAndStatus(
                 providerUsername,
-                RequestStatus.PENDING
-        );
+                RequestStatus.PENDING).stream().map(this::mapToDTO).toList();
 
     }
 
     @Override
-    public ServiceRequest cancel(Long id, String username) {
+    public ServiceRequestResponseDTO cancel(Long id, String username) {
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
@@ -196,11 +202,11 @@ public class RequestServiceImpl implements RequestService {
         }
 
         request.setStatus(RequestStatus.CANCELLED);
-        return repository.save(request);
+        return mapToDTO(repository.save(request));
     }
 
     @Override
-    public List<ServiceRequest> getAcceptedRequestsForProvider(String providerUsername, String role) {
+    public List<ServiceRequestResponseDTO> getAcceptedRequestsForProvider(String providerUsername, String role) {
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new RuntimeException("Only provider allowed");
@@ -208,8 +214,7 @@ public class RequestServiceImpl implements RequestService {
 
         return repository.findByAcceptedByAndStatus(
                 providerUsername,
-                RequestStatus.ACCEPTED
-        );
+                RequestStatus.ACCEPTED).stream().map(this::mapToDTO).toList();
     }
 
     @Override
@@ -240,8 +245,7 @@ public class RequestServiceImpl implements RequestService {
                 saved.getRequestedBy(),
                 saved.getAcceptedBy(),
                 saved.getTitle(),
-                saved.getCompletedAt().toString()
-        );
+                saved.getCompletedAt().toString());
 
         requestEventProducer.publishRequestCompleted(event);
 
@@ -249,7 +253,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ServiceRequest> getMyCompletedRequests(String username, String role) {
+    public List<ServiceRequestResponseDTO> getMyCompletedRequests(String username, String role) {
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only PROVIDER allowed");
@@ -257,7 +261,6 @@ public class RequestServiceImpl implements RequestService {
 
         return repository.findByAcceptedByAndStatus(
                 username,
-                RequestStatus.COMPLETED
-        );
+                RequestStatus.COMPLETED).stream().map(this::mapToDTO).toList();
     }
 }
