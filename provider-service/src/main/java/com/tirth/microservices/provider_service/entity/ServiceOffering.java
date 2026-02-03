@@ -36,7 +36,7 @@ public class ServiceOffering {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "provider_id", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Provider provider;
 
     @Column(name = "provider_username", nullable = false)
@@ -44,6 +44,14 @@ public class ServiceOffering {
 
     @Column(name = "provider_name", nullable = false)
     private String providerName;
+
+    @Builder.Default
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0;
+
+    @Builder.Default
+    @Column(name = "review_count")
+    private Integer reviewCount = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
