@@ -16,6 +16,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     setError("");
+
     setLoading(true);
     try {
       const response = await authApi.login({ username, password });

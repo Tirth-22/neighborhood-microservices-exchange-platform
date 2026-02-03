@@ -52,7 +52,7 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
 
                 <div className="flex items-center text-sm font-bold text-secondary-900">
                     <IndianRupee size={16} className="mr-2 text-secondary-400" />
-                    <span>₹{service.price} / hour</span>
+                    <span>₹{service.price}</span>
                 </div>
             </div>
 

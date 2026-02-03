@@ -3,11 +3,22 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import { Search, MapPin, ArrowRight, Shield, Clock, ThumbsUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ServiceMarquee from '../components/ServiceMarquee';
+import ServiceProviderMap from '../components/ServiceProviderMap';
 
 const Home = () => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/services?search=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      navigate('/services');
+    }
+  };
 
   // Robust role check helper
   const getRole = (u) => {
@@ -66,18 +77,13 @@ const Home = () => {
               <input
                 type="text"
                 placeholder="What service do you need?"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 placeholder-secondary-400"
               />
             </div>
-            <div className="relative flex-1">
-              <MapPin className="absolute left-3 top-3 text-secondary-400" size={20} />
-              <input
-                type="text"
-                placeholder="Zip Code or Area"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 placeholder-secondary-400"
-              />
-            </div>
-            <Button size="lg" className="md:w-auto w-full">
+            <Button size="lg" className="md:w-auto w-full" onClick={handleSearch}>
               Search
             </Button>
           </Card>
@@ -105,6 +111,30 @@ const Home = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="py-20 bg-white transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl font-bold text-secondary-900 mb-4 flex items-center gap-3">
+                <MapPin className="text-primary-600" size={32} />
+                Around Your Neighborhood
+              </h2>
+              <p className="text-secondary-600 text-lg">
+                Explore service providers active in your area. Click on the pins to view details and book instantly.
+              </p>
+            </div>
+            <Link to="/services">
+              <Button variant="secondary" className="flex items-center gap-2">
+                View All Services <ArrowRight size={18} />
+              </Button>
+            </Link>
+          </div>
+
+          <ServiceProviderMap />
         </div>
       </section>
 

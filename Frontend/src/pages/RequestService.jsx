@@ -29,8 +29,11 @@ const RequestService = () => {
             const payload = {
                 title: `${selectedService?.category} Request`,
                 serviceType: selectedService?.category?.toUpperCase() || "OTHER",
-                description: `${formData.description} \n\n[Scheduled: ${formData.date} at ${formData.time}] \nAddress: ${formData.address} \nPayment: ${formData.payment.toUpperCase()}`,
+                description: formData.description,
                 providerUsername: selectedService?.providerUsername || selectedService?.name,
+                price: selectedService?.price,
+                address: formData.address,
+                scheduledAt: `${formData.date}T${formData.time}:00`
             };
 
             await requestApi.createRequest(payload);
@@ -73,7 +76,7 @@ const RequestService = () => {
                 <div className="text-center mb-10">
                     <h1 className="text-3xl font-bold text-secondary-900 mb-2">Request {selectedService.name}</h1>
                     <p className="text-secondary-500 font-medium">
-                        Provider: <span className="text-primary-600">{selectedService.providerUsername || selectedService.name}</span> • ₹{selectedService.price}/hr
+                        Provider: <span className="text-primary-600">{selectedService.providerUsername || selectedService.name}</span> • ₹{selectedService.price}
                     </p>
                 </div>
 
@@ -107,6 +110,7 @@ const RequestService = () => {
                                     <Input
                                         type="date"
                                         required
+                                        min={new Date().toISOString().split('T')[0]}
                                         className="bg-secondary-50 border-none h-12 text-secondary-900"
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -142,8 +146,8 @@ const RequestService = () => {
                                 Payment Method
                             </h3>
 
-                            <div className="grid grid-cols-3 gap-3">
-                                {['cash', 'online', 'exchange'].map((method) => (
+                            <div className="grid grid-cols-2 gap-3">
+                                {['cash', 'online'].map((method) => (
                                     <button
                                         key={method}
                                         type="button"
@@ -153,7 +157,7 @@ const RequestService = () => {
                                             : 'border-secondary-100 bg-white text-secondary-500 hover:border-secondary-200'
                                             }`}
                                     >
-                                        {method === 'exchange' ? 'Service Exchange' : method}
+                                        {method}
                                     </button>
                                 ))}
                             </div>

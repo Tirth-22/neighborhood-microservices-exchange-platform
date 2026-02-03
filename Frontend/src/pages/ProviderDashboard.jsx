@@ -117,20 +117,14 @@ const ProviderDashboard = () => {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm text-secondary-500">
                     <p><span className="font-semibold text-secondary-700">Client:</span> {req.requestedBy}</p>
-                    <p><span className="font-semibold text-secondary-700">Type:</span> {req.serviceType}</p>
+                    <p><span className="font-semibold text-secondary-700">Price:</span> ₹{req.price || 0}</p>
+                    <p className="sm:col-span-2"><span className="font-semibold text-secondary-700">Address:</span> {req.address || "No address provided"}</p>
                     {req.acceptedAt && (
                       <p className="sm:col-span-2">
                         <span className="font-semibold text-secondary-700">Started:</span> {new Date(req.acceptedAt).toLocaleString()}
                       </p>
                     )}
                   </div>
-                </div>
-                <div className="mt-4 md:mt-0 flex items-center gap-3">
-                  {req.status === 'ACCEPTED' && (
-                    <Button variant="outline" size="sm" className="hidden sm:flex">
-                      Update Notes
-                    </Button>
-                  )}
                 </div>
               </Card>
             ))

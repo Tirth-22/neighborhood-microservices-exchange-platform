@@ -23,6 +23,16 @@ const SignUp = () => {
       return;
     }
 
+    if (username.trim().length < 6) {
+      setError("Username must be at least 6 characters");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
