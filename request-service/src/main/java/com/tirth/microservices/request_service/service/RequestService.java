@@ -18,7 +18,7 @@ public interface RequestService {
 
     ServiceRequestResponseDTO cancel(Long id, String username);
 
-    ServiceRequestResponseDTO complete(Long id, String username, String role);
+    ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating);
 
     List<ServiceRequestResponseDTO> getMyRequests(String username);
 

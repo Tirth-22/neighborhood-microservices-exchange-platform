@@ -86,7 +86,10 @@ public class RequestServiceImpl implements RequestService {
                 .price(request.getPrice())
                 .address(request.getAddress())
                 .scheduledAt(request.getScheduledAt())
+                .serviceOfferingId(request.getServiceOfferingId())
                 .build();
+
+        System.out.println("DEBUG: Creating request for ServiceOfferingID: " + request.getServiceOfferingId());
 
         ServiceRequest saved = repository.save(serviceRequest);
 
@@ -218,7 +221,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequestResponseDTO complete(Long id, String username, String role) {
+    public ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating) {
 
         if (!"USER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only USER can complete request");
@@ -237,14 +240,20 @@ public class RequestServiceImpl implements RequestService {
 
         request.setStatus(RequestStatus.COMPLETED);
         request.setCompletedAt(LocalDateTime.now());
+        request.setRating(rating);
 
         ServiceRequest saved = repository.save(request);
+
+        System.out.println("DEBUG: Publishing completion for Offering: " + saved.getServiceOfferingId()
+                + " with rating: " + saved.getRating());
 
         RequestCompletedEvent event = new RequestCompletedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
                 saved.getAcceptedBy(),
                 saved.getTitle(),
+                saved.getServiceOfferingId(),
+                saved.getRating(),
                 saved.getCompletedAt().toString());
 
         requestEventProducer.publishRequestCompleted(event);

@@ -12,4 +12,5 @@ public class CreateRequestRequest {
     private Double price;
     private String address;
     private java.time.LocalDateTime scheduledAt;
+    private Long serviceOfferingId;
 }

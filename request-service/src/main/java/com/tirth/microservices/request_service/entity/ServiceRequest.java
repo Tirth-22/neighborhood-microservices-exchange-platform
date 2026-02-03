@@ -40,6 +40,9 @@ public class ServiceRequest {
     private Double price;
     private String address;
     private LocalDateTime scheduledAt;
+    private Long serviceOfferingId;
+
+    private Double rating;
 
     private String acceptedBy;
     private LocalDateTime acceptedAt;

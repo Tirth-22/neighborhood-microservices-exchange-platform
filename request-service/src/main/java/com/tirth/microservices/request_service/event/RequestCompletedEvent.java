@@ -13,5 +13,7 @@ public class RequestCompletedEvent {
     private String userId;
     private String providerId;
     private String serviceName;
+    private Long serviceOfferingId;
+    private Double rating;
     private String completedAt;
 }

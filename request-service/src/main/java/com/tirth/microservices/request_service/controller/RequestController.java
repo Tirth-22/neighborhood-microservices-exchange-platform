@@ -114,9 +114,10 @@ public class RequestController {
             @PathVariable Long id,
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader("X-Gateway-Request") String gatewayHeader) {
+            @RequestHeader("X-Gateway-Request") String gatewayHeader,
+            @RequestParam Double rating) {
         gatewayGuard.validate(gatewayHeader);
-        return service.complete(id, username, role);
+        return service.complete(id, username, role, rating);
     }
 
 }
