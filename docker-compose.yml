@@ -1,0 +1,221 @@
+services:
+
+  # =====================
+  # DATABASE
+  # =====================
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Tirth_22
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =====================
+  # KAFKA STACK
+  # =====================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_started
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_INTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_INTERNAL://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+
+  # =====================
+  # CONFIG SERVER
+  # =====================
+  config-server:
+    image: frontend:v3
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-repo:/config-repo
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # =====================
+  # EUREKA SERVER
+  # =====================
+  eureka-server:
+    image: frontend:v3
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # =====================
+  # API GATEWAY
+  # =====================
+  api-gateway:
+    image: frontend:v3
+    build: ./api-gateway
+    container_name: api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # =====================
+  # BACKEND SERVICES
+  # =====================
+  auth-service:
+    image: frontend:v3
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: Tirth_22
+      JWT_SECRET: my-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  user-service:
+    image: frontend:v3
+    build: ./user-service
+    container_name: user-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: Tirth_22
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  request-service:
+    image: frontend:v3
+    build: ./request-service
+    container_name: request-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: Tirth_22
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  provider-service:
+    image: frontend:v3
+    build: ./provider-service
+    container_name: provider-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: Tirth_22
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  notification-service:
+    image: frontend:v3
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_PASSWORD: Tirth_22
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  # =====================
+  # FRONTEND
+  # =====================
+  frontend:
+    image: frontend:v3
+    build: 
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+# =====================
+# VOLUMES
+# =====================
+volumes:
+  pgdata:
+

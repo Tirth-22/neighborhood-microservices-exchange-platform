@@ -4,17 +4,14 @@ server:
 spring:
   application:
     name: config-server
-
-  profiles:
-    active: native
-
   cloud:
     config:
       server:
         native:
-          search-locations: file:///D:/Sem - 4/SGP/neighbhorhod-microsevices-exchange-platform/config-repo
-          # search-locations: file:/config-repo
-logging:
-  level:
-    org.springframework.cloud.config: DEBUG
+          search-locations: file:/config-repo
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

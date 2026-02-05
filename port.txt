@@ -1,0 +1,8 @@
+eureka --- 8761
+config server --- 8888
+api gateway --- 8080
+auth --- 8081
+user service --- 8082
+request --- 8083
+provider --- 8084
+notification --- 8085

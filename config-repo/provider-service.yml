@@ -1,33 +1,18 @@
-server:
-  port: 8084
-
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/provider_db
     username: postgres
-    password: Tirth_22
-    driver-class-name: org.postgresql.Driver
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
-  application:
-    name: provider-service
-
   kafka:
     bootstrap-servers: localhost:9092
-    consumer:
-      group-id: provider-rating-group
-      auto-offset-reset: earliest
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-        spring.json.value.default.type: com.tirth.microservices.provider_service.event.RequestCompletedEvent
-        spring.json.use.type.headers: false
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/
