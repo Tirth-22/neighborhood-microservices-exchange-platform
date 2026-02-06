@@ -35,7 +35,10 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-observation</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-micrometer</artifactId>
+        </dependency>
         <!-- OPTION 1: Open Telemetry as Bridge (RECOMMENDED) -->
         <!-- Open Telemetry
         - Simplified Observability (metrics, logs, and traces) -->
@@ -124,6 +127,10 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+                        <image>
+                            <name>tirthmakadia/mv3-${project.artifactId}:${project.version}</name>
+                        </image>
+                        <pullPolicy>IF_NOT_PRESENT</pullPolicy>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
