@@ -1,8 +1,11 @@
+server:
+  port: 8085
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/notification_db
     username: postgres
-    password: ${DB_PASSWORD}
+    password: Tirth_22
 
   jpa:
     hibernate:
@@ -16,3 +19,23 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    service-name: notification-service
+
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"

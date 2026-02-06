@@ -1,12 +1,6 @@
-server:
-  port: 8080
-
 spring:
-  main:
-    web-application-type: reactive
+  application:
+    name: api-gateway
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-
+  config:
+    import: optional:configserver:http://localhost:8888

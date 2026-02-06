@@ -1,3 +1,18 @@
+server:
+  port: 8080
+
 spring:
-  config:
-    import: optional:configserver:http://config-server:8888
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

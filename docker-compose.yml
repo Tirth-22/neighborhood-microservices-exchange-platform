@@ -15,7 +15,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,7 +51,7 @@ services:
   # CONFIG SERVER
   # =====================
   config-server:
-    image: frontend:v3
+    image: config-server:v3
     build: ./config-server
     container_name: config-server
     ports:
@@ -59,9 +59,9 @@ services:
     volumes:
       - ./config-repo:/config-repo
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker,native
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -71,18 +71,20 @@ services:
   # EUREKA SERVER
   # =====================
   eureka-server:
-    image: frontend:v3
+    image: eureka-server:v3
     build: ./eureka-server
     container_name: eureka-server
     ports:
       - "8761:8761"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: eureka-server
     depends_on:
       config-server:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -92,11 +94,13 @@ services:
   # API GATEWAY
   # =====================
   api-gateway:
-    image: frontend:v3
+    image: api-gateway:v3
     build: ./api-gateway
     container_name: api-gateway
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: api-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -105,7 +109,7 @@ services:
       config-server:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -115,11 +119,13 @@ services:
   # BACKEND SERVICES
   # =====================
   auth-service:
-    image: frontend:v3
+    image: auth-service:v3
     build: ./auth-service
     container_name: auth-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: auth-service
       DB_PASSWORD: Tirth_22
       JWT_SECRET: my-secret
     depends_on:
@@ -131,11 +137,13 @@ services:
         condition: service_healthy
 
   user-service:
-    image: frontend:v3
+    image: user-service:v3
     build: ./user-service
     container_name: user-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: user-service
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
@@ -146,11 +154,13 @@ services:
         condition: service_healthy
 
   request-service:
-    image: frontend:v3
+    image: request-service:v3
     build: ./request-service
     container_name: request-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: request-service
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
@@ -163,11 +173,13 @@ services:
         condition: service_healthy
 
   provider-service:
-    image: frontend:v3
+    image: provider-service:v3
     build: ./provider-service
     container_name: provider-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: provider-service
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
@@ -180,11 +192,13 @@ services:
         condition: service_healthy
 
   notification-service:
-    image: frontend:v3
+    image: notification-service:v3
     build: ./notification-service
     container_name: notification-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: notification-service
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
@@ -201,7 +215,7 @@ services:
   # =====================
   frontend:
     image: frontend:v3
-    build: 
+    build:
       context: ./Frontend
       dockerfile: Dockerfile
       args:
@@ -218,4 +232,5 @@ services:
 # =====================
 volumes:
   pgdata:
+
 

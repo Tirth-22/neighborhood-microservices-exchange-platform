@@ -5,3 +5,7 @@ spring:
 eureka:
   instance:
     hostname: eureka-server
+
+management:
+  tracing:
+    enabled: false
