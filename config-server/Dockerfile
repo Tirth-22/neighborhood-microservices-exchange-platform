@@ -1,33 +1,17 @@
-# Multi-stage build: Build stage
-FROM eclipse-temurin:17-jdk AS build
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY .mvn .mvn
-COPY mvnw .
 COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
+RUN chmod +x mvnw
+RUN ./mvnw dependency:go-offline
 
-# Make mvnw executable
-RUN chmod +x ./mvnw
-
-# Copy source code
-COPY src ./src
-
-# Build the application (dependencies will be downloaded during build)
+COPY src src
 RUN ./mvnw clean package -DskipTests
 
-# Runtime stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-# Install curl for health checks
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
-
-# Expose port
-EXPOSE 8888
-
-# Run Spring Boot
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]
