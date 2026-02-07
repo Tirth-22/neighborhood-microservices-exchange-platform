@@ -1,0 +1,36 @@
+# Restart system
+docker-compose down && docker-compose up -d
+
+# Check container status
+docker compose ps
+
+# Check databases created
+docker exec -it postgres psql -U postgres -c "\l"
+
+# Check Eureka dashboard
+curl http://localhost:8761
+
+# Check service logs
+docker compose logs auth-service
+docker compose logs user-service
+docker compose logs request-service
+docker compose logs provider-service
+docker compose logs notification-service
+
+# Check service health
+curl http://localhost:8081/actuator/health
+curl http://localhost:8082/actuator/health
+curl http://localhost:8083/actuator/health
+curl http://localhost:8084/actuator/health
+curl http://localhost:8085/actuator/health
+
+
+
+docker compose down --volumes
+docker compose build --no-cache
+docker compose up -d
+
+# Alternative: Build one service at a time
+docker compose build config-server
+docker compose build eureka-server
+docker compose build api-gateway

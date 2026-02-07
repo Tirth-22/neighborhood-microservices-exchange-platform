@@ -1,19 +1,15 @@
 spring:
   application:
-    name: request-service
+    name: auth-service
   datasource:
-    url: jdbc:postgresql://postgres:5432/neighborhood_request_db
+    url: jdbc:postgresql://postgres:5432/auth_db
     username: postgres
     password: ${DB_PASSWORD:Tirth_22}
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
-  kafka:
-    bootstrap-servers: kafka:9092
-  config:
-    import: optional:configserver:http://config-server:8888
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   cloud:
     compatibility-verifier:
       enabled: false
@@ -26,3 +22,6 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+jwt:
+  secret: ${JWT_SECRET:my-secret-key}
