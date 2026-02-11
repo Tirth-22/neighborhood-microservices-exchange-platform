@@ -108,4 +108,32 @@ public class RequestAcceptedConsumer {
                 System.out.println("Created notification saved for provider = " + event.getProviderUsername());
         }
 
+        @KafkaListener(topics = "request.cancelled", groupId = "notification-group-final")
+        public void consumeCancelled(String message) throws Exception {
+
+                ObjectMapper mapper = new ObjectMapper();
+                com.tirth.microservices.notification_service.event.RequestCancelledEvent event = mapper.readValue(message,
+                                com.tirth.microservices.notification_service.event.RequestCancelledEvent.class);
+
+                System.out.println("CANCELLED EVENT RECEIVED: " + event);
+
+                // Delete existing notification for this request
+                notificationRepository.deleteByRequestId(event.getRequestId());
+
+                // Create cancellation notification for provider
+                Notification notification = Notification.builder()
+                                .userId(event.getProviderUsername())
+                                .message(
+                                                "Request Cancelled: " + event.getTitle() +
+                                                                " by " + event.getUserId())
+                                .requestId(event.getRequestId())
+                                .type("REQUEST_CANCELLED")
+                                .read(false)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                notificationRepository.save(notification);
+                System.out.println("Cancellation notification saved for provider = " + event.getProviderUsername());
+        }
+
 }

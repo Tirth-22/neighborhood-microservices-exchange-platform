@@ -6,6 +6,8 @@ services:
   postgres:
     image: postgres:15
     container_name: postgres
+    networks:
+      - microservices-network
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Tirth_22
@@ -14,11 +16,14 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    command: postgres -c max_connections=200
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   # =====================
   # KAFKA STACK
@@ -26,6 +31,8 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
+    networks:
+      - microservices-network
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
@@ -34,9 +41,10 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
+    networks:
+      - microservices-network
     depends_on:
-      zookeeper:
-        condition: service_started
+      - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_INTERNAL://0.0.0.0:9092
@@ -54,17 +62,20 @@ services:
     image: config-server:v3
     build: ./config-server
     container_name: config-server
+    networks:
+      - microservices-network
     ports:
       - "8888:8888"
     volumes:
       - ./config-repo:/config-repo
     environment:
       SPRING_PROFILES_ACTIVE: docker,native
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
-      interval: 30s
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:8888/actuator/health || exit 1" ]
+      interval: 15s
       timeout: 10s
-      retries: 5
+      retries: 15
       start_period: 40s
 
   # =====================
@@ -74,20 +85,23 @@ services:
     image: eureka-server:v3
     build: ./eureka-server
     container_name: eureka-server
+    networks:
+      - microservices-network
     ports:
       - "8761:8761"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: eureka-server
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
     depends_on:
       config-server:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8761/" ]
-      interval: 30s
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:8761/ || exit 1" ]
+      interval: 20s
       timeout: 10s
-      retries: 5
+      retries: 15
       start_period: 60s
 
   # =====================
@@ -97,23 +111,20 @@ services:
     image: api-gateway:v3
     build: ./api-gateway
     container_name: api-gateway
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
-      SPRING_APPLICATION_NAME: api-gateway
+    networks:
+      - microservices-network
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_APPLICATION_NAME: api-gateway
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
     depends_on:
-      eureka-server:
-        condition: service_healthy
       config-server:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      eureka-server:
+        condition: service_healthy
 
   # =====================
   # BACKEND SERVICES
@@ -122,16 +133,19 @@ services:
     image: auth-service:v3
     build: ./auth-service
     container_name: auth-service
+    networks:
+      - microservices-network
+    ports:
+      - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: auth-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       DB_PASSWORD: Tirth_22
       JWT_SECRET: my-secret
     depends_on:
       postgres:
-        condition: service_healthy
-      config-server:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
@@ -140,15 +154,18 @@ services:
     image: user-service:v3
     build: ./user-service
     container_name: user-service
+    networks:
+      - microservices-network
+    ports:
+      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: user-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
-        condition: service_healthy
-      config-server:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
@@ -157,18 +174,21 @@ services:
     image: request-service:v3
     build: ./request-service
     container_name: request-service
+    networks:
+      - microservices-network
+    ports:
+      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: request-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
         condition: service_healthy
       kafka:
         condition: service_started
-      config-server:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
 
@@ -176,18 +196,21 @@ services:
     image: provider-service:v3
     build: ./provider-service
     container_name: provider-service
+    networks:
+      - microservices-network
+    ports:
+      - "8084:8084"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: provider-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
         condition: service_healthy
       kafka:
         condition: service_started
-      config-server:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
 
@@ -195,18 +218,21 @@ services:
     image: notification-service:v3
     build: ./notification-service
     container_name: notification-service
+    networks:
+      - microservices-network
+    ports:
+      - "8085:8085"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: notification-service
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: false
       DB_PASSWORD: Tirth_22
     depends_on:
       postgres:
         condition: service_healthy
       kafka:
         condition: service_started
-      config-server:
-        condition: service_healthy
       eureka-server:
         condition: service_healthy
 
@@ -221,11 +247,13 @@ services:
       args:
         VITE_API_URL: http://localhost:8080
     container_name: frontend
+    networks:
+      - microservices-network
     ports:
       - "80:80"
     depends_on:
       api-gateway:
-        condition: service_healthy
+        condition: service_started
 
 # =====================
 # VOLUMES
@@ -233,4 +261,9 @@ services:
 volumes:
   pgdata:
 
-
+# =====================
+# NETWORKS
+# =====================
+networks:
+  microservices-network:
+    driver: bridge

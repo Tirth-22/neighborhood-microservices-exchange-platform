@@ -16,7 +16,7 @@ public interface RequestService {
 
     ServiceRequestResponseDTO reject(Long id, String role, String username);
 
-    ServiceRequestResponseDTO cancel(Long id, String username);
+    ServiceRequestResponseDTO cancel(Long id, String username, String role);
 
     ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating);
 
