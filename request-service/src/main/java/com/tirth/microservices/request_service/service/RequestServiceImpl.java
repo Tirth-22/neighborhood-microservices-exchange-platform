@@ -128,13 +128,17 @@ public class RequestServiceImpl implements RequestService {
             throw new UnauthorizedActionException("Provider is not active");
         }
 
+        // Enhanced status validation
+        if (request.getStatus().equals(RequestStatus.CANCELLED)) {
+            throw new InvalidRequestStateException("Cannot accept a cancelled request");
+        }
+
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new InvalidRequestStateException("Request already processed");
+            throw new InvalidRequestStateException("Request already processed (status: " + request.getStatus() + ")");
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
-        // request.setRequestedBy(null);
         request.setAcceptedAt(LocalDateTime.now());
 
         ServiceRequest savedRequest = repository.save(request);
@@ -160,8 +164,13 @@ public class RequestServiceImpl implements RequestService {
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
+        // Enhanced status validation
+        if (request.getStatus().equals(RequestStatus.CANCELLED)) {
+            throw new InvalidRequestStateException("Cannot reject a cancelled request");
+        }
+
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new InvalidRequestStateException("Request already processed");
+            throw new InvalidRequestStateException("Request already processed (status: " + request.getStatus() + ")");
         }
 
         request.setStatus(RequestStatus.REJECTED);
@@ -191,10 +200,14 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequestResponseDTO cancel(Long id, String username) {
+    public ServiceRequestResponseDTO cancel(Long id, String username, String role) {
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+        if(!"USER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only user can cancel request");
+        }
 
         if (!request.getStatus().equals(RequestStatus.PENDING)) {
             throw new InvalidRequestStateException("Only PENDING requests can be cancelled");
@@ -205,7 +218,21 @@ public class RequestServiceImpl implements RequestService {
         }
 
         request.setStatus(RequestStatus.CANCELLED);
-        return mapToDTO(repository.save(request));
+        request.setCancelledAt(LocalDateTime.now());
+        ServiceRequest saved = repository.save(request);
+
+        // Publish cancellation event to notify provider
+        com.tirth.microservices.request_service.event.RequestCancelledEvent event = 
+            new com.tirth.microservices.request_service.event.RequestCancelledEvent(
+                saved.getId(),
+                saved.getRequestedBy(),
+                saved.getProviderUsername(),
+                saved.getTitle(),
+                LocalDateTime.now().toString()
+            );
+        requestEventProducer.publishRequestCancelledEvent(event);
+
+        return mapToDTO(saved);
     }
 
     @Override

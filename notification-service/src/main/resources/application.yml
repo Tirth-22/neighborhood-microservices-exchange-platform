@@ -2,27 +2,5 @@ spring:
   application:
     name: notification-service
   config:
-    import: optional:configserver:http://config-server:8888
-  datasource:
-    url: jdbc:postgresql://postgres:5432/notification_db
-    username: postgres
-    password: ${DB_PASSWORD:Tirth_22}
-  jpa:
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
-  kafka:
-    bootstrap-servers: kafka:9092
-  cloud:
-    compatibility-verifier:
-      enabled: false
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
+    import: optional:configserver:http://localhost:8888
+  

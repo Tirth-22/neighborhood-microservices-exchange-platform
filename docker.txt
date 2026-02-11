@@ -24,8 +24,6 @@ curl http://localhost:8083/actuator/health
 curl http://localhost:8084/actuator/health
 curl http://localhost:8085/actuator/health
 
-
-
 docker compose down --volumes
 docker compose build --no-cache
 docker compose up -d
@@ -34,3 +32,12 @@ docker compose up -d
 docker compose build config-server
 docker compose build eureka-server
 docker compose build api-gateway
+
+
+---------
+# Rebuild only notification-service (Java code changed)
+docker compose build notification-service
+
+# Restart all services (config-repo changes auto-loaded)
+docker compose down
+docker compose up -d

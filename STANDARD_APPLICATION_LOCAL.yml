@@ -1,15 +1,22 @@
+# application.yml - For LOCAL development
 spring:
   application:
-    name: auth-service
+    name: SERVICE_NAME
+  
   datasource:
-    url: jdbc:postgresql://postgres:5432/auth_db
+    url: jdbc:postgresql://localhost:5432/DATABASE_NAME
     username: postgres
-    password: ${DB_PASSWORD:Tirth_22}
+    password: ${DB_PASSWORD:password}
+  
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+  
   cloud:
     compatibility-verifier:
       enabled: false
@@ -17,11 +24,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
     prefer-ip-address: true
+    hostname: localhost
 
-jwt:
-  secret: ${JWT_SECRET:my-secret-key}
+server:
+  port: 8080

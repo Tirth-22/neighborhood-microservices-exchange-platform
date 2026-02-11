@@ -1,0 +1,40 @@
+# Build artifacts
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+
+# Node
+node_modules/
+dist/
+build/
+
+# Environment & Secrets
+.env
+.env.local
+.env.production
+*.log
+
+# Docker
+*.tar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

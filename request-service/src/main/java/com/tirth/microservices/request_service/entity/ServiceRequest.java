@@ -50,6 +50,7 @@ public class ServiceRequest {
     private String rejectedBy;
     private LocalDateTime rejectedAt;
 
+    private LocalDateTime cancelledAt;
     private LocalDateTime completedAt;
 
     @CreationTimestamp
