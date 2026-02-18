@@ -1,19 +1,28 @@
 package com.tirth.microservices.request_service.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
 import com.tirth.microservices.request_service.security.GatewayGuard;
 import com.tirth.microservices.request_service.service.RequestService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/requests")
 public class RequestController {
 
-    private RequestService service;
+    private final RequestService service;
     private final GatewayGuard gatewayGuard;
 
     public RequestController(RequestService requestService, GatewayGuard gatewayGuard) {

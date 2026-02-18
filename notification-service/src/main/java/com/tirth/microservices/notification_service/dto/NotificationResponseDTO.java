@@ -8,5 +8,6 @@ public record NotificationResponseDTO(
         boolean read,
         LocalDateTime createdAt,
         Long requestId,
-        String type
+        String type,
+        String requestStatus
 ) {}

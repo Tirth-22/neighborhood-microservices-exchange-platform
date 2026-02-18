@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/neighborhood_user_db
+    url: jdbc:postgresql://postgres:5432/postgres
     username: postgres
     password: Tirth_22
 
@@ -18,7 +18,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
 
 management:
   endpoints:
@@ -26,14 +26,14 @@ management:
       exposure:
         include: health,info
   tracing:
-    enabled: true
+    enabled: false
     sampling:
       probability: 1.0
     service-name: user-service
 
   zipkin:
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+      endpoint: http://zipkin:9411/api/v2/spans
 
 logging:
   pattern:

@@ -1,11 +1,13 @@
 package com.tirth.microservices.provider_service.service;
 
+import java.util.List;
+
 import com.tirth.microservices.provider_service.dto.ProviderRegisterRequest;
 import com.tirth.microservices.provider_service.dto.ProviderRegisterResponse;
+import com.tirth.microservices.provider_service.dto.ServiceOfferingRequest;
 import com.tirth.microservices.provider_service.entity.Provider;
 import com.tirth.microservices.provider_service.entity.ProviderStatus;
-
-import java.util.List;
+import com.tirth.microservices.provider_service.entity.ServiceOffering;
 
 public interface ProviderService {
 
@@ -23,8 +25,8 @@ public interface ProviderService {
     List<Provider> getProvidersByStatus(ProviderStatus status);
 
     // Service Offering Methods
-    com.tirth.microservices.provider_service.entity.ServiceOffering createService(String username, com.tirth.microservices.provider_service.dto.ServiceOfferingRequest request);
-    java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllActiveServices();
-    java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getMyServices(String username);
+    ServiceOffering createService(String username, ServiceOfferingRequest request);
+    List<ServiceOffering> getAllActiveServices();
+    List<ServiceOffering> getMyServices(String username);
     void deleteService(Long id, String username, String role);
 }

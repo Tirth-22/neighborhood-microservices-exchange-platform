@@ -1,14 +1,16 @@
 package com.tirth.microservices.notification_service.consumer;
 
+import java.time.LocalDateTime;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tirth.microservices.notification_service.entity.Notification;
 import com.tirth.microservices.notification_service.event.RequestCompletedEvent;
 import com.tirth.microservices.notification_service.repository.NotificationRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -23,16 +25,19 @@ public class RequestCompletedConsumer {
     )
     public void consumeCompleted(String message) throws Exception {
 
-        RequestCompletedEvent event =
-                objectMapper.readValue(message, RequestCompletedEvent.class);
+        RequestCompletedEvent event
+                = objectMapper.readValue(message, RequestCompletedEvent.class);
 
         // USER notification
         Notification userNotification = Notification.builder()
                 .userId(event.getUserId())
                 .message(
-                        "Your request for " + event.getServiceName() +
-                                " has been completed by " + event.getProviderId()
+                        "Your request for " + event.getServiceName()
+                        + " has been completed by " + event.getProviderId()
                 )
+                .requestId(event.getRequestId())
+                .type("REQUEST_COMPLETED")
+                .requestStatus("COMPLETED")
                 .read(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -44,8 +49,11 @@ public class RequestCompletedConsumer {
                 .userId(event.getProviderId())
                 .message(
                         "You have successfully completed the service: "
-                                + event.getServiceName()
+                        + event.getServiceName()
                 )
+                .requestId(event.getRequestId())
+                .type("REQUEST_COMPLETED")
+                .requestStatus("COMPLETED")
                 .read(false)
                 .createdAt(LocalDateTime.now())
                 .build();

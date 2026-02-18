@@ -1,19 +1,19 @@
 package com.tirth.microservices.auth_service.controller;
 
-import com.tirth.microservices.auth_service.dto.ApiResponse;
-import com.tirth.microservices.auth_service.dto.LoginRequest;
-import com.tirth.microservices.auth_service.dto.LoginResponse;
-import com.tirth.microservices.auth_service.dto.RegisterRequest;
-import com.tirth.microservices.auth_service.entity.User;
-import com.tirth.microservices.auth_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.tirth.microservices.auth_service.dto.ApiResponse;
+import com.tirth.microservices.auth_service.dto.LoginRequest;
+import com.tirth.microservices.auth_service.dto.LoginResponse;
+import com.tirth.microservices.auth_service.dto.RegisterRequest;
+import com.tirth.microservices.auth_service.entity.User;
+import com.tirth.microservices.auth_service.repository.UserRepository;
 import com.tirth.microservices.auth_service.util.JwtUtil;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
 public class AuthController {

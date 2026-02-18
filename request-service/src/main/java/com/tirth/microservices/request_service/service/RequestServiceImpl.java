@@ -1,5 +1,11 @@
 package com.tirth.microservices.request_service.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tirth.microservices.request_service.client.ProviderClient;
 import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
@@ -7,19 +13,18 @@ import com.tirth.microservices.request_service.entity.RequestStatus;
 import com.tirth.microservices.request_service.entity.ServiceRequest;
 import com.tirth.microservices.request_service.entity.ServiceType;
 import com.tirth.microservices.request_service.event.RequestAcceptedEvent;
+import com.tirth.microservices.request_service.event.RequestCancelledEvent;
 import com.tirth.microservices.request_service.event.RequestCompletedEvent;
+import com.tirth.microservices.request_service.event.RequestCreatedEvent;
 import com.tirth.microservices.request_service.event.RequestRejectedEvent;
 import com.tirth.microservices.request_service.exception.InvalidRequestStateException;
 import com.tirth.microservices.request_service.exception.ResourceNotFoundException;
 import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
 import com.tirth.microservices.request_service.producer.RequestEventProducer;
 import com.tirth.microservices.request_service.repository.ServiceRequestRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tirth.microservices.request_service.state.RequestStateTransition;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
@@ -51,9 +56,9 @@ public class RequestServiceImpl implements RequestService {
             String username,
             CreateRequestRequest request) {
 
-        // 📅 Date Validation: Cannot request for past days
+        // Date Validation: Cannot request for past days
         if (request.getScheduledAt() != null
-                && request.getScheduledAt().isBefore(java.time.LocalDateTime.now().minusMinutes(1))) {
+                && request.getScheduledAt().isBefore(LocalDateTime.now().minusMinutes(1))) {
             throw new InvalidRequestStateException("Cannot schedule service for a past date/time.");
         }
 
@@ -93,13 +98,13 @@ public class RequestServiceImpl implements RequestService {
 
         ServiceRequest saved = repository.save(serviceRequest);
 
-        // 🔥 Publish Event for Notification
-        com.tirth.microservices.request_service.event.RequestCreatedEvent event = new com.tirth.microservices.request_service.event.RequestCreatedEvent(
+        // Publish Event for Notification
+        RequestCreatedEvent event = new RequestCreatedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
                 providerUsername,
                 saved.getTitle(),
-                java.time.LocalDateTime.now().toString());
+                LocalDateTime.now().toString());
         requestEventProducer.publishRequestCreatedEvent(event);
 
         // Always return DTO
@@ -113,36 +118,39 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO accept(Long id, String role, String username) {
-        System.out.println("ACCEPTING REQUEST ID = " + id);
-
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
+        // Role validation
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can accept request");
         }
 
+        // Provider active check
         boolean isActive = providerClient.isProviderActive(username);
-
         if (!isActive) {
             throw new UnauthorizedActionException("Provider is not active");
         }
 
-        if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new InvalidRequestStateException("Request already processed");
+        // State transition validation - MOST IMPORTANT
+        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.ACCEPTED)) {
+            throw new InvalidRequestStateException(
+                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.ACCEPTED)
+            );
         }
 
+        // Perform state transition
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
-        // request.setRequestedBy(null);
         request.setAcceptedAt(LocalDateTime.now());
 
         ServiceRequest savedRequest = repository.save(request);
 
+        // Publish event
         RequestAcceptedEvent event = new RequestAcceptedEvent(
                 savedRequest.getId(),
-                savedRequest.getRequestedBy(), // userId
-                username, // providerId
+                savedRequest.getRequestedBy(),
+                username,
                 savedRequest.getTitle(),
                 LocalDateTime.now().toString());
         requestEventProducer.publishRequestAcceptedEvent(event);
@@ -152,31 +160,35 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO reject(Long id, String role, String username) {
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
+        // Role validation
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can reject request");
         }
 
-        ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
-
-        if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new InvalidRequestStateException("Request already processed");
+        // State transition validation - MOST IMPORTANT
+        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.REJECTED)) {
+            throw new InvalidRequestStateException(
+                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.REJECTED)
+            );
         }
 
+        // Perform state transition
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectedBy(username);
         request.setRejectedAt(LocalDateTime.now());
 
         ServiceRequest saved = repository.save(request);
 
+        // Publish event
         RequestRejectedEvent event = new RequestRejectedEvent(
                 saved.getId(),
-                saved.getRequestedBy(), // userId
-                username, // providerId
+                saved.getRequestedBy(),
+                username,
                 saved.getTitle(),
                 LocalDateTime.now().toString());
-
         requestEventProducer.publishRequestRejectedEvent(event);
 
         return mapToDTO(saved);
@@ -192,20 +204,35 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO cancel(Long id, String username) {
-
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        if (!request.getStatus().equals(RequestStatus.PENDING)) {
-            throw new InvalidRequestStateException("Only PENDING requests can be cancelled");
-        }
-
+        // Authorization check
         if (!request.getRequestedBy().equals(username)) {
             throw new UnauthorizedActionException("You can cancel only your own request");
         }
 
+        // State transition validation - MOST IMPORTANT
+        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.CANCELLED)) {
+            throw new InvalidRequestStateException(
+                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.CANCELLED)
+            );
+        }
+
+        // Perform state transition
         request.setStatus(RequestStatus.CANCELLED);
-        return mapToDTO(repository.save(request));
+        ServiceRequest savedRequest = repository.save(request);
+
+        // Publish event to notify provider
+        RequestCancelledEvent event = new RequestCancelledEvent(
+                savedRequest.getId(),
+                savedRequest.getRequestedBy(),
+                savedRequest.getProviderUsername(),
+                savedRequest.getTitle(),
+                LocalDateTime.now().toString());
+        requestEventProducer.publishRequestCancelledEvent(event);
+
+        return mapToDTO(savedRequest);
     }
 
     @Override
@@ -222,31 +249,34 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating) {
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
+        // Role validation
         if (!"USER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only USER can complete request");
         }
 
-        ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
-
-        if (request.getStatus() != RequestStatus.ACCEPTED) {
-            throw new InvalidRequestStateException("Only ACCEPTED requests can be completed");
-        }
-
+        // Authorization check
         if (!request.getRequestedBy().equals(username)) {
             throw new UnauthorizedActionException("You can complete only your own request");
         }
 
+        // State transition validation - MOST IMPORTANT
+        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.COMPLETED)) {
+            throw new InvalidRequestStateException(
+                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.COMPLETED)
+            );
+        }
+
+        // Perform state transition
         request.setStatus(RequestStatus.COMPLETED);
         request.setCompletedAt(LocalDateTime.now());
         request.setRating(rating);
 
         ServiceRequest saved = repository.save(request);
 
-        System.out.println("DEBUG: Publishing completion for Offering: " + saved.getServiceOfferingId()
-                + " with rating: " + saved.getRating());
-
+        // Publish event
         RequestCompletedEvent event = new RequestCompletedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
@@ -255,7 +285,6 @@ public class RequestServiceImpl implements RequestService {
                 saved.getServiceOfferingId(),
                 saved.getRating(),
                 saved.getCompletedAt().toString());
-
         requestEventProducer.publishRequestCompleted(event);
 
         return mapToDTO(saved);

@@ -1,6 +1,5 @@
 package com.tirth.microservices.auth_service.util;
 
-import com.tirth.microservices.auth_service.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

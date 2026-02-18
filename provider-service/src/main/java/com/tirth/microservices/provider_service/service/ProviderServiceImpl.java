@@ -1,5 +1,12 @@
 package com.tirth.microservices.provider_service.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tirth.microservices.provider_service.dto.ProviderRegisterRequest;
 import com.tirth.microservices.provider_service.dto.ProviderRegisterResponse;
 import com.tirth.microservices.provider_service.dto.ServiceOfferingRequest;
@@ -11,13 +18,8 @@ import com.tirth.microservices.provider_service.exception.DuplicateProviderExcep
 import com.tirth.microservices.provider_service.exception.ResourceNotFoundException;
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
 import com.tirth.microservices.provider_service.repository.ServiceOfferingRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,6 @@ public class ProviderServiceImpl implements ProviderService {
     private final ProviderRepository repository;
     private final ServiceOfferingRepository serviceOfferingRepository;
 
-    // ================= PROVIDER REGISTRATION =================
 
     @Override
     public ProviderRegisterResponse registerProvider(String username, ProviderRegisterRequest request) {
@@ -58,7 +59,6 @@ public class ProviderServiceImpl implements ProviderService {
         }
     }
 
-    // ================= PROVIDER LOOKUP =================
 
     @Override
     public Provider getByUsername(String username) {
@@ -66,8 +66,6 @@ public class ProviderServiceImpl implements ProviderService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Provider not found"));
     }
-
-    // ================= APPROVAL FLOW =================
 
     @Override
     public Provider approveProvider(Long providerId, String adminUsername) {
@@ -105,8 +103,6 @@ public class ProviderServiceImpl implements ProviderService {
         return repository.save(provider);
     }
 
-    // ================= PROVIDER QUERIES =================
-
     @Override
     public boolean isProviderActive(String username) {
         return repository.findByUsername(username)
@@ -124,12 +120,9 @@ public class ProviderServiceImpl implements ProviderService {
         return repository.findByStatus(status);
     }
 
-    // ================= SERVICE OFFERINGS =================
 
     @Override
     public ServiceOffering createService(String username, ServiceOfferingRequest request) {
-
-        // 🔥 Fetch REAL provider (MANDATORY)
         // Check if provider exists, otherwise create one
         Provider provider = repository.findByUsername(username).orElse(null);
 
@@ -153,8 +146,6 @@ public class ProviderServiceImpl implements ProviderService {
                     .build();
             provider = repository.save(provider);
         }
-
-
 
         ServiceOffering service = ServiceOffering.builder()
                 .name(request.getName())
