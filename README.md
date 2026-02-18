@@ -16,7 +16,8 @@ The platform follows domain-driven microservices design, making it easy to scale
 
 ## 🧩 Microservices Architecture
 
-  <img width="1347" height="592" alt="final-architecture" src="https://github.com/user-attachments/assets/31f72836-95a9-43d1-8af4-bd3f3e85855b" />
+  <img width="1347" height="592" alt="final-architecture" src="https://github.com/user-attachments/assets/094e78c6-7600-4b35-83c2-32d7efc61644" />
+
 
 ## 🛠️ Tech Stack
 
