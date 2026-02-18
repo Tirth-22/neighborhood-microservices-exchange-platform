@@ -1,15 +1,24 @@
+# application-docker.yml - For DOCKER deployment
+# Place in config-repo as SERVICE_NAME-docker.yml
+
 spring:
   application:
-    name: auth-service
+    name: SERVICE_NAME
+  
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
+    url: jdbc:postgresql://postgres:5432/DATABASE_NAME
     username: postgres
-    password: ${DB_PASSWORD:Tirth_22}
+    password: ${DB_PASSWORD:password}
+  
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  
+  kafka:
+    bootstrap-servers: kafka:9092
+  
   cloud:
     compatibility-verifier:
       enabled: false
@@ -23,5 +32,5 @@ eureka:
   instance:
     prefer-ip-address: true
 
-jwt:
-  secret: ${JWT_SECRET:my-secret-key}
+server:
+  port: 8080

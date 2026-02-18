@@ -1,3 +1,8 @@
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
 management:
   tracing:
     sampling:

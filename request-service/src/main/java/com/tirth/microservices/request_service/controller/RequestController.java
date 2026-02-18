@@ -105,10 +105,13 @@ public class RequestController {
             @PathVariable Long id,
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role) {
-        if (!"USER".equalsIgnoreCase(role) && !"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only USER/PROVIDER can cancel request");
+//        if (!"USER".equalsIgnoreCase(role) && !"PROVIDER".equalsIgnoreCase(role)) {
+//            throw new RuntimeException("Only USER/PROVIDER can cancel request");
+//        }
+        if(!"USER".equalsIgnoreCase(role)){
+            throw new UnauthorizedActionException("Only USER can cancel request");
         }
-        return service.cancel(id, username);
+        return service.cancel(id, username, role);
     }
 
     @GetMapping("/provider/accepted")
