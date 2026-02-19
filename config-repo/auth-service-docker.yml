@@ -25,3 +25,9 @@ eureka:
 
 jwt:
   secret: ${JWT_SECRET:my-secret-key}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
