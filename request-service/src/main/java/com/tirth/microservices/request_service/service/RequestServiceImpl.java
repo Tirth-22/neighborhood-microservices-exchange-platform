@@ -118,39 +118,38 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO accept(Long id, String role, String username) {
+        System.out.println("ACCEPTING REQUEST ID = " + id);
+
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        // Role validation
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can accept request");
         }
 
-        // Provider active check
         boolean isActive = providerClient.isProviderActive(username);
+
         if (!isActive) {
             throw new UnauthorizedActionException("Provider is not active");
         }
 
-        // State transition validation - MOST IMPORTANT
+        // State transition validation
         if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.ACCEPTED)) {
             throw new InvalidRequestStateException(
                     RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.ACCEPTED)
             );
         }
 
-        // Perform state transition
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
         request.setAcceptedAt(LocalDateTime.now());
 
         ServiceRequest savedRequest = repository.save(request);
 
-        // Publish event
         RequestAcceptedEvent event = new RequestAcceptedEvent(
                 savedRequest.getId(),
-                savedRequest.getRequestedBy(),
-                username,
+                savedRequest.getRequestedBy(), // userId
+                username, // providerId
                 savedRequest.getTitle(),
                 LocalDateTime.now().toString());
         requestEventProducer.publishRequestAcceptedEvent(event);
@@ -160,35 +159,34 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO reject(Long id, String role, String username) {
-        ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        // Role validation
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only provider can reject request");
         }
 
-        // State transition validation - MOST IMPORTANT
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
+
+        // State transition validation
         if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.REJECTED)) {
             throw new InvalidRequestStateException(
                     RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.REJECTED)
             );
         }
 
-        // Perform state transition
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectedBy(username);
         request.setRejectedAt(LocalDateTime.now());
 
         ServiceRequest saved = repository.save(request);
 
-        // Publish event
         RequestRejectedEvent event = new RequestRejectedEvent(
                 saved.getId(),
-                saved.getRequestedBy(),
-                username,
+                saved.getRequestedBy(), // userId
+                username, // providerId
                 saved.getTitle(),
                 LocalDateTime.now().toString());
+
         requestEventProducer.publishRequestRejectedEvent(event);
 
         return mapToDTO(saved);
@@ -203,7 +201,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ServiceRequestResponseDTO cancel(Long id, String username) {
+    public ServiceRequestResponseDTO cancel(Long id, String username, String role) {
+
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
@@ -212,24 +211,24 @@ public class RequestServiceImpl implements RequestService {
             throw new UnauthorizedActionException("You can cancel only your own request");
         }
 
-        // State transition validation - MOST IMPORTANT
+        // State transition validation
         if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.CANCELLED)) {
             throw new InvalidRequestStateException(
                     RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.CANCELLED)
             );
         }
 
-        // Perform state transition
         request.setStatus(RequestStatus.CANCELLED);
         ServiceRequest savedRequest = repository.save(request);
 
-        // Publish event to notify provider
-        RequestCancelledEvent event = new RequestCancelledEvent(
-                savedRequest.getId(),
-                savedRequest.getRequestedBy(),
-                savedRequest.getProviderUsername(),
-                savedRequest.getTitle(),
-                LocalDateTime.now().toString());
+        // Publish Cancellation Event to notify provider
+        RequestCancelledEvent event
+                = new RequestCancelledEvent(
+                        savedRequest.getId(),
+                        savedRequest.getRequestedBy(),
+                        savedRequest.getProviderUsername(),
+                        savedRequest.getTitle(),
+                        LocalDateTime.now().toString());
         requestEventProducer.publishRequestCancelledEvent(event);
 
         return mapToDTO(savedRequest);
@@ -249,34 +248,34 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating) {
-        ServiceRequest request = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        // Role validation
         if (!"USER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only USER can complete request");
         }
 
-        // Authorization check
-        if (!request.getRequestedBy().equals(username)) {
-            throw new UnauthorizedActionException("You can complete only your own request");
-        }
+        ServiceRequest request = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        // State transition validation - MOST IMPORTANT
+        // State transition validation
         if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.COMPLETED)) {
             throw new InvalidRequestStateException(
                     RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.COMPLETED)
             );
         }
 
-        // Perform state transition
+        if (!request.getRequestedBy().equals(username)) {
+            throw new UnauthorizedActionException("You can complete only your own request");
+        }
+
         request.setStatus(RequestStatus.COMPLETED);
         request.setCompletedAt(LocalDateTime.now());
         request.setRating(rating);
 
         ServiceRequest saved = repository.save(request);
 
-        // Publish event
+        System.out.println("DEBUG: Publishing completion for Offering: " + saved.getServiceOfferingId()
+                + " with rating: " + saved.getRating());
+
         RequestCompletedEvent event = new RequestCompletedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
@@ -285,6 +284,7 @@ public class RequestServiceImpl implements RequestService {
                 saved.getServiceOfferingId(),
                 saved.getRating(),
                 saved.getCompletedAt().toString());
+
         requestEventProducer.publishRequestCompleted(event);
 
         return mapToDTO(saved);

@@ -22,8 +22,8 @@ public class RequestEventProducer {
     private static final String ACCEPT_TOPIC = "request.accepted";
     private static final String REJECT_TOPIC = "request.rejected";
     private static final String COMPLETED_TOPIC = "request.completed";
-    private static final String CREATED_TOPIC = "request.created"; // 🔥 ADDED
-    private static final String CANCELLED_TOPIC = "request.cancelled"; // 🔥 ADDED
+    private static final String CREATED_TOPIC = "request.created"; // ADDED
+    private static final String CANCELLED_TOPIC = "request.cancelled"; // ADDED
 
     public void publishRequestCreatedEvent(RequestCreatedEvent event) {
         try {
