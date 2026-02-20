@@ -3,16 +3,18 @@ import { useState, useEffect } from "react";
 import ServiceCard from "../components/ServiceCard";
 import { providerApi } from "../api/providerApi";
 import Button from "../components/ui/Button";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
+import { categories as allCategories } from "../components/CategoryGrid";
 
 const Services = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
+  const initialCategory = searchParams.get("category") || "All";
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const navigate = useNavigate();
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -42,6 +44,12 @@ const Services = () => {
     };
     fetchServices();
   }, []);
+
+  // Get category display name
+  const getCategoryName = (value) => {
+    const cat = allCategories.find(c => c.value === value);
+    return cat ? cat.name : value;
+  };
 
   const categories = ["All", ...new Set(services.map(s => s.category || "Other"))];
 
@@ -75,13 +83,13 @@ const Services = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h2 className="text-3xl font-bold text-secondary-900">
-              Available Services
+              {selectedCategory !== "All" ? getCategoryName(selectedCategory) : "All Services"}
             </h2>
             <p className="text-secondary-500 mt-1">
-              Find the best local experts for your needs.
+              {filteredServices.length} services available
             </p>
           </div>
 
@@ -107,13 +115,36 @@ const Services = () => {
                 className="pl-4 pr-10 py-2 rounded-xl border border-secondary-200 bg-white text-secondary-900 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all shadow-sm cursor-pointer w-full"
               >
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat}>{cat === "All" ? "All Categories" : getCategoryName(cat)}</option>
                 ))}
               </select>
               <Filter className="absolute right-3 top-2.5 text-secondary-400 pointer-events-none" size={18} />
             </div>
           </div>
         </div>
+
+        {/* Active Filters */}
+        {(selectedCategory !== "All" || searchTerm) && (
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <span className="text-sm text-secondary-500">Active filters:</span>
+            {selectedCategory !== "All" && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                {getCategoryName(selectedCategory)}
+                <button onClick={() => setSelectedCategory("All")} className="hover:text-primary-900">
+                  <X size={14} />
+                </button>
+              </span>
+            )}
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full text-sm font-medium">
+                "{searchTerm}"
+                <button onClick={() => setSearchTerm("")} className="hover:text-secondary-900">
+                  <X size={14} />
+                </button>
+              </span>
+            )}
+          </div>
+        )}
 
         {/* GRID */}
         {loading ? (

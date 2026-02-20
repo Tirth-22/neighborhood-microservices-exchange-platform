@@ -2,10 +2,12 @@ import React from 'react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
-import { Search, MapPin, ArrowRight, Shield, Clock, ThumbsUp } from 'lucide-react';
+import { Search, MapPin, ArrowRight, Shield, Clock, ThumbsUp, Star, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ServiceMarquee from '../components/ServiceMarquee';
 import ServiceProviderMap from '../components/ServiceProviderMap';
+import CategoryGrid from '../components/CategoryGrid';
+import OffersBanner from '../components/OffersBanner';
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -87,6 +89,56 @@ const Home = () => {
               Search
             </Button>
           </Card>
+
+          {/* Stats */}
+          <div className="flex flex-wrap justify-center gap-8 mt-12">
+            <div className="flex items-center gap-2">
+              <Users className="text-primary-600" size={24} />
+              <div>
+                <p className="text-2xl font-bold text-secondary-900">10,000+</p>
+                <p className="text-sm text-secondary-500">Service Providers</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="text-yellow-500 fill-yellow-500" size={24} />
+              <div>
+                <p className="text-2xl font-bold text-secondary-900">4.8/5</p>
+                <p className="text-sm text-secondary-500">Average Rating</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="text-green-500" size={24} />
+              <div>
+                <p className="text-2xl font-bold text-secondary-900">100%</p>
+                <p className="text-sm text-secondary-500">Verified Pros</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Offers Banner */}
+      <section className="py-6 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <OffersBanner />
+        </div>
+      </section>
+
+      {/* Category Grid Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-secondary-900 mb-3">What are you looking for?</h2>
+            <p className="text-secondary-600">Browse our most popular service categories</p>
+          </div>
+          <CategoryGrid limit={12} />
+          <div className="text-center mt-8">
+            <Link to="/services">
+              <Button variant="outline" className="inline-flex items-center gap-2">
+                View All Services <ArrowRight size={18} />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -100,7 +152,7 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-secondary-100 text-center hover:shadow-md transition-shadow transition-all duration-300">
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-secondary-100 text-center hover:shadow-md transition-all duration-300">
                 <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                   <feature.icon size={28} />
                 </div>

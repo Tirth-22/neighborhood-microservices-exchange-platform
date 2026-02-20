@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Button from "./ui/Button";
 import { Menu, X, User, Bell } from "lucide-react";
+import LocationSelector from "./LocationSelector";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -52,28 +53,33 @@ const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
 
           {/* LOGO */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-primary-600 p-2 rounded-lg">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-white"
-              >
-                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="bg-[#1a1a2e] p-2 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-white"
+                >
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold text-secondary-900">
+                NeighborHub
+              </span>
+            </Link>
+            <div className="hidden md:block border-l border-secondary-200 pl-4">
+              <LocationSelector />
             </div>
-            <span className="text-xl font-bold text-secondary-900">
-              NeighborHub
-            </span>
-          </Link>
+          </div>
 
           {/* DESKTOP NAV */}
           <div className="hidden md:flex items-center space-x-8">
