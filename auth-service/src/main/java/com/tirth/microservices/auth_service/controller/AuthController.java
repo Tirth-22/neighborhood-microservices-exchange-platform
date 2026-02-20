@@ -56,6 +56,14 @@ public class AuthController {
             return new LoginResponse(false, "Wrong password", null);
         }
 
+        // Verify role matches
+        String selectedRole = request.getRole() != null ? request.getRole().toUpperCase().trim() : "";
+        String storedRole = user.getRole() != null ? user.getRole().toUpperCase().trim() : "";
+
+        if (!selectedRole.isEmpty() && !storedRole.equals(selectedRole)) {
+            return new LoginResponse(false, "You are registered as " + storedRole + ". Please select the correct role.", null);
+        }
+
         String token = jwtUtil.generateToken(
                 user.getUsername(),
                 user.getRole(),

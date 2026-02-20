@@ -19,7 +19,8 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await authApi.login({ username, password });
+      const selectedRole = role.toUpperCase();
+      const response = await authApi.login({ username, password, role: selectedRole });
 
       if (response.data.success) {
         let { token, role: backendRole } = response.data;

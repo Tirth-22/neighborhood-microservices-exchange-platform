@@ -29,9 +29,29 @@ const OfferService = () => {
       const categoryMap = {
         "Plumbing": "PLUMBER",
         "Electrical": "ELECTRICIAN",
-        "Teaching": "OTHER",
+        "Teaching": "TEACHING",
         "Cleaning": "CLEANING",
-        "Delivery": "OTHER",
+        "Delivery": "DELIVERY",
+        "Painting": "PAINTING",
+        "Home Maintenance": "HOME_MAINTENANCE",
+        "Gardening": "GARDENING",
+        "Pet Care": "PET_CARE",
+        "Babysitting": "BABYSITTING",
+        "Carpentry": "CARPENTRY",
+        "Moving & Hauling": "MOVING",
+        "Cooking & Catering": "COOKING",
+        "Laundry": "LAUNDRY",
+        "Grocery Shopping": "GROCERY_SHOPPING",
+        "Elderly Care": "ELDERLY_CARE",
+        "AC & HVAC Repair": "HVAC_REPAIR",
+        "Appliance Repair": "APPLIANCE_REPAIR",
+        "Computer & IT Support": "IT_SUPPORT",
+        "Photography": "PHOTOGRAPHY",
+        "Tailoring": "TAILORING",
+        "Car Washing": "CAR_WASHING",
+        "Pest Control": "PEST_CONTROL",
+        "Fitness Training": "FITNESS_TRAINING",
+        "Beauty & Salon": "BEAUTY_SALON",
         "Other": "OTHER"
       };
 
@@ -128,6 +148,26 @@ const OfferService = () => {
                 <option value="Teaching">Teaching</option>
                 <option value="Cleaning">Cleaning</option>
                 <option value="Delivery">Delivery</option>
+                <option value="Painting">Painting</option>
+                <option value="Home Maintenance">Home Maintenance</option>
+                <option value="Gardening">Gardening</option>
+                <option value="Pet Care">Pet Care</option>
+                <option value="Babysitting">Babysitting</option>
+                <option value="Carpentry">Carpentry</option>
+                <option value="Moving & Hauling">Moving & Hauling</option>
+                <option value="Cooking & Catering">Cooking & Catering</option>
+                <option value="Laundry">Laundry</option>
+                <option value="Grocery Shopping">Grocery Shopping</option>
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="AC & HVAC Repair">AC & HVAC Repair</option>
+                <option value="Appliance Repair">Appliance Repair</option>
+                <option value="Computer & IT Support">Computer & IT Support</option>
+                <option value="Photography">Photography</option>
+                <option value="Tailoring">Tailoring</option>
+                <option value="Car Washing">Car Washing</option>
+                <option value="Pest Control">Pest Control</option>
+                <option value="Fitness Training">Fitness Training</option>
+                <option value="Beauty & Salon">Beauty & Salon</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -135,7 +175,7 @@ const OfferService = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-secondary-700 mb-1">
-                  Price (per hour)
+                  Price
                 </label>
                 <input
                   name="price"

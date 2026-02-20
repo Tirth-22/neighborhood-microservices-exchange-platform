@@ -1,13 +1,30 @@
 package com.tirth.microservices.provider_service.entity;
 
 public enum ServiceType {
-
-    ELECTRICIAN,
     PLUMBER,
+    ELECTRICIAN,
+    TEACHING,
     CLEANING,
-    CARPENTER,
-    PAINTER,
-    HOME_CLEANER,
-    TECHNICIAN,
+    DELIVERY,
+    PAINTING,
+    HOME_MAINTENANCE,
+    GARDENING,
+    PET_CARE,
+    BABYSITTING,
+    CARPENTRY,
+    MOVING,
+    COOKING,
+    LAUNDRY,
+    GROCERY_SHOPPING,
+    ELDERLY_CARE,
+    HVAC_REPAIR,
+    APPLIANCE_REPAIR,
+    IT_SUPPORT,
+    PHOTOGRAPHY,
+    TAILORING,
+    CAR_WASHING,
+    PEST_CONTROL,
+    FITNESS_TRAINING,
+    BEAUTY_SALON,
     OTHER
 }
