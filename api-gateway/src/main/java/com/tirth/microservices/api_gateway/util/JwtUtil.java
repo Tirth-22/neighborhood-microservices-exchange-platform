@@ -1,20 +1,28 @@
 package com.tirth.microservices.api_gateway.util;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
-import java.security.Key;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtUtil {
 
-    // SAME SECRET AS AUTH-SERVICE (VERY IMPORTANT)
-    private static final String SECRET = "THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final Key key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     // VALIDATE TOKEN
     public boolean isTokenValid(String token) {

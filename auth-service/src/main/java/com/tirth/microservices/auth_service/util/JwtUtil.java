@@ -1,31 +1,40 @@
 package com.tirth.microservices.auth_service.util;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
-import java.security.Key;
-import java.util.Date;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtUtil {
 
-    private static final String SECRET =
-            "THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final Key key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    @Value("${jwt.expiration:3600000}")
+    private long expiry;
 
-    private static final long EXPIRY = 1000 * 60 * 60; // 1 hour
+    private Key key;
 
-    public String generateToken(String username, String role,String email) {
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateToken(String username, String role, String email) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
-                .claim("email",email)
+                .claim("email", email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRY))
+                .setExpiration(new Date(System.currentTimeMillis() + expiry))
                 .signWith(key)
                 .compact();
     }

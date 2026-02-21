@@ -32,21 +32,22 @@ public class RatingConsumer {
                 return;
             }
 
-            repository.findById(event.getServiceOfferingId()).ifPresentOrElse(service -> {
-                double currentAverage = service.getAverageRating() != null ? service.getAverageRating() : 0.0;
-                int currentCount = service.getReviewCount() != null ? service.getReviewCount() : 0;
+            if (event.getRating() == null) {
+                log.error("ABORT: Rating is NULL in event!");
+                return;
+            }
 
-                double newAverage = ((currentAverage * currentCount) + event.getRating()) / (currentCount + 1);
+            // Use atomic update to prevent race conditions
+            int updatedRows = repository.updateRatingAtomically(
+                    event.getServiceOfferingId(),
+                    event.getRating()
+            );
 
-                service.setAverageRating(newAverage);
-                service.setReviewCount(currentCount + 1);
-
-                repository.save(service);
-                log.info("SUCCESS: Updated Service {} - ID: {} - New Avg: {}, New Count: {}",
-                        service.getName(), service.getId(), newAverage, currentCount + 1);
-            }, () -> {
+            if (updatedRows > 0) {
+                log.info("SUCCESS: Atomically updated rating for Service ID: {}", event.getServiceOfferingId());
+            } else {
                 log.error("FAIL: Service offering with ID {} not found in database", event.getServiceOfferingId());
-            });
+            }
         } catch (Exception e) {
             log.error("FATAL: Error parsing or processing Kafka event", e);
         }

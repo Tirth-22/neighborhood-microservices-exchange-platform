@@ -36,18 +36,12 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
-        // Hardcoded Admin Check
-        if ("admin@neighborhood.com".equalsIgnoreCase(request.getUsername())
-                || "admin".equalsIgnoreCase(request.getUsername())) {
-            if ("admin123".equals(request.getPassword())) {
-                String token = jwtUtil.generateToken("admin", "ADMIN", "admin@neighborhood.com");
-                return new LoginResponse(true, "ADMIN", token);
-            } else {
-                return new LoginResponse(false, "Wrong password", null);
-            }
-        }
-
         User user = userRepository.findByUsername(request.getUsername());
+
+        if (user == null) {
+            // Also try finding by email for admin or other users
+            user = userRepository.findByEmail(request.getUsername());
+        }
 
         if (user == null) {
             return new LoginResponse(false, "User not found", null);

@@ -6,15 +6,18 @@ import com.tirth.microservices.provider_service.entity.ProviderStatus;
 import com.tirth.microservices.provider_service.entity.ServiceOffering;
 import com.tirth.microservices.provider_service.entity.ServiceType;
 import com.tirth.microservices.provider_service.exception.ForbiddenException;
+import com.tirth.microservices.provider_service.exception.ResourceNotFoundException;
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
 import com.tirth.microservices.provider_service.security.GatewayGuard;
 import com.tirth.microservices.provider_service.service.ProviderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/providers")
 @RequiredArgsConstructor
+@Slf4j
 public class ProviderController {
 
     private final ProviderService providerService;
@@ -31,15 +34,14 @@ public class ProviderController {
         gatewayGuard.validate(gatewayHeader);
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only PROVIDER role allowed");
+            throw new ForbiddenException("Only PROVIDER role allowed");
         }
 
-        ProviderRegisterResponse response =
-                providerService.registerProvider(username,request);
+        ProviderRegisterResponse response
+                = providerService.registerProvider(username, request);
 
         return new ApiResponse<>(true, "Registration submitted", response);
     }
-
 
     @GetMapping("/check-active/{username}")
     public boolean isProviderActive(
@@ -58,12 +60,12 @@ public class ProviderController {
             @RequestHeader("X-Gateway-Request") String gatewayHeader
     ) {
         gatewayGuard.validate(gatewayHeader);
-        System.out.println("ROLE RECEIVED = " + role);
+        log.debug("ROLE RECEIVED = {}", role);
         if (!"ADMIN".equalsIgnoreCase(role)) {
             throw new ForbiddenException("Only ADMIN role allowed");
         }
 
-        return providerService.approveProvider(id,adminUsername);
+        return providerService.approveProvider(id, adminUsername);
     }
 
     @PutMapping("/{id}/reject")
@@ -88,11 +90,11 @@ public class ProviderController {
         ServiceType type = ServiceType.valueOf(serviceType);
         java.util.List<Provider> providers = repository
                 .findByServiceTypeAndStatus(type, ProviderStatus.ACTIVE);
-                
+
         if (providers.isEmpty()) {
-            throw new RuntimeException("No provider available");
+            throw new ResourceNotFoundException("No provider available for service type: " + serviceType);
         }
-        
+
         Provider provider = providers.get(0);
 
         return new ProviderLookupResponse(provider.getId(), provider.getUsername());
@@ -108,7 +110,7 @@ public class ProviderController {
         if (gatewayHeader != null) {
             gatewayGuard.validate(gatewayHeader);
         }
-        System.out.println("DEBUG: createService called with role: " + role);
+        log.debug("createService called with role: {}", role);
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
             throw new ForbiddenException("Only PROVIDER can create services");
@@ -116,7 +118,6 @@ public class ProviderController {
 
         return providerService.createService(username, request);
     }
-
 
     @GetMapping("/services")
     public java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllServices() {
@@ -129,16 +130,16 @@ public class ProviderController {
             @RequestHeader("X-User-Role") String role
     ) {
         if (!"PROVIDER".equalsIgnoreCase(role)) {
-            throw new RuntimeException("Only PROVIDER can view own services");
+            throw new ForbiddenException("Only PROVIDER can view own services");
         }
         return providerService.getMyServices(username);
     }
-    
+
     @DeleteMapping("/services/{id}")
     public void deleteService(
-        @PathVariable Long id,
-        @RequestHeader("X-User-Name") String username,
-        @RequestHeader("X-User-Role") String role
+            @PathVariable Long id,
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role
     ) {
         providerService.deleteService(id, username, role);
     }
@@ -156,6 +157,5 @@ public class ProviderController {
         }
         return providerService.getAllProviders();
     }
-
 
 }
