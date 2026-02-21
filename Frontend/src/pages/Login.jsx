@@ -39,7 +39,7 @@ const Login = () => {
         if (finalRole === "ADMIN") {
           navigate("/admin");
         } else if (finalRole === "PROVIDER") {
-          navigate("/provider-dashboard");
+          navigate("/notifications");
         } else {
           navigate("/services");
         }
