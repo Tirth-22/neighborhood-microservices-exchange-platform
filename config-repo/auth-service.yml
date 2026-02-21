@@ -40,5 +40,11 @@ logging:
     level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
 
 jwt:
-  secret: my-secret-key
+  secret: ${JWT_SECRET:THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
+  expiration: ${JWT_EXPIRATION:3600000}
+
+admin:
+  username: ${ADMIN_USERNAME:admin}
+  email: ${ADMIN_EMAIL:admin@neighborhood.com}
+  password: ${ADMIN_PASSWORD:admin123}
 

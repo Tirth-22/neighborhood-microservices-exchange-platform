@@ -40,6 +40,12 @@ spring:
           predicates:
             - Path=/notifications/**
 
+jwt:
+  secret: ${JWT_SECRET:THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
+
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+
 eureka:
   client:
     service-url:

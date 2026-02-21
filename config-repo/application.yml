@@ -3,6 +3,20 @@ spring:
     compatibility-verifier:
       enabled: false
 
+# Shared JWT and Gateway secrets - CHANGE THESE IN PRODUCTION!
+jwt:
+  secret: THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM
+  expiration: 3600000
+
+gateway:
+  secret: SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION
+
+# Admin credentials - CHANGE THESE IN PRODUCTION!
+admin:
+  username: admin
+  email: admin@neighborhood.com
+  password: admin123
+
 management:
   tracing:
     sampling:

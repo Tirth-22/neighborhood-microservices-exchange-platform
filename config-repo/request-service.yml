@@ -18,6 +18,9 @@ spring:
   config:
     import: optional:configserver:http://config-server:8888
 
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+
 eureka:
   client:
     service-url:
