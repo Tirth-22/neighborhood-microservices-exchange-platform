@@ -13,10 +13,7 @@ public class GatewayGuard {
 
     public void validate(String gatewayHeader) {
         if (gatewayHeader == null || !gatewayHeader.equals(gatewaySecret)) {
-            throw new Forbidden
-    
-    
-        Exception("Direct access forbidden. Use API Gateway.");
+            throw new ForbiddenException("Direct access forbidden. Use API Gateway.");
         }
     }
 

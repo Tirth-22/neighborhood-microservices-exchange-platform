@@ -10,8 +10,8 @@ import lombok.Data;
 public class RegisterRequest {
 
     @NotBlank(message = "Username is required")
-    @Size(min = 6, max = 50, message = "Username must be 6-50 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Username can only contain alphanumeric characters and underscores")
+    @Size(min = 3, max = 50, message = "Username must be 3-50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "Username can only contain alphanumeric characters, underscores and hyphens")
     private String username;
 
     @NotBlank(message = "Password is required")

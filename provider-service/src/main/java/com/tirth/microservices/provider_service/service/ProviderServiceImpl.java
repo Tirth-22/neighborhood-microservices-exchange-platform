@@ -14,8 +14,13 @@ import com.tirth.microservices.provider_service.entity.Provider;
 import com.tirth.microservices.provider_service.entity.ProviderStatus;
 import com.tirth.microservices.provider_service.entity.ServiceOffering;
 import com.tirth.microservices.provider_service.entity.ServiceType;
+import com.tirth.microservices.provider_service.event.ProviderApprovedEvent;
+import com.tirth.microservices.provider_service.event.ProviderRegisteredEvent;
+import com.tirth.microservices.provider_service.event.ProviderRejectedEvent;
 import com.tirth.microservices.provider_service.exception.DuplicateProviderException;
+import com.tirth.microservices.provider_service.exception.ForbiddenException;
 import com.tirth.microservices.provider_service.exception.ResourceNotFoundException;
+import com.tirth.microservices.provider_service.producer.ProviderEventProducer;
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
 import com.tirth.microservices.provider_service.repository.ServiceOfferingRepository;
 
@@ -28,7 +33,7 @@ public class ProviderServiceImpl implements ProviderService {
 
     private final ProviderRepository repository;
     private final ServiceOfferingRepository serviceOfferingRepository;
-
+    private final ProviderEventProducer eventProducer;
 
     @Override
     public ProviderRegisterResponse registerProvider(String username, ProviderRegisterRequest request) {
@@ -49,7 +54,17 @@ public class ProviderServiceImpl implements ProviderService {
                     .active(false)
                     .build();
 
-            repository.save(provider);
+            Provider saved = repository.save(provider);
+
+            // Send notification to admins
+            eventProducer.publishProviderRegisteredEvent(
+                    ProviderRegisteredEvent.builder()
+                            .providerId(saved.getId())
+                            .providerUsername(username)
+                            .serviceType(serviceType.name())
+                            .build()
+            );
+
             return new ProviderRegisterResponse("Pending Approval");
 
         } catch (DataIntegrityViolationException ex) {
@@ -59,20 +74,19 @@ public class ProviderServiceImpl implements ProviderService {
         }
     }
 
-
     @Override
     public Provider getByUsername(String username) {
         return repository.findByUsername(username)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Provider not found"));
+                .orElseThrow(()
+                        -> new ResourceNotFoundException("Provider not found"));
     }
 
     @Override
     public Provider approveProvider(Long providerId, String adminUsername) {
 
         Provider provider = repository.findById(providerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Provider not found"));
+                .orElseThrow(()
+                        -> new ResourceNotFoundException("Provider not found"));
 
         if (provider.getStatus() != ProviderStatus.PENDING) {
             throw new IllegalStateException("Only PENDING providers can be approved");
@@ -83,15 +97,27 @@ public class ProviderServiceImpl implements ProviderService {
         provider.setApprovedBy(adminUsername);
         provider.setApprovedAt(LocalDateTime.now());
 
-        return repository.save(provider);
+        Provider saved = repository.save(provider);
+
+        // Send notification to provider
+        eventProducer.publishProviderApprovedEvent(
+                ProviderApprovedEvent.builder()
+                        .providerId(saved.getId())
+                        .providerUsername(saved.getUsername())
+                        .serviceType(saved.getServiceType().name())
+                        .approvedBy(adminUsername)
+                        .build()
+        );
+
+        return saved;
     }
 
     @Override
     public Provider rejectProvider(Long providerId) {
 
         Provider provider = repository.findById(providerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Provider not found"));
+                .orElseThrow(()
+                        -> new ResourceNotFoundException("Provider not found"));
 
         if (provider.getStatus() != ProviderStatus.PENDING) {
             throw new IllegalStateException("Only PENDING providers can be rejected");
@@ -100,7 +126,18 @@ public class ProviderServiceImpl implements ProviderService {
         provider.setStatus(ProviderStatus.INACTIVE);
         provider.setActive(false);
 
-        return repository.save(provider);
+        Provider saved = repository.save(provider);
+
+        // Send notification to provider
+        eventProducer.publishProviderRejectedEvent(
+                ProviderRejectedEvent.builder()
+                        .providerId(saved.getId())
+                        .providerUsername(saved.getUsername())
+                        .serviceType(saved.getServiceType().name())
+                        .build()
+        );
+
+        return saved;
     }
 
     @Override
@@ -120,31 +157,18 @@ public class ProviderServiceImpl implements ProviderService {
         return repository.findByStatus(status);
     }
 
-
     @Override
     public ServiceOffering createService(String username, ServiceOfferingRequest request) {
-        // Check if provider exists, otherwise create one
-        Provider provider = repository.findByUsername(username).orElse(null);
+        // Provider must exist and be ACTIVE to create services
+        Provider provider = repository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                "Provider profile not found. Please register as a provider first."));
 
-        if (provider == null) {
-            // Auto-create provider profile
-            ServiceType sType = ServiceType.OTHER;
-            try {
-                if (request.getCategory() != null) {
-                    sType = ServiceType.valueOf(request.getCategory().toUpperCase());
-                }
-            } catch (IllegalArgumentException e) {
-                sType = ServiceType.OTHER;
-            }
-
-            provider = Provider.builder()
-                    .username(username)
-                    .serviceType(sType)
-                    .status(ProviderStatus.ACTIVE) // Auto-approve for seamless flow
-                    .active(true)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            provider = repository.save(provider);
+        // Security check: Only ACTIVE providers can create services
+        if (provider.getStatus() != ProviderStatus.ACTIVE) {
+            throw new ForbiddenException(
+                    "Cannot create services. Your provider status is: " + provider.getStatus()
+                    + ". Please wait for admin approval.");
         }
 
         ServiceOffering service = ServiceOffering.builder()

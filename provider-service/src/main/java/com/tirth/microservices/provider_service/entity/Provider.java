@@ -44,9 +44,21 @@ public class Provider {
 
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.status = ProviderStatus.ACTIVE; // Default to ACTIVE
-        this.active = true; // Default to TRUE
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.status == null) {
+            this.status = ProviderStatus.PENDING; // Default to PENDING, requires admin approval
+        }
+        // active is derived from status, no need to set separately
+    }
+
+    /**
+     * Active status is derived from ProviderStatus. Provider is active only
+     * when status is ACTIVE.
+     */
+    public boolean isActive() {
+        return this.status == ProviderStatus.ACTIVE;
     }
 
 }
