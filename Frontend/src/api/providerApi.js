@@ -11,7 +11,7 @@ export const providerApi = {
 
     // Admin/Provider actions
     checkActive: (username) => api.get(`/providers/check-active/${username}`),
-    getAllProviders: (status) => api.get(`/providers?status=${status || ''}`), // Assuming this endpoint exists or will be added
+    getAllProviders: (status) => status ? api.get(`/admin/providers/status/${status}`) : api.get('/admin/providers'),
     approveProvider: (id) => api.put(`/providers/${id}/approve`),
     rejectProvider: (id) => api.put(`/providers/${id}/reject`),
 };

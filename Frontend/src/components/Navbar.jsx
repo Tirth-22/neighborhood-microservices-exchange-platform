@@ -28,6 +28,7 @@ const Navbar = () => {
 
   const role = getRole(user);
   const isProvider = role === "PROVIDER" || role.includes("PROVIDER");
+  const isAdmin = role === "ADMIN" || role.includes("ADMIN");
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -35,14 +36,18 @@ const Navbar = () => {
     { name: "Offer Service", path: "/offer-service" },
     { name: "My Requests", path: "/my-requests" },
     { name: "Provider Dashboard", path: "/provider-dashboard" },
+    { name: "Admin Dashboard", path: "/admin" },
   ].filter((link) => {
     if (!user) {
       return link.path === "/" || link.path === "/services";
     }
-    if (isProvider) {
-      return link.path !== "/my-requests";
+    if (isAdmin) {
+      return link.path === "/" || link.path === "/services" || link.path === "/admin";
     }
-    return link.path !== "/offer-service" && link.path !== "/provider-dashboard";
+    if (isProvider) {
+      return link.path !== "/my-requests" && link.path !== "/admin";
+    }
+    return link.path !== "/offer-service" && link.path !== "/provider-dashboard" && link.path !== "/admin";
   });
 
   const isActive = (path) => location.pathname === path;

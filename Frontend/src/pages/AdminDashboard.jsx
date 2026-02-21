@@ -25,18 +25,22 @@ const AdminDashboard = () => {
     const handleApprove = async (id) => {
         try {
             await providerApi.approveProvider(id);
+            alert('Provider approved successfully!');
             fetchProviders();
         } catch (error) {
             console.error("Failed to approve", error);
+            alert('Failed to approve provider: ' + (error.response?.data?.message || error.message));
         }
     };
 
     const handleReject = async (id) => {
         try {
             await providerApi.rejectProvider(id);
+            alert('Provider rejected successfully!');
             fetchProviders();
         } catch (error) {
             console.error("Failed to reject", error);
+            alert('Failed to reject provider: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -86,7 +90,7 @@ const AdminDashboard = () => {
 
                                 {provider.status === 'PENDING' && (
                                     <div className="flex gap-2">
-                                        <Button size="sm" onClick={() => handleApprove(provider.id)} className="bg-green-600 hover:bg-green-700">
+                                        <Button size="sm" variant="success" onClick={() => handleApprove(provider.id)}>
                                             <Check size={16} className="mr-1" /> Approve
                                         </Button>
                                         <Button size="sm" variant="danger" onClick={() => handleReject(provider.id)}>
