@@ -7,8 +7,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "service_requests")
-@Data
+@Table(name = "service_requests", indexes = {
+    @Index(name = "idx_requested_by", columnList = "requested_by"),
+    @Index(name = "idx_status", columnList = "status"),
+    @Index(name = "idx_provider_status", columnList = "provider_username, status")
+})
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +22,9 @@ public class ServiceRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false)
     private String title;

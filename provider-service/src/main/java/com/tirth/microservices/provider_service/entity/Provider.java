@@ -39,6 +39,9 @@ public class Provider {
     private String approvedBy;
     private LocalDateTime approvedAt;
 
+    @Version
+    private Long version;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -1,14 +1,14 @@
-package com.tirth.microservices.request_service.exception;
+package com.tirth.microservices.auth_service.exception;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,32 +23,11 @@ public class GlobalExceptionHandler {
                 .body(errorResponse(errors, 400));
     }
 
-    // 1️⃣ Resource not found
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(errorResponse(ex.getMessage(), 404));
-    }
-
-    // 2️⃣ Unauthorized action
-    @ExceptionHandler(UnauthorizedActionException.class)
-    public ResponseEntity<?> handleUnauthorized(UnauthorizedActionException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(errorResponse(ex.getMessage(), 403));
-    }
-
-    // 3️⃣ Invalid request state
-    @ExceptionHandler(InvalidRequestStateException.class)
-    public ResponseEntity<?> handleInvalidState(InvalidRequestStateException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse(ex.getMessage(), 400));
-    }
-
-    // 4️⃣ Generic Exception
+    // Generic Exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleAll(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(errorResponse("An unexpected error occurred: " + ex.getMessage(), 500));
+                .body(errorResponse("An unexpected error occurred", 500));
     }
 
     private Map<String, Object> errorResponse(String message, int status) {

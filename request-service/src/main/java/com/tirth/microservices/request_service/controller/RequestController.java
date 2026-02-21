@@ -18,6 +18,8 @@ import com.tirth.microservices.request_service.exception.UnauthorizedActionExcep
 import com.tirth.microservices.request_service.security.GatewayGuard;
 import com.tirth.microservices.request_service.service.RequestService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/requests")
 public class RequestController {
@@ -32,7 +34,7 @@ public class RequestController {
 
     @PostMapping
     public ServiceRequestResponseDTO createRequest(
-            @RequestBody CreateRequestRequest request,
+            @Valid @RequestBody CreateRequestRequest request,
             @RequestHeader("X-User-Name") String username) {
         return service.createRequest(username, request);
     }
@@ -108,7 +110,7 @@ public class RequestController {
 //        if (!"USER".equalsIgnoreCase(role) && !"PROVIDER".equalsIgnoreCase(role)) {
 //            throw new RuntimeException("Only USER/PROVIDER can cancel request");
 //        }
-        if(!"USER".equalsIgnoreCase(role)){
+        if (!"USER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only USER can cancel request");
         }
         return service.cancel(id, username, role);

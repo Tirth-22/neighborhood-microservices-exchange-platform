@@ -15,6 +15,8 @@ import com.tirth.microservices.auth_service.entity.User;
 import com.tirth.microservices.auth_service.repository.UserRepository;
 import com.tirth.microservices.auth_service.util.JwtUtil;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class AuthController {
 
@@ -35,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername());
 
         if (user == null) {
@@ -67,13 +69,16 @@ public class AuthController {
     }
 
     @PostMapping("/auth/register")
-    public ApiResponse register(@RequestBody RegisterRequest request) {
-        // 1. Validate Field Lengths
-        if (request.getUsername() == null || request.getUsername().trim().length() < 6) {
-            return new ApiResponse(false, "Username must be at least 6 characters", null);
+    public ApiResponse register(@Valid @RequestBody RegisterRequest request) {
+        // SECURITY: Block ADMIN role registration
+        if ("ADMIN".equalsIgnoreCase(request.getRole())) {
+            return new ApiResponse(false, "Cannot register as admin", null);
         }
-        if (request.getPassword() == null || request.getPassword().length() < 6) {
-            return new ApiResponse(false, "Password must be at least 6 characters", null);
+
+        // Validate role is USER or PROVIDER only
+        String role = request.getRole() != null ? request.getRole().toUpperCase().trim() : "";
+        if (!role.equals("USER") && !role.equals("PROVIDER")) {
+            return new ApiResponse(false, "Role must be USER or PROVIDER", null);
         }
 
         // 2. Check for duplicate Username

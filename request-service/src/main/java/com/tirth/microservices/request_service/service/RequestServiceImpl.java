@@ -249,6 +249,11 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating) {
 
+        // Rating validation - MANDATORY
+        if (rating == null || rating < 1.0 || rating > 5.0) {
+            throw new InvalidRequestStateException("Rating must be between 1 and 5");
+        }
+
         if (!"USER".equalsIgnoreCase(role)) {
             throw new UnauthorizedActionException("Only USER can complete request");
         }
