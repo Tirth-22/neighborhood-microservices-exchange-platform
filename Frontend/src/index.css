@@ -9,6 +9,33 @@
         @apply font-sans antialiased text-secondary-900 bg-secondary-50;
         transition: background-color 0.3s ease, color 0.3s ease;
     }
+    
+    /* Dark mode base styles using CSS custom properties */
+    :root {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f1f5f9;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #475569;
+        --shadow-color: rgba(0, 0, 0, 0.4);
+    }
+    
+    .dark body {
+        @apply bg-secondary-900 text-secondary-100;
+    }
 }
 
 @layer utilities {
