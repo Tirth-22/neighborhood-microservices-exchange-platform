@@ -3,6 +3,9 @@ package com.tirth.microservices.provider_service.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +39,7 @@ public class ProviderServiceImpl implements ProviderService {
     private final ProviderEventProducer eventProducer;
 
     @Override
+    @CacheEvict(value = "providers", allEntries = true)
     public ProviderRegisterResponse registerProvider(String username, ProviderRegisterRequest request) {
 
         ServiceType serviceType = ServiceType.valueOf(request.getServiceType());
@@ -75,6 +79,7 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    @Cacheable(value = "provider", key = "#username")
     public Provider getByUsername(String username) {
         return repository.findByUsername(username)
                 .orElseThrow(()
@@ -82,6 +87,10 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    @Caching(evict = {
+        @CacheEvict(value = "providers", allEntries = true),
+        @CacheEvict(value = "provider", allEntries = true)
+    })
     public Provider approveProvider(Long providerId, String adminUsername) {
 
         Provider provider = repository.findById(providerId)
@@ -113,6 +122,10 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    @Caching(evict = {
+        @CacheEvict(value = "providers", allEntries = true),
+        @CacheEvict(value = "provider", allEntries = true)
+    })
     public Provider rejectProvider(Long providerId) {
 
         Provider provider = repository.findById(providerId)
@@ -148,11 +161,13 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    @Cacheable(value = "providers", key = "'all'")
     public List<Provider> getAllProviders() {
         return repository.findAll();
     }
 
     @Override
+    @Cacheable(value = "providers", key = "#status.name()")
     public List<Provider> getProvidersByStatus(ProviderStatus status) {
         return repository.findByStatus(status);
     }
