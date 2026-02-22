@@ -70,6 +70,36 @@ services:
       - "29092:29092"
 
   # =====================
+  # REDIS CACHE
+  # =====================
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =====================
+  # ZIPKIN (DISTRIBUTED TRACING)
+  # =====================
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =====================
   # CONFIG SERVER
   # =====================
   config-server:
@@ -167,6 +197,8 @@ services:
       SPRING_APPLICATION_NAME: user-service
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USERNAME: ${DB_USERNAME}
+    volumes:
+      - user-uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -212,6 +244,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+      redis:
+        condition: service_healthy
       config-server:
         condition: service_healthy
       eureka-server:
@@ -259,5 +293,6 @@ services:
 volumes:
   pgdata:
   pgadmin_data:
+  user-uploads:
 
 
