@@ -50,3 +50,37 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+
+# Distributed Tracing
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,gateway
+
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: API Gateway
+        url: /v3/api-docs
+      - name: Auth Service  
+        url: /auth/v3/api-docs
+      - name: User Service
+        url: /user/v3/api-docs
+      - name: Provider Service
+        url: /providers/v3/api-docs
+      - name: Request Service
+        url: /requests/v3/api-docs
+      - name: Notification Service
+        url: /notifications/v3/api-docs

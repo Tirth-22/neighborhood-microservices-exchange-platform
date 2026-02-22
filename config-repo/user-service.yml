@@ -9,11 +9,26 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 
   config:
     import: optional:configserver:http://config-server:8888
+
+file:
+  upload-dir: /app/uploads
 
 eureka:
   client:
