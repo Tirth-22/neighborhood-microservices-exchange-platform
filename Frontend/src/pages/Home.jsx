@@ -169,14 +169,14 @@ const Home = () => {
       {/* Map Section */}
       <section className="py-20 bg-white transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-6 gap-6">
             <div className="max-w-2xl">
               <h2 className="text-3xl font-bold text-secondary-900 mb-4 flex items-center gap-3">
                 <MapPin className="text-primary-600" size={32} />
                 Around Your Neighborhood
               </h2>
               <p className="text-secondary-600 text-lg">
-                Explore service providers active in your area. Click on the pins to view details and book instantly.
+                Explore service providers active in your area. Use filters to find exactly what you need, then click on pins to view details and book instantly.
               </p>
             </div>
             <Link to="/services">
@@ -186,7 +186,11 @@ const Home = () => {
             </Link>
           </div>
 
-          <ServiceProviderMap />
+          <ServiceProviderMap 
+            height="550px" 
+            showFilters={true} 
+            showSearch={true} 
+          />
         </div>
       </section>
 

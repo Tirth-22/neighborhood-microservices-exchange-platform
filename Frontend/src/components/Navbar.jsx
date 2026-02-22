@@ -1,13 +1,15 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Button from "./ui/Button";
-import { Menu, X, User, Bell } from "lucide-react";
+import { Menu, X, User, Bell, Sun, Moon } from "lucide-react";
 import LocationSelector from "./LocationSelector";
+import { useTheme } from "../context/ThemeContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -53,14 +55,14 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-secondary-200 sticky top-0 z-50 transition-all duration-300">
+    <nav className="bg-white/80 dark:bg-secondary-900/90 backdrop-blur-md border-b border-secondary-200 dark:border-secondary-700 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
 
           {/* LOGO */}
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="bg-[#1a1a2e] p-2 rounded-lg">
+              <div className="bg-[#1a1a2e] dark:bg-primary-600 p-2 rounded-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -77,11 +79,11 @@ const Navbar = () => {
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-secondary-900">
+              <span className="text-xl font-bold text-secondary-900 dark:text-secondary-100">
                 NeighborHub
               </span>
             </Link>
-            <div className="hidden md:block border-l border-secondary-200 pl-4">
+            <div className="hidden md:block border-l border-secondary-200 dark:border-secondary-700 pl-4">
               <LocationSelector />
             </div>
           </div>
@@ -104,15 +106,22 @@ const Navbar = () => {
               ))}
             </ul>
 
-            <div className="flex items-center gap-4 pl-6 border-l border-secondary-200">
+            <div className="flex items-center gap-4 pl-6 border-l border-secondary-200 dark:border-secondary-700">
               {user && (
-                <Link to="/notifications" className="text-secondary-600 hover:text-primary-600 transition-colors">
+                <Link to="/notifications" className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   <Bell size={20} />
                 </Link>
               )}
 
               {!user ? (
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+                    title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
                   <Link to="/login">
                     <Button variant="ghost" size="sm">Log In</Button>
                   </Link>
@@ -122,23 +131,30 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 rounded-lg border border-secondary-100 transition-all duration-300">
-                    <div className="w-7 h-7 rounded-full bg-primary-100 flex items-center justify-center text-primary-600">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-secondary-100 dark:border-secondary-700 transition-all duration-300">
+                    <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-primary-600 dark:text-primary-400">
                       <User size={14} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-secondary-900 leading-none">
+                      <span className="text-sm font-semibold text-secondary-900 dark:text-secondary-100 leading-none">
                         {user.name || user.username || "Account"}
                       </span>
-                      <span className="text-[10px] text-secondary-500 uppercase font-medium tracking-tight">
+                      <span className="text-[10px] text-secondary-500 dark:text-secondary-400 uppercase font-medium tracking-tight">
                         {role}
                       </span>
                     </div>
                   </div>
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+                    title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                  >
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  </button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 px-4 border-secondary-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all font-medium text-secondary-700"
+                    className="h-9 px-4 border-secondary-200 dark:border-secondary-700 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 transition-all font-medium text-secondary-700 dark:text-secondary-300"
                     onClick={handleLogout}
                   >
                     Logout
@@ -149,10 +165,16 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE MENU BUTTON */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-secondary-600 hover:text-secondary-900 transition-colors"
+              className="p-2 text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-secondary-100 transition-colors"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -162,7 +184,7 @@ const Navbar = () => {
 
       {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-secondary-200 shadow-lg animate-in slide-in-from-top duration-200">
+        <div className="md:hidden bg-white dark:bg-secondary-800 border-t border-secondary-200 dark:border-secondary-700 shadow-lg animate-in slide-in-from-top duration-200">
           <div className="px-4 pt-2 pb-6 space-y-2">
             {navLinks.map((link) => (
               <Link
@@ -170,8 +192,8 @@ const Navbar = () => {
                 to={link.path}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive(link.path)
-                  ? "bg-primary-50 text-primary-700"
-                  : "text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900"
+                  ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                  : "text-secondary-600 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-700 hover:text-secondary-900 dark:hover:text-secondary-100"
                   }`}
               >
                 {link.name}
@@ -181,14 +203,14 @@ const Navbar = () => {
               to="/notifications"
               onClick={() => setIsMobileMenuOpen(false)}
               className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${isActive('/notifications')
-                ? "bg-primary-50 text-primary-700"
-                : "text-secondary-600 hover:bg-secondary-50 hover:text-secondary-900"
+                ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                : "text-secondary-600 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-700 hover:text-secondary-900 dark:hover:text-secondary-100"
                 }`}
             >
               Notifications
             </Link>
 
-            <div className="pt-4 border-t border-secondary-200 mt-4">
+            <div className="pt-4 border-t border-secondary-200 dark:border-secondary-700 mt-4">
               {!user ? (
                 <div className="flex flex-col gap-2">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
@@ -201,12 +223,12 @@ const Navbar = () => {
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 px-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 flex items-center justify-center">
                       <User size={16} />
                     </div>
                     <div>
-                      <span className="block text-sm font-bold text-secondary-900">{user.name || "User"}</span>
-                      <span className="block text-xs text-secondary-500 uppercase">{role}</span>
+                      <span className="block text-sm font-bold text-secondary-900 dark:text-secondary-100">{user.name || "User"}</span>
+                      <span className="block text-xs text-secondary-500 dark:text-secondary-400 uppercase">{role}</span>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full" onClick={handleLogout}>

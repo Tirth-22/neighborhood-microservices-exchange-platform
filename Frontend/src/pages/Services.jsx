@@ -35,7 +35,11 @@ const Services = () => {
     const fetchServices = async () => {
       try {
         const response = await providerApi.getAllServices();
-        setServices(response.data);
+        // Remove duplicates by service id
+        const uniqueServices = response.data.filter((service, index, self) =>
+          index === self.findIndex((s) => s.id === service.id)
+        );
+        setServices(uniqueServices);
       } catch (err) {
         console.error("Failed to fetch services", err);
       } finally {

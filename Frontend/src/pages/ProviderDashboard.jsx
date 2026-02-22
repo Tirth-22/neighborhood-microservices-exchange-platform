@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../components/ui/Card";
 import { requestApi } from "../api/requestApi";
 import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
-import { Check, Clock, LayoutDashboard, History } from "lucide-react";
+import { Check, Clock, LayoutDashboard, History, Calendar } from "lucide-react";
 
 const ProviderDashboard = () => {
+  const navigate = useNavigate();
   const provider = JSON.parse(localStorage.getItem("currentUser"));
   const [acceptedRequests, setAcceptedRequests] = useState([]);
   const [completedRequests, setCompletedRequests] = useState([]);
@@ -67,9 +69,15 @@ const ProviderDashboard = () => {
   return (
     <div className="min-h-screen bg-secondary-50 py-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">Provider Dashboard</h1>
-          <p className="text-secondary-600">Service Performance & History for {provider?.name || 'Provider'}</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-secondary-900">Provider Dashboard</h1>
+            <p className="text-secondary-600">Service Performance & History for {provider?.name || 'Provider'}</p>
+          </div>
+          <Button onClick={() => navigate('/provider-availability')} className="flex items-center gap-2">
+            <Calendar size={18} />
+            Manage Availability
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">

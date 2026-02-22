@@ -9,6 +9,7 @@ import OfferService from "./pages/OfferService";
 import Notification from "./pages/Notifications";
 import SignUp from "./pages/SignUp";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import ProviderAvailability from "./pages/ProviderAvailability";
 import AdminDashboard from "./pages/AdminDashboard";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,6 +35,7 @@ function App() {
             <Route path="/notifications" element={<Notification />} />
             <Route path="/services" element={<Services />} />
             <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
+            <Route path="/provider-availability" element={<ProtectedRoute><ProviderAvailability /></ProtectedRoute>} />
             <Route path="/request/:id" element={<ProtectedRoute><RequestDetails /></ProtectedRoute>} />
             <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
             <Route path="/request-service" element={<ProtectedRoute><RequestService /></ProtectedRoute>} />
