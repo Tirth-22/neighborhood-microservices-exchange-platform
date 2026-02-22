@@ -4,6 +4,7 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Card from "../components/ui/Card";
 import { authApi } from "../api/authApi";
+import { providerApi } from "../api/providerApi";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -50,6 +51,32 @@ const SignUp = () => {
       const response = await authApi.register(payload);
 
       if (response.data.success) {
+        // If registering as PROVIDER, also register in provider-service
+        if (role.toUpperCase() === "PROVIDER") {
+          try {
+            // Login first to get token for provider registration
+            const loginResponse = await authApi.login({
+              username,
+              password,
+              role: "PROVIDER"
+            });
+
+            if (loginResponse.data.success && loginResponse.data.token) {
+              localStorage.setItem('token', loginResponse.data.token);
+              
+              // Now register as provider with default service type (will be set when creating services)
+              await providerApi.register({ serviceType: "OTHER" });
+              localStorage.removeItem('token');
+            }
+          } catch (providerErr) {
+            console.error("Provider registration failed:", providerErr);
+            // User is created but provider registration failed - show warning
+            alert("Account created but provider profile setup failed. Please contact support.");
+            navigate("/login");
+            return;
+          }
+        }
+        
         alert("Registration successful! Please login.");
         navigate("/login");
       } else {
@@ -141,6 +168,7 @@ const SignUp = () => {
                 </div>
               </div>
             </div>
+
           </div>
 
           <Button

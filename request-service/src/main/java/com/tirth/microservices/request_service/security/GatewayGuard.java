@@ -13,15 +13,12 @@ public class GatewayGuard {
 
     public void validate(String gatewayHeader) {
         if (gatewayHeader == null || !gatewayHeader.equals(gatewaySecret)) {
-            throw new UnauthorizedActionException(
-            "Direct access forbidden. Use API Gateway.");
+            throw new UnauthorizedActionException("Direct access forbidden. Use API Gateway.");
         }
-                
-            
-        public boolean isSwaggerRequest(HttpServletRequest request) {
-        String path = request.getRequestURI();
-    
+    }
 
+    public boolean isSwaggerRequest(HttpServletRequest request) {
+        String path = request.getRequestURI();
         return path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui");
     }

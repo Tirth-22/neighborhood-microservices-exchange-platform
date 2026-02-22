@@ -10,6 +10,7 @@ import com.tirth.microservices.provider_service.exception.ResourceNotFoundExcept
 import com.tirth.microservices.provider_service.repository.ProviderRepository;
 import com.tirth.microservices.provider_service.security.GatewayGuard;
 import com.tirth.microservices.provider_service.service.ProviderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class ProviderController {
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader("X-Gateway-Request") String gatewayHeader,
-            @RequestBody ProviderRegisterRequest request
+            @Valid @RequestBody ProviderRegisterRequest request
     ) {
         gatewayGuard.validate(gatewayHeader);
 
@@ -104,12 +105,10 @@ public class ProviderController {
     public ServiceOffering createService(
             @RequestHeader("X-User-Name") String username,
             @RequestHeader("X-User-Role") String role,
-            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader,
-            @RequestBody ServiceOfferingRequest request
+            @RequestHeader("X-Gateway-Request") String gatewayHeader,
+            @Valid @RequestBody ServiceOfferingRequest request
     ) {
-        if (gatewayHeader != null) {
-            gatewayGuard.validate(gatewayHeader);
-        }
+        gatewayGuard.validate(gatewayHeader);
         log.debug("createService called with role: {}", role);
 
         if (!"PROVIDER".equalsIgnoreCase(role)) {
@@ -120,7 +119,10 @@ public class ProviderController {
     }
 
     @GetMapping("/services")
-    public java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllServices() {
+    public java.util.List<com.tirth.microservices.provider_service.entity.ServiceOffering> getAllServices(
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
+    ) {
+        // Public endpoint - services listing can be viewed without auth
         return providerService.getAllActiveServices();
     }
 

@@ -103,6 +103,7 @@ const Login = () => {
                 >
                   <option value="user">User (Looking for help)</option>
                   <option value="provider">Provider (Offering services)</option>
+                  <option value="admin">Admin</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-secondary-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
