@@ -58,15 +58,25 @@ public class JwtFilter implements GlobalFilter, Ordered {
         String email = jwtUtil.extractEmail(token);
 
         // ROLE-BASED ACCESS
-        if (path.startsWith("/providers/approve") || path.startsWith("/providers/reject")
-                || (path.startsWith("/providers") && exchange.getRequest().getMethod().name().equals("GET")
-                && !path.contains("/services"))) {
+        // ADMIN-only actions (Approvals/Rejections)
+        if (path.startsWith("/providers/approve") || path.startsWith("/providers/reject")) {
             if (!role.equals("ADMIN")) {
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }
         }
 
+        // PROVIDER-only actions (Availability POST/DELETE, Services POST)
+        String method = exchange.getRequest().getMethod().name();
+        if ((path.startsWith("/providers/availability") && (method.equals("POST") || method.equals("DELETE")))
+                || (path.startsWith("/providers/services") && method.equals("POST"))) {
+            if (!role.equals("PROVIDER")) {
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+        }
+
+        // REQUEST actions (Accept/Reject/Pending)
         if (path.startsWith("/requests/accept") || path.startsWith("/requests/reject")
                 || path.startsWith("/requests/pending")) {
             if (!role.equals("PROVIDER")) {
@@ -75,13 +85,14 @@ public class JwtFilter implements GlobalFilter, Ordered {
             }
         }
 
-        // ADD USER CONTEXT HEADERS
+        // ADD USER CONTEXT HEADERS AND FORWARD AUTHORIZATION
         ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(builder -> builder
-                .header("X-User-Name", username)
-                .header("X-User-Role", role)
-                .header("X-User-Email", email)
-                .header("X-Gateway-Request", gatewaySecret))
+                        .header("Authorization", authHeader)
+                        .header("X-User-Name", username)
+                        .header("X-User-Role", role)
+                        .header("X-User-Email", email)
+                        .header("X-Gateway-Request", gatewaySecret))
                 .build();
 
         return chain.filter(mutatedExchange);

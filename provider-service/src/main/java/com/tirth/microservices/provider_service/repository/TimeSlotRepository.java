@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +35,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
     List<TimeSlot> findByBookedBy(String bookedBy);
 
     Optional<TimeSlot> findByRequestId(Long requestId);
+
+    Optional<TimeSlot> findByProviderUsernameAndSlotDateAndStartTimeAndIsBookedFalse(
+            String providerUsername, LocalDate slotDate, LocalTime startTime);
 }

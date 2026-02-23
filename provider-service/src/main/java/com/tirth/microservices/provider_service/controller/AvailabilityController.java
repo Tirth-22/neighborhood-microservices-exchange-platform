@@ -113,4 +113,47 @@ public class AvailabilityController {
         List<TimeSlotResponse> bookings = availabilityService.getUserBookings(username);
         return ResponseEntity.ok(ApiResponse.success("User bookings retrieved", bookings));
     }
+
+    @GetMapping("/check")
+    @Operation(summary = "Check if provider is available at specific date/time (for request validation)")
+    public ResponseEntity<ApiResponse<Boolean>> checkProviderAvailability(
+            @RequestParam String providerUsername,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime dateTime) {
+        boolean isAvailable = availabilityService.isProviderAvailableAt(providerUsername, dateTime);
+        return ResponseEntity.ok(ApiResponse.success(
+                isAvailable ? "Provider is available" : "Provider is not available at this time",
+                isAvailable));
+    }
+
+    @GetMapping("/{providerUsername}/day/{dayOfWeek}")
+    @Operation(summary = "Get all availability slots for a specific day (supports multiple slots per day)")
+    public ResponseEntity<ApiResponse<List<AvailabilityResponse>>> getAvailabilityForDay(
+            @PathVariable String providerUsername,
+            @PathVariable java.time.DayOfWeek dayOfWeek) {
+        List<AvailabilityResponse> availability = availabilityService.getAvailabilityForDay(providerUsername, dayOfWeek);
+        return ResponseEntity.ok(ApiResponse.success("Availability for " + dayOfWeek + " retrieved", availability));
+    }
+
+    @GetMapping("/slots/validate")
+    @Operation(summary = "Validate if a time slot exists and is available")
+    public ResponseEntity<ApiResponse<Boolean>> validateTimeSlot(
+            @RequestParam String providerUsername,
+            @RequestParam String slotDate,
+            @RequestParam String startTime) {
+        boolean isValid = availabilityService.validateTimeSlot(providerUsername, slotDate, startTime);
+        return ResponseEntity.ok(ApiResponse.success(
+                isValid ? "Time slot is available" : "Time slot not available",
+                isValid));
+    }
+
+    @GetMapping("/slots/book-slot")
+    @Operation(summary = "Book a time slot for a request")
+    public ResponseEntity<ApiResponse<Void>> bookTimeSlot(
+            @RequestParam String providerUsername,
+            @RequestParam String slotDate,
+            @RequestParam String startTime,
+            @RequestParam Long requestId) {
+        availabilityService.bookTimeSlotForRequest(providerUsername, slotDate, startTime, requestId);
+        return ResponseEntity.ok(ApiResponse.success("Time slot booked", null));
+    }
 }

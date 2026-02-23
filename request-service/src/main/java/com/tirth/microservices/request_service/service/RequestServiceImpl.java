@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tirth.microservices.request_service.client.ProviderClient;
+import com.tirth.microservices.request_service.dto.ApiResponse;
 import com.tirth.microservices.request_service.dto.CreateRequestRequest;
 import com.tirth.microservices.request_service.dto.ServiceRequestResponseDTO;
 import com.tirth.microservices.request_service.entity.RequestStatus;
@@ -56,7 +57,6 @@ public class RequestServiceImpl implements RequestService {
             String username,
             CreateRequestRequest request) {
 
-        // Date Validation: Cannot request for past days
         if (request.getScheduledAt() != null
                 && request.getScheduledAt().isBefore(LocalDateTime.now().minusMinutes(1))) {
             throw new InvalidRequestStateException("Cannot schedule service for a past date/time.");
@@ -81,6 +81,37 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
+        if (providerUsername != null && !providerUsername.isBlank()) {
+            boolean isActive = providerClient.isProviderActive(providerUsername);
+            if (!isActive) {
+                throw new InvalidRequestStateException(
+                        "Provider '" + providerUsername + "' is not active. Cannot create request.");
+            }
+        }
+
+        if (providerUsername != null && !providerUsername.isBlank() && request.getScheduledAt() != null) {
+            try {
+                java.time.LocalDate slotDate = request.getScheduledAt().toLocalDate();
+                java.time.LocalTime slotTime = request.getScheduledAt().toLocalTime();
+
+                ApiResponse<Boolean> slotValidation = providerClient.validateTimeSlot(
+                        providerUsername,
+                        slotDate.toString(),
+                        slotTime.toString());
+
+                if (slotValidation == null || !slotValidation.isSuccess() || 
+                    slotValidation.getData() == null || !slotValidation.getData()) {
+                    throw new InvalidRequestStateException(
+                            "No available time slot found for " + providerUsername + " at " + 
+                            request.getScheduledAt() + ". Please select from available slots.");
+                }
+            } catch (InvalidRequestStateException e) {
+                throw e;
+            } catch (Exception e) {
+                System.err.println("Failed to validate time slot: " + e.getMessage());
+            }
+        }
+
         ServiceRequest serviceRequest = ServiceRequest.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -98,7 +129,21 @@ public class RequestServiceImpl implements RequestService {
 
         ServiceRequest saved = repository.save(serviceRequest);
 
-        // Publish Event for Notification
+        if (providerUsername != null && !providerUsername.isBlank() && request.getScheduledAt() != null) {
+            try {
+                java.time.LocalDate slotDate = request.getScheduledAt().toLocalDate();
+                java.time.LocalTime slotTime = request.getScheduledAt().toLocalTime();
+
+                providerClient.bookTimeSlot(
+                        providerUsername,
+                        slotDate.toString(),
+                        slotTime.toString(),
+                        saved.getId());
+            } catch (Exception e) {
+                System.err.println("Failed to book time slot: " + e.getMessage());
+            }
+        }
+
         RequestCreatedEvent event = new RequestCreatedEvent(
                 saved.getId(),
                 saved.getRequestedBy(),
@@ -107,7 +152,6 @@ public class RequestServiceImpl implements RequestService {
                 LocalDateTime.now().toString());
         requestEventProducer.publishRequestCreatedEvent(event);
 
-        // Always return DTO
         return mapToDTO(saved);
     }
 

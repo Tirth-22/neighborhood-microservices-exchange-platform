@@ -1,5 +1,6 @@
 package com.tirth.microservices.request_service.client;
 
+import com.tirth.microservices.request_service.dto.ApiResponse;
 import com.tirth.microservices.request_service.dto.ProviderLookupResponse;
 import org.springframework.stereotype.Component;
 
@@ -22,5 +23,14 @@ public class ProviderClientFallback implements ProviderClient {
                 .println("Circuit Breaker: provider-service is unavailable. Fallback 'getProviderByService' for type: "
                         + serviceType);
         return null;
+    }
+
+    @Override
+    public ApiResponse<Boolean> checkProviderAvailability(String providerUsername, String dateTime) {
+        // Fallback: If provider service is down, return false (provider not available)
+        System.err.println(
+                "Circuit Breaker: provider-service is unavailable. Fallback 'checkProviderAvailability' for provider: "
+                + providerUsername + " at " + dateTime);
+        return ApiResponse.error("Provider service unavailable - cannot check availability");
     }
 }

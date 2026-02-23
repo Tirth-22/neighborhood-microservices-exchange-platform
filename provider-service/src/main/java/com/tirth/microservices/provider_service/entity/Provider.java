@@ -39,6 +39,9 @@ public class Provider {
     private String approvedBy;
     private LocalDateTime approvedAt;
 
+    @Column(nullable = false, length = 50)
+    private String timezone;
+
     @Version
     private Long version;
 
@@ -48,9 +51,11 @@ public class Provider {
             this.createdAt = LocalDateTime.now();
         }
         if (this.status == null) {
-            this.status = ProviderStatus.PENDING; // Default to PENDING, requires admin approval
+            this.status = ProviderStatus.PENDING;
         }
-        // active is derived from status, no need to set separately
+        if (this.timezone == null) {
+            this.timezone = "UTC";
+        }
     }
 
     /**
