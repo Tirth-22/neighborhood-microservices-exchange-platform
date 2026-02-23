@@ -139,20 +139,66 @@ services:
       start_period: 90s
 
   # =====================
-  # API GATEWAY
+  # LOAD BALANCER (NGINX)
   # =====================
-  api-gateway:
+  load-balancer:
+    image: load-balancer:v1
+    build: ./load-balancer
+    container_name: load-balancer
+    ports:
+      - "${LOAD_BALANCER_PORT:-8080}:80"
+    depends_on:
+      api-gateway-1:
+        condition: service_healthy
+      api-gateway-2:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # =====================
+  # API GATEWAY (Instance 1)
+  # =====================
+  api-gateway-1:
     image: api-gateway:v3
     build: ./api-gateway
-    container_name: api-gateway
+    container_name: api-gateway-1
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_APPLICATION_NAME: api-gateway
       GATEWAY_SECRET: ${GATEWAY_SECRET:-SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
       JWT_SECRET: ${JWT_SECRET:-THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
-    ports:
-      - "${API_GATEWAY_PORT}:8080"
+      SERVER_PORT: 8080
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # =====================
+  # API GATEWAY (Instance 2)
+  # =====================
+  api-gateway-2:
+    image: api-gateway:v3
+    build: ./api-gateway
+    container_name: api-gateway-2
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+      SPRING_APPLICATION_NAME: api-gateway
+      GATEWAY_SECRET: ${GATEWAY_SECRET:-SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+      JWT_SECRET: ${JWT_SECRET:-THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
+      SERVER_PORT: 8080
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -284,7 +330,7 @@ services:
     volumes:
       - ./Frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      api-gateway:
+      load-balancer:
         condition: service_healthy
 
 # =====================
