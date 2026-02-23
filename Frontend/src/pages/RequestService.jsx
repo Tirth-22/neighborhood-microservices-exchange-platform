@@ -76,6 +76,19 @@ const RequestService = () => {
         );
     }
 
+    // Validate required fields
+    if (!selectedService.providerUsername && !selectedService.name) {
+        return (
+            <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+                <Card className="max-w-md w-full p-8 text-center border-none shadow-xl bg-white">
+                    <h2 className="text-xl font-bold text-secondary-900 mb-2">Invalid Service Data</h2>
+                    <p className="text-secondary-500 mb-6">Service information is incomplete. Please try again.</p>
+                    <Button onClick={() => navigate('/services')} className="w-full">Browse Services</Button>
+                </Card>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-secondary-50 py-8 px-4">
             <div className="max-w-2xl mx-auto">
