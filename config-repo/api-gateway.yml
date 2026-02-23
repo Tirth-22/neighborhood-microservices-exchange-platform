@@ -16,27 +16,27 @@ spring:
 
       routes:
         - id: auth-service
-          uri: lb://AUTH-SERVICE
+          uri: lb://auth-service
           predicates:
             - Path=/auth/**
 
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: lb://user-service
           predicates:
             - Path=/user/**
 
         - id: request-service
-          uri: lb://REQUEST-SERVICE
+          uri: lb://request-service
           predicates:
             - Path=/requests/**
 
         - id: provider-service
-          uri: lb://PROVIDER-SERVICE
+          uri: lb://provider-service
           predicates:
             - Path=/providers/**,/admin/providers/**
 
         - id: notification-service
-          uri: lb://NOTIFICATION-SERVICE
+          uri: lb://notification-service
           predicates:
             - Path=/notifications/**
 
