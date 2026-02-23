@@ -105,3 +105,4 @@ kubeconfig
 .vscode/extensions.json
 
 IMPLEMENTATION_GUIDE.md
+INCOMPLETE_FEATURES.md
