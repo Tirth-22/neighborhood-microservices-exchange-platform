@@ -1,0 +1,90 @@
+SLOT GENERATION TROUBLESHOOTING GUIDE
+=====================================
+
+PROBLEM: "Set your weekly schedule first before generating slots" error appears even though weekly schedule is saved.
+
+ROOT CAUSES & FIXES:
+===================
+
+1. PROVIDER STATUS NOT ACTIVE
+   - Check: Provider status must be 'ACTIVE' in database
+   - Fix: Run SQL:
+     UPDATE providers SET status = 'ACTIVE' WHERE username = 'YOUR_USERNAME';
+
+2. IS_AVAILABLE FIELD IS FALSE
+   - Check: is_available column in provider_availability table
+   - Fix: Run SQL:
+     UPDATE provider_availability SET is_available = true WHERE provider_username = 'YOUR_USERNAME';
+
+3. NO AVAILABILITY RECORDS IN DATABASE
+   - Check: SELECT * FROM provider_availability WHERE provider_username = 'YOUR_USERNAME';
+   - Fix: Add availability through UI or run INSERT statements
+
+DEBUGGING STEPS:
+===============
+
+Step 1: Check Application Logs
+-------------------------------
+Look for these log lines when clicking "Generate Time Slots":
+
+[SLOT-GEN] Starting for provider: {username}, dates: {start} to {end}
+[SLOT-GEN] Provider found: {username}, active: {true/false}, timezone: {tz}
+[SLOT-GEN] Total availability records found: {count}
+[SLOT-GEN] DB Record: id={id}, day={day}, time={start}-{end}, isAvailable={true/false/null}
+[SLOT-GEN] Active availability records after filter: {count}
+
+If you see:
+- "Total availability records found: 0" → No records in DB (see Fix #3)
+- "active: false" → Provider not active (see Fix #1)
+- "isAvailable=false" → Records disabled (see Fix #2)
+- "Active availability records after filter: 0" → All records filtered out (see Fix #2)
+
+Step 2: Run Database Queries
+-----------------------------
+Use the DEBUG_SLOT_GENERATION.sql file to check database state.
+
+Step 3: Verify Frontend State
+------------------------------
+Open browser console and check:
+- Network tab → Look for API call to /providers/availability/slots/generate
+- Check response status and error message
+- Verify availability array in component state is not empty
+
+EXPECTED BEHAVIOR:
+=================
+
+When slot generation works correctly, logs should show:
+
+[SLOT-GEN] Starting for provider: john_doe, dates: 2024-01-15 to 2024-01-22
+[SLOT-GEN] Provider found: john_doe, active: true, timezone: America/New_York
+[SLOT-GEN] Total availability records found: 5
+[SLOT-GEN] DB Record: id=1, day=MONDAY, time=09:00-17:00, isAvailable=true
+[SLOT-GEN] DB Record: id=2, day=TUESDAY, time=09:00-17:00, isAvailable=true
+...
+[SLOT-GEN] Active availability records after filter: 5
+[SLOT-GEN] Availability: MONDAY 09:00 to 17:00 (duration: 60 min)
+[SLOT-GEN] Date: 2024-01-15, DayOfWeek: MONDAY, Matching availabilities: 1
+[SLOT-GEN] Generated 8 slots for 2024-01-15 on MONDAY
+...
+[SLOT-GEN] Processed 8 days, generated 40 total slots
+[SLOT-GEN] SUCCESS: 40 slots saved for john_doe in zone America/New_York
+
+QUICK FIX COMMANDS:
+==================
+
+-- Fix everything at once (replace YOUR_USERNAME)
+UPDATE providers SET status = 'ACTIVE' WHERE username = 'YOUR_USERNAME';
+UPDATE provider_availability SET is_available = true WHERE provider_username = 'YOUR_USERNAME';
+DELETE FROM time_slots WHERE provider_username = 'YOUR_USERNAME';
+
+-- Then try generating slots again from UI
+
+VERIFICATION:
+============
+
+After fixes, verify:
+1. Provider status is ACTIVE
+2. At least one availability record exists with is_available = true or NULL
+3. Application logs show correct counts
+4. Slots are generated and saved to database
+5. Frontend displays success message with slot count
