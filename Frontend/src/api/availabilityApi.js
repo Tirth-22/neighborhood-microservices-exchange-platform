@@ -22,8 +22,12 @@ export const availabilityApi = {
         api.post(`/providers/availability/slots/generate?startDate=${startDate}&endDate=${endDate}`),
     
     // Get available slots for a provider
-    getAvailableSlots: (providerUsername, startDate, endDate) => 
-        api.get(`/providers/availability/slots/${providerUsername}?startDate=${startDate}&endDate=${endDate}`),
+    getAvailableSlots: (providerUsername, startDate, endDate) => {
+        if (!providerUsername || providerUsername === 'undefined') {
+            return Promise.reject(new Error('Provider username is required'));
+        }
+        return api.get(`/providers/availability/slots/${providerUsername}?startDate=${startDate}&endDate=${endDate}`);
+    },
     
     // Get provider schedule
     getProviderSchedule: (startDate, endDate) => 
