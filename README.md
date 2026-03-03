@@ -1,152 +1,384 @@
 # Neighborhood Microservices Exchange Platform
 
-A microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way.
-This project is designed using modern microservices architecture with independent services, API gateway, authentication, and a responsive frontend.
+A full-stack microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way. This project demonstrates enterprise-grade microservices architecture with independent services, API gateway, authentication, payment processing, and a modern React frontend.
 
 ## 🚀 Project Overview
 
-The Neighborhood Microservices Exchange Platform allows users to: 
+The Neighborhood Microservices Exchange Platform allows users to:
 
-Register and authenticate securely
-List services or resources they offer
-Browse and request services from nearby users
-Communicate and manage service requests
-Track transactions and service status
-The platform follows domain-driven microservices design, making it easy to scale and extend.
+- **Register and authenticate** securely with JWT tokens
+- **List services or resources** they offer as providers
+- **Browse and request services** from nearby providers
+- **Manage service requests** with real-time status tracking
+- **Process payments** through integrated Stripe payment gateway
+- **Receive notifications** for request updates and status changes
+- **Track transactions** and service completion status
+
+The platform follows domain-driven microservices design, making it easy to scale, maintain, and extend.
 
 ## 🧩 Microservices Architecture
+
 <img width="1677" height="853" alt="final-architecture" src="https://github.com/user-attachments/assets/df9f8dfb-85b8-4578-8ce1-d5b3a6824c75" />
 
- 
+### Architecture Highlights
+- **Service Discovery**: Eureka Server for dynamic service registration
+- **API Gateway**: Spring Cloud Gateway for routing and load balancing
+- **Config Server**: Centralized configuration management
+- **Event-Driven**: Kafka for asynchronous communication between services
+- **Database per Service**: Each microservice has its own PostgreSQL database
 
 ## 🛠️ Tech Stack
 
 ### Backend
-- Java 21
-- Spring Boot
-- Spring Security
-- Spring Cloud
-- Eureka Service Discovery
-- Spring Cloud Gateway
-- JWT Authentication
-- REST APIs
-- Postgresql 
-- Docker 
+| Technology | Purpose |
+|------------|---------|
+| Java 21 | Core programming language |
+| Spring Boot 3.x | Microservices framework |
+| Spring Security | Authentication & authorization |
+| Spring Cloud Gateway | API Gateway & routing |
+| Spring Cloud Config | Centralized configuration |
+| Netflix Eureka | Service discovery |
+| Apache Kafka | Event streaming & messaging |
+| PostgreSQL | Database per service |
+| Stripe SDK | Payment processing |
+| JWT | Token-based authentication |
+| Docker | Containerization |
 
 ### Frontend
-- React.js
-- Tailwind CSS
-- Axios
-- Vite
-- Git & GitHub
-- Postman
-- Maven
-- Docker Compose 
+| Technology | Purpose |
+|------------|---------|
+| React 18 | UI framework |
+| Vite | Build tool & dev server |
+| Tailwind CSS | Styling framework |
+| Axios | HTTP client |
+| React Router | Client-side routing |
+| Stripe.js | Payment integration |
+
+### Build Tools
+| Tool | Purpose |
+|------|---------|
+| Docker Compose | Container orchestration |
+| Nginx | Load balancer & reverse proxy |
+| Maven | Build automation |
+| Git & GitHub | Version control |
+| Postman | API testing |
+| pgAdmin | Database management |
 
 ### System Design Concepts
-- Microservices architecture
-- Load Balancer
-- Circuit Breaker
+- Microservices Architecture
+- Load Balancing
+- Circuit Breaker Pattern
 - Service Discovery (Eureka)
-- Centralized Configuration (Config Server)
-- Loose Coupling
-- saga pattern
-  
+- Centralized Configuration
+- Event-Driven Architecture
+- Saga Pattern
+- API Gateway Pattern
+- Database per Service
+
 ## 🔑 Microservices Breakdown
-### 1️⃣ Auth Service
-User authentication & authorization
-JWT token generation
-Login / Register APIs
 
-### 2️⃣ User Service
-User profiles
-Address & neighborhood mapping
-Skill & service metadata
+### 1️⃣ Config Server (Port: 8888)
+- Centralized configuration management
+- Environment-specific configurations
+- Git-based configuration repository
+- Dynamic configuration refresh
 
-### 3️⃣ Exchange Service
-Service listings
-Service requests & approvals
+### 2️⃣ Eureka Server (Port: 8761)
+- Service registry and discovery
+- Health monitoring
+- Load balancing support
+- Dynamic service registration
 
-### 4️⃣ Notification Service
-Service request updates
-notification dashboard (Pending / Accepted / Completed)
-Email notifications (later)
+### 3️⃣ API Gateway (Port: 8080)
+- Single entry point for all requests
+- Request routing & load balancing
+- JWT token validation
+- Rate limiting
+- Cross-cutting concerns handling
 
-### 5️⃣ Request Service
-Request any service you want 
+### 4️⃣ Auth Service (Port: 8081)
+- User authentication & authorization
+- JWT token generation & validation
+- Login / Register APIs
+- Role-based access control (USER/PROVIDER/ADMIN)
+- Password encryption with BCrypt
 
-### 6️⃣ Provider Service
-provide your service
+### 5️⃣ User Service (Port: 8082)
+- User profile management
+- Address & neighborhood mapping
+- User preferences
+- Account settings
 
+### 6️⃣ Provider Service (Port: 8083)
+- Provider registration & management
+- Service offerings catalog
+- Availability management (timezone-aware)
+- Weekday-based recurring slots
+- Provider ratings & reviews
+
+### 7️⃣ Request Service (Port: 8084)
+- Service request creation
+- Request lifecycle management
+- Status tracking (PENDING → ACCEPTED → COMPLETED)
+- Availability validation
+- Double-booking prevention
+- Kafka event consumption
+
+### 8️⃣ Notification Service (Port: 8085)
+- Real-time notifications
+- Notification dashboard
+- Status updates (Pending / Accepted / Completed)
+- Email notifications
+- Push notification support
+
+### 9️⃣ Payment Service (Port: 8086)
+- Stripe payment integration
+- Payment intent creation
+- Webhook handling for payment events
+- Payment status tracking
+- Refund processing
+- Kafka event publishing
+
+### 🔄 Load Balancer (Port: 80)
+- Nginx-based load balancing
+- SSL termination
+- Request distribution
+- High availability
+
+## 📁 Project Structure
+
+```
+neighborhood-microservices-exchange-platform/
+├── Frontend/             # React application
+├── api-gateway/          # Spring Cloud Gateway
+├── auth-service/         # Authentication & JWT
+├── config-server/        # Centralized configuration
+├── config-repo/          # Configuration files
+├── eureka-server/        # Service discovery
+├── user-service/         # User management
+├── provider-service/     # Provider & services
+├── request-service/      # Service requests
+├── notification-service/ # Notifications
+├── payment-service/      # Stripe payments
+├── load-balancer/        # Nginx load balancer
+├── kafka-docker/         # Kafka setup
+├── docker-compose.yml    # Container orchestration
+└── README.md
+```
 
 ## ⚙️ Setup Instructions
-### 🔹 Backend Setup
-Clone the repository
+
+### Prerequisites
+- Java 21+
+- Node.js 18+
+- Docker & Docker Compose
+- Maven 3.8+
+- PostgreSQL 15+ (or use Docker)
+
+### 🐳 Docker Setup (Recommended)
+
 ```bash
+# Clone the repository
 git clone https://github.com/yourusername/neighborhood-microservices-exchange-platform.git
+cd neighborhood-microservices-exchange-platform
+
+# Start all services with Docker Compose
+docker-compose up -d
+
+# Check service status
+docker-compose ps
 ```
 
-### Start Eureka Server
-```bash
-cd backend/eureka-server
-mvn spring-boot:run
-```
+### 🔹 Manual Backend Setup
 
-### Start each microservice
 ```bash
+# Start Eureka Server first
+cd eureka-server
 mvn spring-boot:run
+
+# Start Config Server
+cd ../config-server
+mvn spring-boot:run
+
+# Start other services (in separate terminals)
+cd ../auth-service && mvn spring-boot:run
+cd ../user-service && mvn spring-boot:run
+cd ../provider-service && mvn spring-boot:run
+cd ../request-service && mvn spring-boot:run
+cd ../notification-service && mvn spring-boot:run
+cd ../payment-service && mvn spring-boot:run
+cd ../api-gateway && mvn spring-boot:run
 ```
 
 ### 🔹 Frontend Setup
+
 ```bash
-cd frontend
+cd Frontend
 npm install
 npm run dev
 ```
 
-### Frontend will run on:
+### Service URLs
 
-http://localhost:5173
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| API Gateway | http://localhost:8080 |
+| Eureka Dashboard | http://localhost:8761 |
+| Config Server | http://localhost:8888 |
+| pgAdmin | http://localhost:5050 |
 
 ## 🔐 Security
 
-- JWT-based authentication
-- Role-based access control
-- Secure API gateway routing
-- Token validation per request
+- **JWT-based authentication** with access & refresh tokens
+- **Role-based access control** (USER, PROVIDER, ADMIN)
+- **Secure API gateway routing** with token validation
+- **BCrypt password encryption**
+- **CORS configuration** for frontend integration
+- **Rate limiting** to prevent abuse
+- **Webhook signature verification** for Stripe
 
 ## 📌 Key Features
 
-- ✔ Microservices-based architecture
-- ✔ Independent database per service
-- ✔ Scalable & fault-tolerant design
-- ✔ API Gateway pattern
-- ✔ Secure authentication
-- ✔ Modern responsive UI
+### Core Features
+- ✅ Microservices-based architecture
+- ✅ Independent database per service
+- ✅ Scalable & fault-tolerant design
+- ✅ API Gateway pattern
+- ✅ Secure JWT authentication
+- ✅ Role-based authorization
+- ✅ Modern responsive UI
+
+### Provider Features
+- ✅ Service listing management
+- ✅ Timezone-aware availability
+- ✅ Weekday-based scheduling
+- ✅ Provider ratings & reviews
+- ✅ Earnings tracking
+
+### Request Management
+- ✅ Service request creation
+- ✅ Real-time status tracking (later)
+- ✅ Availability validation
+- ✅ Double-booking prevention
+- ✅ Request history
+
+### Payment System
+- ✅ Stripe payment integration
+- ✅ Secure payment processing
+- ✅ Payment intent workflow
+- ✅ Webhook handling
+- ✅ Refund support
+- ✅ Payment status tracking
+
+### Notification System
+- ✅ Real-time notifications (later)
+- ✅ Email notifications (later)
+- ✅ Status update alerts
+- ✅ Notification dashboard
+
+### Search & Discovery
+- ✅ Service search & filtering
+- ✅ Category-based browsing
+- ✅ Price range filtering
+- ✅ Rating-based sorting
+- ✅ Pagination support
+
+### Additional Features
+- ✅ Location-based services
+- ✅ Chat/messaging system (later)
+- ✅ File upload support
+- ✅ Dispute resolution
+- ✅ Provider verification
+- ✅ Analytics dashboard
+- ✅ Caching with Redis
+- ✅ Rate limiting
+- ✅ Audit logging
+- ✅ Health monitoring
+
+## 📊 API Documentation
+
+API documentation is available via Postman collection:
+- Import `Payment_Service_API.postman_collection.json` into Postman
+
+### Sample API Endpoints
+
+```bash
+# Authentication
+POST /api/auth/register    # Register new user
+POST /api/auth/login       # Login & get JWT
+
+# Providers
+GET  /api/providers        # List all providers
+POST /api/providers        # Register as provider
+GET  /api/providers/{id}/services  # Get provider services
+
+# Requests
+POST /api/requests         # Create service request
+GET  /api/requests/user    # Get user's requests
+PUT  /api/requests/{id}/status  # Update request status
+
+# Payments
+POST /api/payments/create  # Create payment intent
+POST /api/payments/webhook # Stripe webhook handler
+GET  /api/payments/{id}    # Get payment details
+```
+
+## 🧪 Testing
+
+```bash
+# Run unit tests
+mvn test
+
+# Run integration tests
+mvn verify
+
+# Run frontend tests
+cd Frontend && npm test
+```
 
 ## 📈 Future Enhancements
 
-- Location-based service recommendations
-- Chat between users
-- Payment gateway integration
+- AWS deployment
 - Kubernetes deployment
 - CI/CD pipelines
 
 ## 📚 Learning Outcomes
 
-- Microservices architecture
-- Spring Cloud ecosystem
-- API Gateway & Service Discovery
-- Frontend-backend integration
-- Real-world scalable system design
+This project demonstrates proficiency in:
+
+- **Microservices Architecture** - Designing and implementing distributed systems
+- **Spring Cloud Ecosystem** - Config Server, Eureka, Gateway
+- **Event-Driven Architecture** - Kafka for async communication
+- **Payment Integration** - Stripe API implementation
+- **API Design** - RESTful API best practices
+- **Security** - JWT, OAuth2, role-based access
+- **Frontend Development** - React, Tailwind CSS
+- **Dockerization** - Docker, Docker Compose, Nginx
+- **Database Design** - PostgreSQL, database per service
 
 ## 🤝 Contributing
 
-- Contributions are welcome!
-- Fork the repository
-- Create a feature branch
-- Commit changes
+Contributions are welcome! Please follow these steps:
 
-- Open a Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Tirth**
+- GitHub: [@Tirth-22](https://github.com/Tirth-22)
+- LinkedIn: [Tirth Makadia](https://www.linkedin.com/in/tirth-makadia-769b0931b/)
+
+---
+
+⭐ If you found this project helpful, please give it a star!
 
 
