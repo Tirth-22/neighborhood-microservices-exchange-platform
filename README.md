@@ -18,7 +18,8 @@ The platform follows domain-driven microservices design, making it easy to scale
 
 ## 🧩 Microservices Architecture
 
-<img width="1677" height="853" alt="final-architecture" src="https://github.com/user-attachments/assets/df9f8dfb-85b8-4578-8ce1-d5b3a6824c75" />
+<img width="2244" height="1013" alt="final-architecture" src="https://github.com/user-attachments/assets/28cec5bd-0d2e-4543-ab01-ab25200cbe00" />
+
 
 ### Architecture Highlights
 - **Service Discovery**: Eureka Server for dynamic service registration
