@@ -5,7 +5,7 @@ import { HelpCircle, FileText, MessageCircle } from 'lucide-react';
 const HelpCenter = () => {
     const faqs = [
         { q: "How do I request a service?", a: "Go to the Services page, search for a provider, and click 'Request Service'." },
-        { q: "Is payment secure?", a: "Yes, we support secure online payments and cash on delivery." },
+        { q: "How do I track my request?", a: "Go to 'My Requests' to view request status updates in real time." },
         { q: "How can I become a provider?", a: "Click on 'Offer Service' in the menu or 'Become a Provider' on the home page." },
     ];
 

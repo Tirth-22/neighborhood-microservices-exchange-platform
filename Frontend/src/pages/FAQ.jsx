@@ -15,8 +15,8 @@ const FAQ = () => {
             answer: "Yes! Signing up as a user or a provider is completely free. We only charge a small platform fee on successful transactions."
         },
         {
-            question: "How do I pay for services?",
-            answer: "You can pay securely online using credit/debit cards or choose cash on delivery if the provider accepts it. You can also use our 'Service Exchange' feature to swap skills!"
+            question: "How do I complete a service request?",
+            answer: "Choose a provider, submit your request details, and track updates from your request dashboard. You can also use our 'Service Exchange' feature to swap skills!"
         },
         {
             question: "Are the providers verified?",
