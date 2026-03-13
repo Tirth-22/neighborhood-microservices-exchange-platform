@@ -1,6 +1,6 @@
 # Neighborhood Microservices Exchange Platform
 
-A full-stack microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way. This project demonstrates enterprise-grade microservices architecture with independent services, API gateway, authentication, payment processing, and a modern React frontend.
+A full-stack microservices-based platform that enables people within a neighborhood to exchange services, skills, and resources (e.g., tutoring, repairs, deliveries, rentals) in a secure, scalable, and modular way. This project demonstrates enterprise-grade microservices architecture with independent services, API gateway, authentication, and a modern React frontend.
 
 ## 🚀 Project Overview
 
@@ -10,15 +10,14 @@ The Neighborhood Microservices Exchange Platform allows users to:
 - **List services or resources** they offer as providers
 - **Browse and request services** from nearby providers
 - **Manage service requests** with real-time status tracking
-- **Process payments** through integrated Stripe payment gateway
 - **Receive notifications** for request updates and status changes
-- **Track transactions** and service completion status
+- **Track service completion** and request lifecycle status
 
 The platform follows domain-driven microservices design, making it easy to scale, maintain, and extend.
 
 ## 🧩 Microservices Architecture
 
-<img width="1677" height="853" alt="final-architecture" src="https://github.com/user-attachments/assets/df9f8dfb-85b8-4578-8ce1-d5b3a6824c75" />
+<img width="2244" height="1013" alt="final-architecture" src="https://github.com/user-attachments/assets/28cec5bd-0d2e-4543-ab01-ab25200cbe00" />6
 
 ### Architecture Highlights
 - **Service Discovery**: Eureka Server for dynamic service registration
@@ -40,7 +39,6 @@ The platform follows domain-driven microservices design, making it easy to scale
 | Netflix Eureka | Service discovery |
 | Apache Kafka | Event streaming & messaging |
 | PostgreSQL | Database per service |
-| Stripe SDK | Payment processing |
 | JWT | Token-based authentication |
 | Docker | Containerization |
 
@@ -52,7 +50,6 @@ The platform follows domain-driven microservices design, making it easy to scale
 | Tailwind CSS | Styling framework |
 | Axios | HTTP client |
 | React Router | Client-side routing |
-| Stripe.js | Payment integration |
 
 ### Build Tools
 | Tool | Purpose |
@@ -128,16 +125,7 @@ The platform follows domain-driven microservices design, making it easy to scale
 - Real-time notifications
 - Notification dashboard
 - Status updates (Pending / Accepted / Completed)
-- Email notifications
-- Push notification support
-
-### 9️⃣ Payment Service (Port: 8086)
-- Stripe payment integration
-- Payment intent creation
-- Webhook handling for payment events
-- Payment status tracking
-- Refund processing
-- Kafka event publishing
+- In-app notification support
 
 ### 🔄 Load Balancer (Port: 80)
 - Nginx-based load balancing
@@ -159,7 +147,6 @@ neighborhood-microservices-exchange-platform/
 ├── provider-service/     # Provider & services
 ├── request-service/      # Service requests
 ├── notification-service/ # Notifications
-├── payment-service/      # Stripe payments
 ├── load-balancer/        # Nginx load balancer
 ├── kafka-docker/         # Kafka setup
 ├── docker-compose.yml    # Container orchestration
@@ -206,7 +193,6 @@ cd ../user-service && mvn spring-boot:run
 cd ../provider-service && mvn spring-boot:run
 cd ../request-service && mvn spring-boot:run
 cd ../notification-service && mvn spring-boot:run
-cd ../payment-service && mvn spring-boot:run
 cd ../api-gateway && mvn spring-boot:run
 ```
 
@@ -236,7 +222,6 @@ npm run dev
 - **BCrypt password encryption**
 - **CORS configuration** for frontend integration
 - **Rate limiting** to prevent abuse
-- **Webhook signature verification** for Stripe
 
 ## 📌 Key Features
 
@@ -263,17 +248,8 @@ npm run dev
 - ✅ Double-booking prevention
 - ✅ Request history
 
-### Payment System
-- ✅ Stripe payment integration
-- ✅ Secure payment processing
-- ✅ Payment intent workflow
-- ✅ Webhook handling
-- ✅ Refund support
-- ✅ Payment status tracking
-
 ### Notification System
 - ✅ Real-time notifications (later)
-- ✅ Email notifications (later)
 - ✅ Status update alerts
 - ✅ Notification dashboard
 
@@ -286,8 +262,6 @@ npm run dev
 
 ### Additional Features
 - ✅ Location-based services
-- ✅ Chat/messaging system (later)
-- ✅ File upload support
 - ✅ Dispute resolution
 - ✅ Provider verification
 - ✅ Analytics dashboard
@@ -299,7 +273,7 @@ npm run dev
 ## 📊 API Documentation
 
 API documentation is available via Postman collection:
-- Import `Payment_Service_API.postman_collection.json` into Postman
+- Import the project API collection into Postman
 
 ### Sample API Endpoints
 
@@ -317,11 +291,6 @@ GET  /api/providers/{id}/services  # Get provider services
 POST /api/requests         # Create service request
 GET  /api/requests/user    # Get user's requests
 PUT  /api/requests/{id}/status  # Update request status
-
-# Payments
-POST /api/payments/create  # Create payment intent
-POST /api/payments/webhook # Stripe webhook handler
-GET  /api/payments/{id}    # Get payment details
 ```
 
 ## 🧪 Testing
@@ -339,9 +308,7 @@ cd Frontend && npm test
 
 ## 📈 Future Enhancements
 
-- AWS deployment
 - Kubernetes deployment
-- CI/CD pipelines
 
 ## 📚 Learning Outcomes
 
@@ -350,7 +317,6 @@ This project demonstrates proficiency in:
 - **Microservices Architecture** - Designing and implementing distributed systems
 - **Spring Cloud Ecosystem** - Config Server, Eureka, Gateway
 - **Event-Driven Architecture** - Kafka for async communication
-- **Payment Integration** - Stripe API implementation
 - **API Design** - RESTful API best practices
 - **Security** - JWT, OAuth2, role-based access
 - **Frontend Development** - React, Tailwind CSS
