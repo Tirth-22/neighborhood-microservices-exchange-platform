@@ -13,6 +13,10 @@ import com.tirth.microservices.provider_service.service.ProviderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -124,6 +128,26 @@ public class ProviderController {
     ) {
         // Public endpoint - services listing can be viewed without auth
         return providerService.getAllActiveServices();
+    }
+
+    @GetMapping("/services/search")
+    public Page<ServiceOffering> searchServices(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String providerUsername,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestHeader(value = "X-Gateway-Request", required = false) String gatewayHeader
+    ) {
+        Sort sort = "asc".equalsIgnoreCase(sortDir)
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return providerService.searchActiveServices(q, category, providerUsername, minPrice, maxPrice, pageable);
     }
 
     @GetMapping("/services/my")

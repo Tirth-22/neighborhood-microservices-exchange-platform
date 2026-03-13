@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -173,6 +175,16 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    public Page<Provider> getAllProviders(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Provider> getProvidersByStatus(ProviderStatus status, Pageable pageable) {
+        return repository.findByStatus(status, pageable);
+    }
+
+    @Override
     public ServiceOffering createService(String username, ServiceOfferingRequest request) {
         // Provider must exist and be ACTIVE to create services
         Provider provider = repository.findByUsername(username)
@@ -194,6 +206,8 @@ public class ProviderServiceImpl implements ProviderService {
                 .provider(provider)
                 .providerUsername(provider.getUsername())
                 .providerName(provider.getUsername()) // or display name
+                .latitude(resolveLatitudeForProvider(provider.getUsername()))
+                .longitude(resolveLongitudeForProvider(provider.getUsername()))
                 .active(true)
                 .build();
 
@@ -203,6 +217,17 @@ public class ProviderServiceImpl implements ProviderService {
     @Override
     public List<ServiceOffering> getAllActiveServices() {
         return serviceOfferingRepository.findByActiveTrue();
+    }
+
+    @Override
+    public Page<ServiceOffering> getAllActiveServices(Pageable pageable) {
+        return serviceOfferingRepository.findByActiveTrue(pageable);
+    }
+
+    @Override
+    public Page<ServiceOffering> searchActiveServices(String q, String category, String providerUsername,
+            Double minPrice, Double maxPrice, Pageable pageable) {
+        return serviceOfferingRepository.searchActiveServices(q, category, providerUsername, minPrice, maxPrice, pageable);
     }
 
     @Override
@@ -221,5 +246,29 @@ public class ProviderServiceImpl implements ProviderService {
         }
 
         serviceOfferingRepository.delete(service);
+    }
+
+    private Double resolveLatitudeForProvider(String providerUsername) {
+        List<ServiceOffering> existing = serviceOfferingRepository.findByProviderUsername(providerUsername);
+        return existing.stream()
+                .map(ServiceOffering::getLatitude)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> generateCoordinate(providerUsername, 22.3039, 0.08));
+    }
+
+    private Double resolveLongitudeForProvider(String providerUsername) {
+        List<ServiceOffering> existing = serviceOfferingRepository.findByProviderUsername(providerUsername);
+        return existing.stream()
+                .map(ServiceOffering::getLongitude)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> generateCoordinate(providerUsername + "-lng", 70.8022, 0.08));
+    }
+
+    private Double generateCoordinate(String key, double base, double spread) {
+        int hash = Math.abs(key.hashCode());
+        double normalized = (hash % 10000) / 10000.0;
+        return base + (normalized - 0.5) * spread;
     }
 }
