@@ -7,6 +7,8 @@
 @layer base {
     body {
         @apply font-sans antialiased text-secondary-900 bg-secondary-50;
+        background: var(--bg-primary);
+        color: var(--text-primary);
         transition: background-color 0.3s ease, color 0.3s ease;
     }
     
@@ -23,14 +25,14 @@
     }
     
     .dark {
-        --bg-primary: #0f172a;
-        --bg-secondary: #1e293b;
-        --bg-tertiary: #334155;
-        --text-primary: #f1f5f9;
-        --text-secondary: #cbd5e1;
-        --text-muted: #94a3b8;
-        --border-color: #475569;
-        --shadow-color: rgba(0, 0, 0, 0.4);
+        --bg-primary: #050816;
+        --bg-secondary: #0f172a;
+        --bg-tertiary: #172338;
+        --text-primary: #f8fbff;
+        --text-secondary: #c5d3eb;
+        --text-muted: #8ea0bf;
+        --border-color: #253351;
+        --shadow-color: rgba(0, 0, 0, 0.55);
     }
     
     .dark body {
@@ -39,6 +41,51 @@
 }
 
 @layer utilities {
+    /* Global dark-mode utility remapping so existing light classes render consistently in dark theme. */
+    .dark .bg-white {
+        background-color: #0f172a !important;
+    }
+
+    .dark [class*="bg-white/"] {
+        background-color: #0f172acc !important;
+    }
+
+    .dark .bg-secondary-50 {
+        background-color: #070e20 !important;
+    }
+
+    .dark .bg-secondary-100 {
+        background-color: #111b33 !important;
+    }
+
+    .dark .text-secondary-900 {
+        color: #f8fbff !important;
+    }
+
+    .dark .text-secondary-700 {
+        color: #d4def2 !important;
+    }
+
+    .dark .text-secondary-600 {
+        color: #c0d0eb !important;
+    }
+
+    .dark .text-secondary-500,
+    .dark .text-secondary-400 {
+        color: #93a6c6 !important;
+    }
+
+    .dark .border-secondary-200,
+    .dark .border-secondary-100 {
+        border-color: #253351 !important;
+    }
+
+    .dark .shadow-sm,
+    .dark .shadow-md,
+    .dark .shadow-lg {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
+    }
+
     @keyframes scroll {
         0% {
             transform: translateX(0);

@@ -53,8 +53,8 @@ const Home = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative bg-white overflow-hidden transition-all duration-300">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-white z-0" />
+      <section className="relative bg-white dark:bg-[#050816] overflow-hidden transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-white dark:from-[#071126] dark:via-[#050816] dark:to-[#0a1021] z-0" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 md:py-32 flex flex-col items-center text-center">
 
           <div className="flex items-center gap-2 mb-6 px-3 py-1">
@@ -62,27 +62,27 @@ const Home = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-600"></span>
             </span>
-            <span className="text-primary-600 text-xs font-bold tracking-widest uppercase">Active Now</span>
+            <span className="text-primary-600 dark:text-primary-400 text-xs font-bold tracking-widest uppercase">Active Now</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 tracking-tight mb-6">
-            Find Trusted Services <br className="hidden md:block" /> in Your <span className="text-primary-600">Neighborhood</span>
+          <h1 className="text-4xl md:text-6xl font-bold text-secondary-900 dark:text-white tracking-tight mb-6">
+            Find Trusted Services <br className="hidden md:block" /> in Your <span className="text-primary-600 dark:text-primary-400">Neighborhood</span>
           </h1>
-          <p className="text-lg md:text-xl text-secondary-600 mb-10 max-w-2xl">
+          <p className="text-lg md:text-xl text-secondary-600 dark:text-secondary-300 mb-10 max-w-2xl">
             Connect with verified local experts for plumbing, electrical work, cleaning, and more.
             Safe, fast, and community-driven.
           </p>
 
-          <Card className="p-4 w-full max-w-3xl flex flex-col md:flex-row gap-4 shadow-lg border-none bg-white/50 backdrop-blur-sm">
+          <Card className="p-4 w-full max-w-3xl flex flex-col md:flex-row gap-4 shadow-lg border-none bg-white/60 dark:bg-[#0c152b]/80 backdrop-blur-sm">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 text-secondary-400" size={20} />
+              <Search className="absolute left-3 top-3 text-secondary-400 dark:text-secondary-500" size={20} />
               <input
                 type="text"
                 placeholder="What service do you need?"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white text-secondary-900 placeholder-secondary-400"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-secondary-200 dark:border-secondary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-[#111b33] text-secondary-900 dark:text-secondary-100 placeholder-secondary-400 dark:placeholder-secondary-500"
               />
             </div>
             <Button size="lg" className="md:w-auto w-full" onClick={handleSearch}>
@@ -95,22 +95,22 @@ const Home = () => {
             <div className="flex items-center gap-2">
               <Users className="text-primary-600" size={24} />
               <div>
-                <p className="text-2xl font-bold text-secondary-900">10,000+</p>
-                <p className="text-sm text-secondary-500">Service Providers</p>
+                <p className="text-2xl font-bold text-secondary-900 dark:text-white">10,000+</p>
+                <p className="text-sm text-secondary-500 dark:text-secondary-400">Service Providers</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Star className="text-yellow-500 fill-yellow-500" size={24} />
               <div>
-                <p className="text-2xl font-bold text-secondary-900">4.8/5</p>
-                <p className="text-sm text-secondary-500">Average Rating</p>
+                <p className="text-2xl font-bold text-secondary-900 dark:text-white">4.8/5</p>
+                <p className="text-sm text-secondary-500 dark:text-secondary-400">Average Rating</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Shield className="text-green-500" size={24} />
               <div>
-                <p className="text-2xl font-bold text-secondary-900">100%</p>
-                <p className="text-sm text-secondary-500">Verified Pros</p>
+                <p className="text-2xl font-bold text-secondary-900 dark:text-white">100%</p>
+                <p className="text-sm text-secondary-500 dark:text-secondary-400">Verified Pros</p>
               </div>
             </div>
           </div>
@@ -118,18 +118,18 @@ const Home = () => {
       </section>
 
       {/* Offers Banner */}
-      <section className="py-6 bg-white">
+      <section className="py-6 bg-white dark:bg-[#050816]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <OffersBanner />
         </div>
       </section>
 
       {/* Category Grid Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-[#050816]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-secondary-900 mb-3">What are you looking for?</h2>
-            <p className="text-secondary-600">Browse our most popular service categories</p>
+            <h2 className="text-3xl font-bold text-secondary-900 dark:text-white mb-3">What are you looking for?</h2>
+            <p className="text-secondary-600 dark:text-secondary-300">Browse our most popular service categories</p>
           </div>
           <CategoryGrid limit={12} />
           <div className="text-center mt-8">
@@ -143,21 +143,21 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-secondary-50 transition-all duration-300">
+      <section className="py-20 bg-secondary-50 dark:bg-[#070e20] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-secondary-900 mb-4">Why Choose NeighborHub?</h2>
-            <p className="text-secondary-600 max-w-2xl mx-auto">We make it safe and easy to find help right around the corner.</p>
+            <h2 className="text-3xl font-bold text-secondary-900 dark:text-white mb-4">Why Choose NeighborHub?</h2>
+            <p className="text-secondary-600 dark:text-secondary-300 max-w-2xl mx-auto">We make it safe and easy to find help right around the corner.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-secondary-100 text-center hover:shadow-md transition-all duration-300">
+              <div key={index} className="bg-white dark:bg-[#0f172a] p-8 rounded-2xl shadow-sm border border-secondary-100 dark:border-secondary-700 text-center hover:shadow-md transition-all duration-300">
                 <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-6">
                   <feature.icon size={28} />
                 </div>
-                <h3 className="text-xl font-bold text-secondary-900 mb-3">{feature.title}</h3>
-                <p className="text-secondary-600 leading-relaxed">
+                <h3 className="text-xl font-bold text-secondary-900 dark:text-secondary-100 mb-3">{feature.title}</h3>
+                <p className="text-secondary-600 dark:text-secondary-300 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -167,15 +167,15 @@ const Home = () => {
       </section>
 
       {/* Map Section */}
-      <section className="py-20 bg-white transition-all duration-300">
+      <section className="py-20 bg-white dark:bg-[#050816] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-6 gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-3xl font-bold text-secondary-900 mb-4 flex items-center gap-3">
+              <h2 className="text-3xl font-bold text-secondary-900 dark:text-white mb-4 flex items-center gap-3">
                 <MapPin className="text-primary-600" size={32} />
                 Around Your Neighborhood
               </h2>
-              <p className="text-secondary-600 text-lg">
+              <p className="text-secondary-600 dark:text-secondary-300 text-lg">
                 Explore service providers active in your area. Use filters to find exactly what you need, then click on pins to view details and book instantly.
               </p>
             </div>
@@ -199,9 +199,9 @@ const Home = () => {
 
       {/* CTA Section */}
       {!isProvider && (
-        <section className="py-20 bg-white transition-all duration-300">
+        <section className="py-20 bg-white dark:bg-[#050816] transition-all duration-300">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-primary-600 rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden">
+            <div className="bg-primary-600 dark:bg-[#0d1a35] rounded-3xl p-10 md:p-16 text-center text-white relative overflow-hidden border border-transparent dark:border-primary-700/40">
               <div className="relative z-10">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to offer your skills?</h2>
                 <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">

@@ -117,10 +117,11 @@ const Navbar = () => {
                 <div className="flex gap-2 items-center">
                   <button
                     onClick={toggleTheme}
-                    className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
                     title={isDark ? "Switch to light mode" : "Switch to dark mode"}
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                    <span className="text-sm font-medium">Change Theme</span>
                   </button>
                   <Link to="/login">
                     <Button variant="ghost" size="sm">Log In</Button>

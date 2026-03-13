@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import ServiceCard from "../components/ServiceCard";
 import { providerApi } from "../api/providerApi";
+import { availabilityApi } from "../api/availabilityApi";
 import Button from "../components/ui/Button";
 import { Search, Filter, X } from "lucide-react";
 import { categories as allCategories } from "../components/CategoryGrid";
@@ -15,6 +16,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [providerAvailabilityMap, setProviderAvailabilityMap] = useState({});
   const navigate = useNavigate();
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -48,6 +50,43 @@ const Services = () => {
     };
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    const fetchProviderAvailability = async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const uniqueProviders = [...new Set(
+        services
+          .map((service) => service?.providerUsername)
+          .filter((username) => Boolean(username))
+      )];
+
+      if (uniqueProviders.length === 0) {
+        setProviderAvailabilityMap({});
+        return;
+      }
+
+      const checks = await Promise.allSettled(
+        uniqueProviders.map(async (username) => {
+          const response = await availabilityApi.getAvailableSlots(username, today, today);
+          const slots = response?.data?.data || [];
+          return { username, isAvailable: slots.some((slot) => !slot.isBooked) };
+        })
+      );
+
+      const nextMap = {};
+      checks.forEach((result) => {
+        if (result.status === "fulfilled") {
+          nextMap[result.value.username] = result.value.isAvailable;
+        }
+      });
+
+      setProviderAvailabilityMap(nextMap);
+    };
+
+    if (services.length > 0) {
+      fetchProviderAvailability();
+    }
+  }, [services]);
 
   // Get category display name
   const getCategoryName = (value) => {
@@ -163,6 +202,7 @@ const Services = () => {
                 key={service.id}
                 service={service}
                 isProvider={isProvider}
+                providerAvailability={providerAvailabilityMap[service.providerUsername]}
                 onRequest={handleRequest}
               />
             ))}

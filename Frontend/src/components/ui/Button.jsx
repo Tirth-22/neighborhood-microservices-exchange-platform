@@ -12,9 +12,9 @@ const Button = ({
 
     const variants = {
         primary: "bg-primary-600 text-white hover:bg-primary-700 shadow-sm",
-        secondary: "bg-white text-secondary-900 border border-secondary-200 hover:bg-secondary-50 shadow-sm",
-        outline: "border border-primary-600 text-primary-600 hover:bg-primary-50",
-        ghost: "text-secondary-600 hover:bg-secondary-100 hover:text-secondary-900",
+        secondary: "bg-white dark:bg-secondary-800 text-secondary-900 dark:text-secondary-100 border border-secondary-200 dark:border-secondary-700 hover:bg-secondary-50 dark:hover:bg-secondary-700 shadow-sm",
+        outline: "border border-primary-600 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20",
+        ghost: "text-secondary-600 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-800 hover:text-secondary-900 dark:hover:text-secondary-100",
         danger: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
         success: "bg-green-600 text-white hover:bg-green-700 shadow-sm",
     };

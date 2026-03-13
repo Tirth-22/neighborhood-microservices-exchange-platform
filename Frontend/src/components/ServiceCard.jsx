@@ -24,7 +24,7 @@ const getCategoryImage = (category) => {
     return imageMap[category] || 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&h=300&fit=crop';
 };
 
-const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
+const ServiceCard = ({ service, isProvider: isProviderProp, providerAvailability, onRequest }) => {
     const user = JSON.parse(localStorage.getItem("currentUser"));
 
     const getRole = (u) => {
@@ -83,7 +83,7 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
 
                 {/* Provider info overlay */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white text-primary-600 flex items-center justify-center font-bold text-sm shadow-lg">
+                    <div className="w-8 h-8 rounded-full bg-white dark:bg-[#0f172a] text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm shadow-lg border border-white/20 dark:border-secondary-700">
                         {providerInitial}
                     </div>
                     <div>
@@ -120,13 +120,24 @@ const ServiceCard = ({ service, isProvider: isProviderProp, onRequest }) => {
                         <Shield size={12} className="mr-1 text-green-500" />
                         Verified
                     </div>
+                    {typeof providerAvailability === 'boolean' && (
+                        <div
+                            className={`flex items-center text-xs px-2 py-1 rounded ${providerAvailability
+                                ? 'bg-green-50 text-green-700'
+                                : 'bg-amber-50 text-amber-700'
+                                }`}
+                        >
+                            <Clock size={12} className="mr-1" />
+                            {providerAvailability ? 'Available today' : 'Unavailable today'}
+                        </div>
+                    )}
                 </div>
 
                 {/* Pricing */}
                 <div className="flex items-center gap-2 mb-4 mt-auto">
                     <span className="text-xl font-bold text-secondary-900">₹{service.price}</span>
                     <span className="text-sm text-secondary-400 line-through">₹{originalPrice}</span>
-                    <span className="text-xs text-secondary-500">/hr</span>
+                    {/* <span className="text-xs text-secondary-500">/hr</span> */}
                 </div>
 
                 {/* UC Promise */}
