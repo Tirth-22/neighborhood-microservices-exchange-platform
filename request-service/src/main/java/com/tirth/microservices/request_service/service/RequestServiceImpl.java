@@ -3,6 +3,8 @@ package com.tirth.microservices.request_service.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,11 +100,11 @@ public class RequestServiceImpl implements RequestService {
                         slotDate.toString(),
                         slotTime.toString());
 
-                if (slotValidation == null || !slotValidation.isSuccess() || 
-                    slotValidation.getData() == null || !slotValidation.getData()) {
+                if (slotValidation == null || !slotValidation.isSuccess()
+                        || slotValidation.getData() == null || !slotValidation.getData()) {
                     throw new InvalidRequestStateException(
-                            "No available time slot found for " + providerUsername + " at " + 
-                            request.getScheduledAt() + ". Please select from available slots.");
+                            "No available time slot found for " + providerUsername + " at "
+                            + request.getScheduledAt() + ". Please select from available slots.");
                 }
             } catch (InvalidRequestStateException e) {
                 throw e;
@@ -157,6 +159,11 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ServiceRequestResponseDTO> getMyRequests(String username) {
         return repository.findByRequestedBy(username).stream().map(this::mapToDTO).toList();
+    }
+
+    @Override
+    public Page<ServiceRequestResponseDTO> getMyRequests(String username, Pageable pageable) {
+        return repository.findByRequestedByOrderByCreatedAtDesc(username, pageable).map(this::mapToDTO);
     }
 
     @Override
@@ -230,6 +237,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public Page<ServiceRequestResponseDTO> getPendingRequests(String providerUsername, Pageable pageable) {
+        return repository.findByProviderUsernameAndStatusOrderByCreatedAtDesc(providerUsername, RequestStatus.PENDING, pageable)
+                .map(this::mapToDTO);
+    }
+
+    @Override
     public ServiceRequestResponseDTO cancel(Long id, String username, String role) {
 
         ServiceRequest request = repository.findById(id)
@@ -239,7 +252,6 @@ public class RequestServiceImpl implements RequestService {
         if (!request.getRequestedBy().equals(username)) {
             throw new UnauthorizedActionException("You can cancel only your own request");
         }
-
 
         request.setStatus(RequestStatus.CANCELLED);
         ServiceRequest savedRequest = repository.save(request);
@@ -270,6 +282,16 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    public Page<ServiceRequestResponseDTO> getAcceptedRequestsForProvider(String providerUsername, String role, Pageable pageable) {
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
+            throw new RuntimeException("Only provider allowed");
+        }
+
+        return repository.findByAcceptedByAndStatusOrderByCreatedAtDesc(providerUsername, RequestStatus.ACCEPTED, pageable)
+                .map(this::mapToDTO);
+    }
+
+    @Override
     public ServiceRequestResponseDTO complete(Long id, String username, String role, Double rating) {
 
         // Rating validation - MANDATORY
@@ -283,7 +305,6 @@ public class RequestServiceImpl implements RequestService {
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
-
 
         if (!request.getRequestedBy().equals(username)) {
             throw new UnauthorizedActionException("You can complete only your own request");
@@ -322,5 +343,16 @@ public class RequestServiceImpl implements RequestService {
         return repository.findByAcceptedByAndStatus(
                 username,
                 RequestStatus.COMPLETED).stream().map(this::mapToDTO).toList();
+    }
+
+    @Override
+    public Page<ServiceRequestResponseDTO> getMyCompletedRequests(String username, String role, Pageable pageable) {
+
+        if (!"PROVIDER".equalsIgnoreCase(role)) {
+            throw new UnauthorizedActionException("Only PROVIDER allowed");
+        }
+
+        return repository.findByAcceptedByAndStatusOrderByCreatedAtDesc(username, RequestStatus.COMPLETED, pageable)
+                .map(this::mapToDTO);
     }
 }
