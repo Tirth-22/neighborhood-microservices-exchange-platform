@@ -128,14 +128,23 @@ const ServiceProviderMap = ({
     const fetchServices = async () => {
         try {
             setLoading(true);
-            const response = await providerApi.getAllServices();
+            const response = await providerApi.searchServices({
+                page: 0,
+                size: 200,
+                sortBy: 'createdAt',
+                sortDir: 'desc'
+            });
             const servicesData = Array.isArray(response.data) ? response.data : [];
-            // Add mock coordinates since backend doesn't provide them yet
-            const servicesWithCoords = servicesData.map((s, index) => ({
-                ...s,
-                lat: center[0] + (Math.random() - 0.5) * 0.08,
-                lng: center[1] + (Math.random() - 0.5) * 0.08,
-            }));
+            const pagedContent = Array.isArray(response?.data?.content) ? response.data.content : servicesData;
+
+            const servicesWithCoords = pagedContent
+                .map((s) => ({
+                    ...s,
+                    lat: typeof s.latitude === 'number' ? s.latitude : Number(s.latitude),
+                    lng: typeof s.longitude === 'number' ? s.longitude : Number(s.longitude),
+                }))
+                .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+
             setServices(servicesWithCoords);
         } catch (err) {
             console.error("Failed to fetch services for map", err);

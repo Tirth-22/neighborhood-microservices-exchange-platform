@@ -8,6 +8,10 @@ import { requestApi } from "../api/requestApi";
 const MyRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(15);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showRatingModal, setShowRatingModal] = useState(false);
@@ -17,10 +21,20 @@ const MyRequests = () => {
     const fetchRequests = async () => {
         setLoading(true);
         try {
-            const response = await requestApi.getMyRequests();
-            setRequests(response.data);
+            const response = await requestApi.getMyRequestsPaged({
+                page,
+                size: pageSize,
+                sortBy: 'createdAt',
+                sortDir: 'desc'
+            });
+            setRequests(response?.data?.content || []);
+            setTotalPages(response?.data?.totalPages || 0);
+            setTotalElements(response?.data?.totalElements || 0);
         } catch (error) {
             console.error("Failed to fetch requests", error);
+            setRequests([]);
+            setTotalPages(0);
+            setTotalElements(0);
         } finally {
             setLoading(false);
         }
@@ -28,7 +42,11 @@ const MyRequests = () => {
 
     useEffect(() => {
         fetchRequests();
-    }, []);
+    }, [page, pageSize]);
+
+    useEffect(() => {
+        setPage(0);
+    }, [pageSize]);
 
     const getStatusVariant = (status) => {
         switch (String(status).toLowerCase()) {
@@ -83,12 +101,12 @@ const MyRequests = () => {
     };
 
     return (
-        <div className="min-h-screen bg-secondary-50 py-10">
+        <div className="min-h-screen bg-secondary-50 dark:bg-[#070e20] py-10">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h2 className="text-3xl font-bold text-secondary-900">My Requests</h2>
-                        <p className="text-secondary-500 mt-1">Track and manage your service requests.</p>
+                        <p className="text-secondary-500 mt-1">Track and manage your service requests ({totalElements}).</p>
                     </div>
                 </div>
 
@@ -171,6 +189,38 @@ const MyRequests = () => {
                                 </div>
                             </Card>
                         ))}
+
+                        <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-[#0f172a] border border-secondary-200 dark:border-secondary-700 rounded-xl px-4 py-3">
+                            <div className="text-sm text-secondary-600">
+                                Page {totalPages === 0 ? 0 : page + 1} of {totalPages}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <label className="text-sm text-secondary-600">Per page</label>
+                                <select
+                                    value={pageSize}
+                                    onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+                                    className="px-2 py-1 rounded-lg border border-secondary-200 bg-white text-secondary-900"
+                                >
+                                    <option value={15}>15</option>
+                                    <option value={20}>20</option>
+                                </select>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    disabled={page === 0}
+                                    onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    disabled={totalPages === 0 || page >= totalPages - 1}
+                                    onClick={() => setPage((prev) => prev + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -178,16 +228,16 @@ const MyRequests = () => {
             {/* DETAILS MODAL */}
             {showModal && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                    className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all"
+                        className="bg-white dark:bg-[#0f172a] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-all border border-secondary-200 dark:border-secondary-700"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {selectedRequest && (
                             <>
-                                <div className="sticky top-0 bg-white border-b border-secondary-200 px-6 py-4 flex justify-between items-center rounded-t-xl z-20">
+                                <div className="sticky top-0 bg-white dark:bg-[#0f172a] border-b border-secondary-200 dark:border-secondary-700 px-6 py-4 flex justify-between items-center rounded-t-xl z-20">
                                     <div>
                                         <h3 className="text-2xl font-bold text-secondary-900">Request Details</h3>
                                         <p className="text-sm text-secondary-500 mt-1">ID: #{selectedRequest.id}</p>
@@ -317,8 +367,8 @@ const MyRequests = () => {
 
             {/* RATING MODAL */}
             {showRatingModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
+                    <div className="bg-white dark:bg-[#0f172a] rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in zoom-in-95 duration-200 border border-secondary-200 dark:border-secondary-700">
                         <div className="text-center">
                             <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Star className="text-yellow-400 fill-yellow-400" size={32} />

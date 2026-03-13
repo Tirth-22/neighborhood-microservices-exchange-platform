@@ -225,6 +225,11 @@ npm run dev
 
 ## 📌 Key Features
 
+### Project Status (March 2026)
+- ✅ Core platform scope is implemented and working end-to-end.
+- ✅ Includes authentication, provider onboarding, service catalog, request lifecycle, slot-based availability, notifications feed, map view, and pagination/search.
+- ℹ️ Out-of-scope/hard-track items (payment, cloud/DevOps pipelines, chat, email delivery) are intentionally not part of the completion status.
+
 ### Core Features
 - ✅ Microservices-based architecture
 - ✅ Independent database per service
@@ -243,13 +248,14 @@ npm run dev
 
 ### Request Management
 - ✅ Service request creation
-- ✅ Real-time status tracking (later)
+- ✅ Status tracking across request lifecycle
 - ✅ Availability validation
 - ✅ Double-booking prevention
 - ✅ Request history
+- ✅ Backend pagination (15/20 page size in UI)
 
 ### Notification System
-- ✅ Real-time notifications (later)
+- ✅ In-app notifications feed (REST-based)
 - ✅ Status update alerts
 - ✅ Notification dashboard
 
@@ -261,13 +267,11 @@ npm run dev
 - ✅ Pagination support
 
 ### Additional Features
-- ✅ Location-based services
-- ✅ Dispute resolution
+- ✅ Location-based service map
 - ✅ Provider verification
-- ✅ Analytics dashboard
+- ✅ Admin provider approval dashboard
 - ✅ Caching with Redis
 - ✅ Rate limiting
-- ✅ Audit logging
 - ✅ Health monitoring
 
 ## 📊 API Documentation
@@ -283,14 +287,15 @@ POST /api/auth/register    # Register new user
 POST /api/auth/login       # Login & get JWT
 
 # Providers
-GET  /api/providers        # List all providers
-POST /api/providers        # Register as provider
-GET  /api/providers/{id}/services  # Get provider services
+POST /api/providers/register              # Register as provider
+GET  /api/providers/services/search       # Search services (paged)
+GET  /api/admin/providers/paged           # List providers (admin, paged)
 
 # Requests
 POST /api/requests         # Create service request
-GET  /api/requests/user    # Get user's requests
-PUT  /api/requests/{id}/status  # Update request status
+GET  /api/requests/my/paged # Get user's requests (paged)
+PUT  /api/requests/{id}/accept  # Provider accepts request
+PUT  /api/requests/{id}/complete?rating=5 # User completes request
 ```
 
 ## 🧪 Testing
@@ -302,8 +307,8 @@ mvn test
 # Run integration tests
 mvn verify
 
-# Run frontend tests
-cd Frontend && npm test
+# Frontend quality checks
+cd Frontend && npm run lint && npm run build
 ```
 
 ## 📈 Future Enhancements

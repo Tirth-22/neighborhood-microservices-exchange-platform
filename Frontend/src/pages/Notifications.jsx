@@ -75,7 +75,7 @@ const Notifications = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-secondary-50">
+            <div className="min-h-screen flex items-center justify-center bg-secondary-50 dark:bg-[#070e20]">
                 <Card className="p-8 text-center max-w-md border-none shadow-lg bg-white">
                     <p className="text-secondary-600 mb-4">Please login to view notifications</p>
                     <Link to="/login">
@@ -87,7 +87,7 @@ const Notifications = () => {
     }
 
     return (
-        <div className="min-h-screen bg-secondary-50 py-10">
+        <div className="min-h-screen bg-secondary-50 dark:bg-[#070e20] py-10">
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div className="flex items-center gap-3">
@@ -106,14 +106,14 @@ const Notifications = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                     </div>
                 ) : notifications.length === 0 ? (
-                    <Card className="text-center py-12 border-none shadow-sm bg-white">
+                    <Card className="text-center py-12 border-none shadow-sm bg-white dark:bg-[#0f172a]">
                         <Bell className="mx-auto text-secondary-300 mb-3" size={48} />
                         <p className="text-secondary-500">No new notifications</p>
                     </Card>
                 ) : (
                     <div className="space-y-4">
                         {notifications.map((notif) => (
-                            <Card key={notif.id} className="p-5 hover:bg-white transition-all border-secondary-200 hover:shadow-md bg-white group">
+                            <Card key={notif.id} className="p-5 hover:bg-white dark:hover:bg-[#13203b] transition-all border-secondary-200 dark:border-secondary-700 hover:shadow-md bg-white dark:bg-[#0f172a] group">
                                 <div className="flex gap-4 items-start">
                                     <div className="mt-1 transition-transform group-hover:scale-110 duration-200">
                                         {getStatusIcon(notif.type)}

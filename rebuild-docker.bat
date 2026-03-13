@@ -1,4 +1,4 @@
-@echo off
+docker-compose up -d --build provider-service request-service frontend api-gateway-1 api-gateway-2@echo off
 echo Stopping all containers...
 docker-compose down
 

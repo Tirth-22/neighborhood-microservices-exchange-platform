@@ -8,7 +8,7 @@ import { Search, Filter, X } from "lucide-react";
 import { categories as allCategories } from "../components/CategoryGrid";
 
 const Services = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
   const initialCategory = searchParams.get("category") || "All";
 
@@ -17,17 +17,21 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [providerAvailabilityMap, setProviderAvailabilityMap] = useState({});
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(15);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
   const navigate = useNavigate();
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-  // ---- ROLE CHECK (SINGLE SOURCE) ----
   const getRole = (u) => {
     if (!u) return "";
     let r = u.role || u.roles || u.authorities || "";
     if (Array.isArray(r)) r = r[0];
-    if (typeof r === "object" && r !== null)
+    if (typeof r === "object" && r !== null) {
       r = r.name || r.authority || "";
+    }
     return String(r || "").toLowerCase().trim();
   };
 
@@ -35,21 +39,32 @@ const Services = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
+      setLoading(true);
       try {
-        const response = await providerApi.getAllServices();
-        // Remove duplicates by service id
-        const uniqueServices = response.data.filter((service, index, self) =>
-          index === self.findIndex((s) => s.id === service.id)
-        );
-        setServices(uniqueServices);
+        const response = await providerApi.searchServices({
+          q: searchTerm || undefined,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
+          page,
+          size: pageSize,
+          sortBy: "createdAt",
+          sortDir: "desc",
+        });
+
+        setServices(response?.data?.content || []);
+        setTotalPages(response?.data?.totalPages || 0);
+        setTotalElements(response?.data?.totalElements || 0);
       } catch (err) {
         console.error("Failed to fetch services", err);
+        setServices([]);
+        setTotalPages(0);
+        setTotalElements(0);
       } finally {
         setLoading(false);
       }
     };
+
     fetchServices();
-  }, []);
+  }, [searchTerm, selectedCategory, page, pageSize]);
 
   useEffect(() => {
     const fetchProviderAvailability = async () => {
@@ -88,29 +103,16 @@ const Services = () => {
     }
   }, [services]);
 
-  // Get category display name
+  useEffect(() => {
+    setPage(0);
+  }, [selectedCategory, pageSize]);
+
   const getCategoryName = (value) => {
-    const cat = allCategories.find(c => c.value === value);
+    const cat = allCategories.find((c) => c.value === value);
     return cat ? cat.name : value;
   };
 
-  const categories = ["All", ...new Set(services.map(s => s.category || "Other"))];
-
-  const filteredServices = services.filter(service => {
-    const providerName = service.providerName || "";
-    const category = service.category || "";
-    const name = service.name || "";
-    const description = service.description || "";
-
-    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCategory = selectedCategory === "All" || category === selectedCategory;
-
-    return matchesSearch && matchesCategory;
-  });
+  const categories = ["All", ...new Set(allCategories.map((c) => c.value))];
 
   const handleRequest = (service) => {
     if (!currentUser) {
@@ -125,28 +127,27 @@ const Services = () => {
     <div className="min-h-screen bg-secondary-50 py-10 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h2 className="text-3xl font-bold text-secondary-900">
               {selectedCategory !== "All" ? getCategoryName(selectedCategory) : "All Services"}
             </h2>
             <p className="text-secondary-500 mt-1">
-              {filteredServices.length} services available
+              {totalElements} services available
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <div className="relative flex-grow md:flex-grow-0">
-              <Search
-                className="absolute left-3 top-2.5 text-secondary-400"
-                size={18}
-              />
+              <Search className="absolute left-3 top-2.5 text-secondary-400" size={18} />
               <input
                 type="text"
                 placeholder="Search services..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(0);
+                }}
                 className="pl-9 pr-4 py-2 rounded-xl border border-secondary-200 bg-white text-secondary-900 placeholder-secondary-400 w-full md:w-64 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
@@ -154,11 +155,16 @@ const Services = () => {
             <div className="relative">
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setPage(0);
+                }}
                 className="pl-4 pr-10 py-2 rounded-xl border border-secondary-200 bg-white text-secondary-900 appearance-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all shadow-sm cursor-pointer w-full"
               >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat === "All" ? "All Categories" : getCategoryName(cat)}</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat === "All" ? "All Categories" : getCategoryName(cat)}
+                  </option>
                 ))}
               </select>
               <Filter className="absolute right-3 top-2.5 text-secondary-400 pointer-events-none" size={18} />
@@ -166,7 +172,6 @@ const Services = () => {
           </div>
         </div>
 
-        {/* Active Filters */}
         {(selectedCategory !== "All" || searchTerm) && (
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <span className="text-sm text-secondary-500">Active filters:</span>
@@ -189,24 +194,57 @@ const Services = () => {
           </div>
         )}
 
-        {/* GRID */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
             <p className="text-secondary-500 font-medium">Loading amazing services...</p>
           </div>
-        ) : filteredServices.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredServices.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                isProvider={isProvider}
-                providerAvailability={providerAvailabilityMap[service.providerUsername]}
-                onRequest={handleRequest}
-              />
-            ))}
-          </div>
+        ) : services.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {services.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  isProvider={isProvider}
+                  providerAvailability={providerAvailabilityMap[service.providerUsername]}
+                  onRequest={handleRequest}
+                />
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-4 bg-white border border-secondary-200 rounded-xl px-4 py-3">
+              <div className="text-sm text-secondary-600">
+                Page {totalPages === 0 ? 0 : page + 1} of {totalPages}
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-secondary-600">Per page</label>
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+                  className="px-2 py-1 rounded-lg border border-secondary-200 bg-white text-secondary-900"
+                >
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={page === 0}
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={totalPages === 0 || page >= totalPages - 1}
+                  onClick={() => setPage((prev) => prev + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-secondary-100 transition-all duration-300">
             <div className="bg-secondary-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -214,12 +252,16 @@ const Services = () => {
             </div>
             <h3 className="text-lg font-bold text-secondary-900 mb-1">No services matched</h3>
             <p className="text-secondary-500 max-w-xs mx-auto">
-              Try adjusting your search or filter to find what you're looking for.
+              Try adjusting your search or filter to find what you&apos;re looking for.
             </p>
             <Button
               variant="secondary"
               className="mt-6"
-              onClick={() => { setSearchTerm(""); setSelectedCategory("All"); }}
+              onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory("All");
+                setPage(0);
+              }}
             >
               Clear all filters
             </Button>

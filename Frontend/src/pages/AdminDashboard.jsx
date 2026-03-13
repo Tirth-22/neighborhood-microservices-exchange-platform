@@ -8,19 +8,38 @@ import { providerApi } from "../api/providerApi";
 const AdminDashboard = () => {
     const [providers, setProviders] = useState([]);
     const [activeTab, setActiveTab] = useState('pending');
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(15);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
     const fetchProviders = async () => {
         try {
-            const response = await providerApi.getAllProviders(activeTab === 'pending' ? 'PENDING' : '');
-            setProviders(response.data);
+            const response = await providerApi.getAllProvidersPaged({
+                status: activeTab === 'pending' ? 'PENDING' : undefined,
+                page,
+                size: pageSize,
+                sortBy: 'createdAt',
+                sortDir: 'desc'
+            });
+            setProviders(response?.data?.content || []);
+            setTotalPages(response?.data?.totalPages || 0);
+            setTotalElements(response?.data?.totalElements || 0);
         } catch (error) {
             console.error("Failed to fetch providers", error);
+            setProviders([]);
+            setTotalPages(0);
+            setTotalElements(0);
         }
     };
 
     useEffect(() => {
         fetchProviders();
-    }, [activeTab]);
+    }, [activeTab, page, pageSize]);
+
+    useEffect(() => {
+        setPage(0);
+    }, [activeTab, pageSize]);
 
     const handleApprove = async (id) => {
         try {
@@ -45,13 +64,13 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-secondary-50 py-10">
+        <div className="min-h-screen bg-secondary-50 dark:bg-[#070e20] py-10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-8 flex items-center gap-3">
                     <Shield className="text-primary-600" size={32} />
                     <div>
                         <h1 className="text-3xl font-bold text-secondary-900">Admin Dashboard</h1>
-                        <p className="text-secondary-600">Manage platform providers and users.</p>
+                        <p className="text-secondary-600">Manage platform providers and users ({totalElements}).</p>
                     </div>
                 </div>
 
@@ -72,12 +91,12 @@ const AdminDashboard = () => {
 
                 <div className="grid gap-4">
                     {providers.length === 0 ? (
-                        <Card className="p-8 text-center text-secondary-500 bg-white border-secondary-200 shadow-sm">
+                        <Card className="p-8 text-center text-secondary-500 bg-white dark:bg-[#0f172a] border-secondary-200 dark:border-secondary-700 shadow-sm">
                             No providers found.
                         </Card>
                     ) : (
                         providers.map(provider => (
-                            <Card key={provider.id} className="p-6 flex items-center justify-between bg-white border-secondary-200 shadow-sm">
+                            <Card key={provider.id} className="p-6 flex items-center justify-between bg-white dark:bg-[#0f172a] border-secondary-200 dark:border-secondary-700 shadow-sm">
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-lg font-bold text-secondary-900">{provider.username}</h3>
@@ -101,6 +120,38 @@ const AdminDashboard = () => {
                             </Card>
                         ))
                     )}
+                </div>
+
+                <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-white dark:bg-[#0f172a] border border-secondary-200 dark:border-secondary-700 rounded-xl px-4 py-3">
+                    <div className="text-sm text-secondary-600">
+                        Page {totalPages === 0 ? 0 : page + 1} of {totalPages}
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <label className="text-sm text-secondary-600">Per page</label>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+                            className="px-2 py-1 rounded-lg border border-secondary-200 bg-white text-secondary-900"
+                        >
+                            <option value={15}>15</option>
+                            <option value={20}>20</option>
+                        </select>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled={page === 0}
+                            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            size="sm"
+                            disabled={totalPages === 0 || page >= totalPages - 1}
+                            onClick={() => setPage((prev) => prev + 1)}
+                        >
+                            Next
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
