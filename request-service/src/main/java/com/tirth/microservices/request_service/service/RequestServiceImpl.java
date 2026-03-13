@@ -23,7 +23,6 @@ import com.tirth.microservices.request_service.exception.ResourceNotFoundExcepti
 import com.tirth.microservices.request_service.exception.UnauthorizedActionException;
 import com.tirth.microservices.request_service.producer.RequestEventProducer;
 import com.tirth.microservices.request_service.repository.ServiceRequestRepository;
-import com.tirth.microservices.request_service.state.RequestStateTransition;
 
 import lombok.RequiredArgsConstructor;
 
@@ -177,13 +176,6 @@ public class RequestServiceImpl implements RequestService {
             throw new UnauthorizedActionException("Provider is not active");
         }
 
-        // State transition validation
-        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.ACCEPTED)) {
-            throw new InvalidRequestStateException(
-                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.ACCEPTED)
-            );
-        }
-
         request.setStatus(RequestStatus.ACCEPTED);
         request.setAcceptedBy(username);
         request.setAcceptedAt(LocalDateTime.now());
@@ -210,13 +202,6 @@ public class RequestServiceImpl implements RequestService {
 
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
-
-        // State transition validation
-        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.REJECTED)) {
-            throw new InvalidRequestStateException(
-                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.REJECTED)
-            );
-        }
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectedBy(username);
@@ -255,12 +240,6 @@ public class RequestServiceImpl implements RequestService {
             throw new UnauthorizedActionException("You can cancel only your own request");
         }
 
-        // State transition validation
-        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.CANCELLED)) {
-            throw new InvalidRequestStateException(
-                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.CANCELLED)
-            );
-        }
 
         request.setStatus(RequestStatus.CANCELLED);
         ServiceRequest savedRequest = repository.save(request);
@@ -305,12 +284,6 @@ public class RequestServiceImpl implements RequestService {
         ServiceRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Request not found"));
 
-        // State transition validation
-        if (!RequestStateTransition.isValidTransition(request.getStatus(), RequestStatus.COMPLETED)) {
-            throw new InvalidRequestStateException(
-                    RequestStateTransition.getTransitionErrorMessage(request.getStatus(), RequestStatus.COMPLETED)
-            );
-        }
 
         if (!request.getRequestedBy().equals(username)) {
             throw new UnauthorizedActionException("You can complete only your own request");

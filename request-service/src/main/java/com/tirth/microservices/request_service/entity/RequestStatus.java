@@ -6,5 +6,8 @@ public enum RequestStatus {
     REJECTED,
     CANCELLED,
     IN_PROGRESS,
-    CREATED, COMPLETED
+    CREATED,
+    COMPLETED,
+    PAID,
+    PAYMENT_FAILED
 }
