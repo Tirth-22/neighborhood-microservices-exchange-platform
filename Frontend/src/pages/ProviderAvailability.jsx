@@ -10,6 +10,7 @@ const DAYS_OF_WEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'S
 const ProviderAvailability = () => {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('currentUser'));
+    const providerUsername = user?.username || user?.name || user?.id || '';
 
     const [availability, setAvailability] = useState([]);
     const [slots, setSlots] = useState([]);
@@ -39,7 +40,7 @@ const ProviderAvailability = () => {
     });
 
     useEffect(() => {
-        if (user?.username) {
+        if (providerUsername) {
             fetchAvailability();
             fetchSlots();
         } else {
@@ -48,9 +49,9 @@ const ProviderAvailability = () => {
     }, []);
 
     const fetchAvailability = async () => {
-        if (!user?.username) return;
+        if (!providerUsername) return;
         try {
-            const response = await availabilityApi.getProviderAvailability(user.username);
+            const response = await availabilityApi.getProviderAvailability(providerUsername);
             setAvailability(response?.data?.data || []);
             setError('');
         } catch (err) {
@@ -66,7 +67,7 @@ const ProviderAvailability = () => {
     };
 
     const fetchSlots = async () => {
-        if (!user?.username) return;
+        if (!providerUsername) return;
         try {
             const response = await availabilityApi.getProviderSchedule(
                 dateRange.startDate,

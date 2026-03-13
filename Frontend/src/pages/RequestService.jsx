@@ -15,12 +15,7 @@ const RequestService = () => {
         date: '',
         time: '',
         address: '',
-        description: '',
-        payment: 'cash',
-        cardNumber: '',
-        expiry: '',
-        cvv: '',
-        cardHolder: ''
+        description: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -28,14 +23,6 @@ const RequestService = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        if (formData.payment === 'online') {
-            if (!formData.cardNumber || !formData.expiry || !formData.cvv || !formData.cardHolder) {
-                alert("Please fill in all card details for online payment.");
-                setLoading(false);
-                return;
-            }
-        }
 
         try {
             const payload = {
@@ -46,7 +33,7 @@ const RequestService = () => {
                 price: selectedService?.price,
                 address: formData.address,
                 scheduledAt: `${formData.date}T${formData.time}:00`,
-                paymentMethod: formData.payment.toUpperCase(),
+                paymentMethod: 'CASH',
                 serviceOfferingId: selectedService?.id
             };
 
@@ -170,68 +157,11 @@ const RequestService = () => {
                         <div className="space-y-6">
                             <h3 className="text-lg font-bold text-secondary-900 flex items-center gap-3">
                                 <span className="w-6 h-6 rounded-full bg-blue-50 text-primary-600 flex items-center justify-center text-xs">3</span>
-                                Payment Method
+                                Review
                             </h3>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                {['cash', 'online'].map((method) => (
-                                    <button
-                                        key={method}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, payment: method })}
-                                        className={`py-4 px-2 rounded-xl border-2 transition-all font-bold text-sm capitalize ${formData.payment === method
-                                            ? 'border-primary-600 bg-primary-50 text-primary-600'
-                                            : 'border-secondary-100 bg-white text-secondary-500 hover:border-secondary-200'
-                                            }`}
-                                    >
-                                        {method}
-                                    </button>
-                                ))}
+                            <div className="py-4 px-4 rounded-xl border-2 border-secondary-100 bg-secondary-50 text-secondary-700 font-semibold text-sm">
+                                Confirm your details and submit your request.
                             </div>
-
-                            {formData.payment === 'online' && (
-                                <div className="mt-6 p-6 bg-secondary-50 rounded-2xl border border-secondary-100 animate-in fade-in slide-in-from-top-4 duration-300">
-                                    <h4 className="text-sm font-bold text-secondary-700 mb-4 uppercase tracking-wider">Card Details</h4>
-                                    <div className="space-y-4">
-                                        <Input
-                                            label="Cardholder Name"
-                                            placeholder="John Doe"
-                                            required={formData.payment === 'online'}
-                                            value={formData.cardHolder}
-                                            onChange={(e) => setFormData({ ...formData, cardHolder: e.target.value })}
-                                            className="bg-white"
-                                        />
-                                        <Input
-                                            label="Card Number"
-                                            placeholder="0000 0000 0000 0000"
-                                            required={formData.payment === 'online'}
-                                            value={formData.cardNumber}
-                                            onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                                            className="bg-white"
-                                        />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <Input
-                                                label="Expiry Date"
-                                                placeholder="MM/YY"
-                                                required={formData.payment === 'online'}
-                                                value={formData.expiry}
-                                                onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                                                className="bg-white"
-                                            />
-                                            <Input
-                                                label="CVV"
-                                                placeholder="123"
-                                                type="password"
-                                                maxLength="3"
-                                                required={formData.payment === 'online'}
-                                                value={formData.cvv}
-                                                onChange={(e) => setFormData({ ...formData, cvv: e.target.value })}
-                                                className="bg-white"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         <Button

@@ -28,6 +28,7 @@ const Login = () => {
 
         const userData = {
           name: username,
+          username: username,
           role: finalRole,
           token: token,
           id: username

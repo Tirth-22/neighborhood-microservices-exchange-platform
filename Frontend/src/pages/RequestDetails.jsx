@@ -4,7 +4,7 @@ import { requestApi } from '../api/requestApi';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
-import { Calendar, Clock, MapPin, User, ArrowLeft, CreditCard } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, ArrowLeft } from 'lucide-react';
 
 const RequestDetails = () => {
   const { id } = useParams();
@@ -121,15 +121,6 @@ const RequestDetails = () => {
               </div>
             </div>
 
-            <div className="border-t border-secondary-100 pt-6 mt-2">
-              <div className="flex items-center">
-                <CreditCard className="text-primary-500 mr-3" size={20} />
-                <div>
-                  <p className="text-sm font-medium text-secondary-500">Payment Method</p>
-                  <p className="text-secondary-900 font-medium">{request.payment}</p>
-                </div>
-              </div>
-            </div>
           </div>
         </Card>
       </div>
