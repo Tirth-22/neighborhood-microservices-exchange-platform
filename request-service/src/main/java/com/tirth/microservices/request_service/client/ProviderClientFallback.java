@@ -33,4 +33,14 @@ public class ProviderClientFallback implements ProviderClient {
                 + providerUsername + " at " + dateTime);
         return ApiResponse.error("Provider service unavailable - cannot check availability");
     }
+
+    @Override
+    public ApiResponse<Boolean> validateTimeSlot(String providerUsername, String slotDate, String startTime) {
+        return null;
+    }
+
+    @Override
+    public ApiResponse<Void> bookTimeSlot(String providerUsername, String slotDate, String startTime, Long requestId) {
+        return null;
+    }
 }

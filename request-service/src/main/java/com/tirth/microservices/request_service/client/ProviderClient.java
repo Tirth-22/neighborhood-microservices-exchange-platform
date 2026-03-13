@@ -8,7 +8,7 @@ import com.tirth.microservices.request_service.dto.ProviderLookupResponse;
 import com.tirth.microservices.request_service.dto.ApiResponse;
 
 @FeignClient(name = "provider-service", fallback = ProviderClientFallback.class)
-public interface ProviderClient {
+public interface    ProviderClient {
 
     @GetMapping("/providers/check-active/{username}")
     boolean isProviderActive(@PathVariable String username);
