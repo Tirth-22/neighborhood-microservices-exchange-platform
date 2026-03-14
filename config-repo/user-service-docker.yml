@@ -11,7 +11,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: \
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
 
 # Distributed Tracing
 management:
