@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
+    url: ${DB_URL}
   kafka:
     bootstrap-servers: kafka:9092
   config:
