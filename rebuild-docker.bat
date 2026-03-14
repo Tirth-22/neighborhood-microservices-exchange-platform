@@ -1,10 +1,7 @@
 @echo off
-docker-compose up -d --build provider-service request-service frontend api-gateway
+
 echo Stopping all containers...
 docker-compose down
-
-echo Removing old containers...
-docker-compose rm -f
 
 echo Rebuilding all services...
 docker-compose build --no-cache
@@ -12,5 +9,3 @@ docker-compose build --no-cache
 echo Starting all services...
 docker-compose up -d
 
-echo Showing logs...
-docker-compose logs -f
