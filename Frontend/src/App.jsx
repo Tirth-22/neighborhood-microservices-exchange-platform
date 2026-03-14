@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Services from "./pages/Services";
@@ -20,44 +20,53 @@ import TermsOfService from "./pages/TermsOfService";
 import ContactUs from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
 import HowItWorks from "./pages/HowItWorks";
+function AppRoutes() {
+  const location = useLocation();
+  const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup";
+
+  return (
+    <div className="min-h-screen flex flex-col">
+
+      <Navbar />
+
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/notifications" element={<Notification />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
+          <Route path="/provider-availability" element={<ProtectedRoute><ProviderAvailability /></ProtectedRoute>} />
+          <Route path="/request/:id" element={<ProtectedRoute><RequestDetails /></ProtectedRoute>} />
+          <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
+          <Route path="/request-service" element={<ProtectedRoute><RequestService /></ProtectedRoute>} />
+          <Route path="/offer-service" element={<ProtectedRoute><OfferService /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<ContactUs />} />
+
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+        </Routes>
+      </div>
+
+      {!isAuthRoute && <Footer />}
+
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
-
-        <Navbar />
-
-        <div className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/notifications" element={<Notification />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
-            <Route path="/provider-availability" element={<ProtectedRoute><ProviderAvailability /></ProtectedRoute>} />
-            <Route path="/request/:id" element={<ProtectedRoute><RequestDetails /></ProtectedRoute>} />
-            <Route path="/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
-            <Route path="/request-service" element={<ProtectedRoute><RequestService /></ProtectedRoute>} />
-            <Route path="/offer-service" element={<ProtectedRoute><OfferService /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-
-            <Route path="/help" element={<HelpCenter />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/contact" element={<ContactUs />} />
-
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-          </Routes>
-        </div>
-
-        <Footer />
-
-      </div>
+      <AppRoutes />
     </BrowserRouter>
   );
-
 }
+
 
 export default App;
