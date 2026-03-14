@@ -1,5 +1,43 @@
 services:
+  # =====================
+  # DATABASE
+  # =====================
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # =====================
+  # PGADMIN (DATABASE GUI)
+  # =====================
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin-servers.json:/pgadmin4/servers.json
 
   # =====================
   # KAFKA STACK
@@ -143,6 +181,8 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       JWT_SECRET: ${JWT_SECRET:-THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
     depends_on:
+      postgres:
+        condition: service_healthy
       config-server:
         condition: service_healthy
       eureka-server:
@@ -162,6 +202,8 @@ services:
     volumes:
       - user-uploads:/app/uploads
     depends_on:
+      postgres:
+        condition: service_healthy
       config-server:
         condition: service_healthy
       eureka-server:
@@ -178,8 +220,12 @@ services:
       DB_URL: ${DB_URL}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USERNAME: ${DB_USERNAME}
+      KAFKA_ENABLED: true
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       GATEWAY_SECRET: ${GATEWAY_SECRET:-SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
         condition: service_started
       config-server:
@@ -198,8 +244,12 @@ services:
       DB_URL: ${DB_URL}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USERNAME: ${DB_USERNAME}
+      KAFKA_ENABLED: true
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       GATEWAY_SECRET: ${GATEWAY_SECRET:-SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
         condition: service_started
       redis:
@@ -220,7 +270,11 @@ services:
       DB_URL: ${DB_URL}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_USERNAME: ${DB_USERNAME}
+      KAFKA_ENABLED: true
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
         condition: service_started
       config-server:
