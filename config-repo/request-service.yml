@@ -14,6 +14,10 @@ spring:
 
   kafka:
     bootstrap-servers: kafka:9092
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
 kafka:
   enabled: true
