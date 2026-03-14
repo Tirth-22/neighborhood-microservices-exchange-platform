@@ -36,11 +36,17 @@ public class ProviderClientFallback implements ProviderClient {
 
     @Override
     public ApiResponse<Boolean> validateTimeSlot(String providerUsername, String slotDate, String startTime) {
-        return null;
+        System.err.println(
+                "Circuit Breaker: provider-service is unavailable. Fallback 'validateTimeSlot' for provider: "
+                + providerUsername + " at " + slotDate + " " + startTime);
+        return ApiResponse.error("Provider service unavailable - cannot validate time slot");
     }
 
     @Override
     public ApiResponse<Void> bookTimeSlot(String providerUsername, String slotDate, String startTime, Long requestId) {
-        return null;
+        System.err.println(
+                "Circuit Breaker: provider-service is unavailable. Fallback 'bookTimeSlot' for provider: "
+                + providerUsername + " at " + slotDate + " " + startTime);
+        return ApiResponse.error("Provider service unavailable - cannot book time slot");
     }
 }
