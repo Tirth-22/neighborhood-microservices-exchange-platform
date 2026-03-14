@@ -15,6 +15,9 @@ spring:
   kafka:
     bootstrap-servers: kafka:9092
 
+kafka:
+  enabled: true
+
 eureka:
   client:
     service-url:

@@ -22,6 +22,9 @@ spring:
   kafka:
     bootstrap-servers: kafka:9092
 
+kafka:
+  enabled: true
+
   data:
     redis:
       host: redis

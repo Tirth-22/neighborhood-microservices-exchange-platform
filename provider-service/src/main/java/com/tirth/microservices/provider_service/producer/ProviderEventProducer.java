@@ -1,5 +1,6 @@
 package com.tirth.microservices.provider_service.producer;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true")
 public class ProviderEventProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
