@@ -1,10 +1,13 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
+    url: ${DB_URL}
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   config:
     import: optional:configserver:http://config-server:8888
+
+kafka:
+  enabled: ${KAFKA_ENABLED:false}
   cloud:
     compatibility-verifier:
       enabled: false
@@ -12,7 +15,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
 
 # Distributed Tracing
 management:

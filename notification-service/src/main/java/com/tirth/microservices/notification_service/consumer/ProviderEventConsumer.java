@@ -2,6 +2,7 @@ package com.tirth.microservices.notification_service.consumer;
 
 import java.time.LocalDateTime;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true")
 public class ProviderEventConsumer {
 
     private final NotificationRepository notificationRepository;

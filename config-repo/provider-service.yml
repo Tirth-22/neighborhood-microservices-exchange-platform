@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
-    username: postgres
-    password: Tirth_22
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
@@ -17,10 +17,14 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
     locations: classpath:db/migration
+    table: flyway_schema_history_provider_service
     validate-on-migrate: true
 
   kafka:
     bootstrap-servers: kafka:9092
+
+kafka:
+  enabled: true
 
   data:
     redis:

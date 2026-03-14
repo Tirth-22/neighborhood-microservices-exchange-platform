@@ -2,10 +2,9 @@ package com.tirth.microservices.notification_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 
-@SpringBootApplication
-@EnableKafka
+@SpringBootApplication(exclude = KafkaAutoConfiguration.class)
 public class NotificationServiceApplication {
 
 	public static void main(String[] args) {

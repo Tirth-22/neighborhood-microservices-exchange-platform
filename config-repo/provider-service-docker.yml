@@ -1,14 +1,18 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/postgres
-  kafka:
-    bootstrap-servers: kafka:9092
-  config:
-    import: optional:configserver:http://config-server:8888
+    url: ${DB_URL}
   flyway:
     enabled: true
     baseline-on-migrate: true
+    table: flyway_schema_history_provider_service
     validate-on-migrate: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  config:
+    import: optional:configserver:http://config-server:8888
+
+kafka:
+  enabled: ${KAFKA_ENABLED:false}
 
 gateway:
   secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
@@ -16,7 +20,7 @@ gateway:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
 
 # Distributed Tracing
 management:

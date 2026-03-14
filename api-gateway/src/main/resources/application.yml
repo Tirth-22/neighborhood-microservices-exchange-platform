@@ -4,3 +4,49 @@ spring:
 
   config:
     import: optional:configserver:http://config-server:8888
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+
+        - id: request-service
+          uri: lb://REQUEST-SERVICE
+          predicates:
+            - Path=/requests/**
+
+        - id: provider-service
+          uri: lb://PROVIDER-SERVICE
+          predicates:
+            - Path=/providers/**,/admin/providers/**
+
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notifications/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,gateway
+  endpoint:
+    gateway:
+      access: unrestricted

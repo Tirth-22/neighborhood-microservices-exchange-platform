@@ -5,6 +5,7 @@ import com.tirth.microservices.provider_service.event.RequestCompletedEvent;
 import com.tirth.microservices.provider_service.repository.ServiceOfferingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true")
 public class RatingConsumer {
 
     private final ServiceOfferingRepository repository;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authApi } from "../api/authApi";
+import { providerApi } from "../api/providerApi";
 
 const persistAuth = (userData, token, rememberMe) => {
   const storage = rememberMe ? localStorage : sessionStorage;
@@ -10,6 +11,22 @@ const persistAuth = (userData, token, rememberMe) => {
   otherStorage.removeItem("currentUser");
   storage.setItem("token", token);
   storage.setItem("currentUser", JSON.stringify(userData));
+};
+
+const isDuplicateProviderError = (error) => {
+  const message = String(error?.response?.data?.message || error?.message || "").toLowerCase();
+  return message.includes("already exists") || message.includes("duplicate");
+};
+
+const ensureProviderProfile = async (serviceType = "OTHER") => {
+  try {
+    await providerApi.register({ serviceType });
+  } catch (error) {
+    if (isDuplicateProviderError(error)) {
+      return;
+    }
+    throw error;
+  }
 };
 
 const AuthPage = ({ initialTab = "login" }) => {
@@ -62,6 +79,10 @@ const AuthPage = ({ initialTab = "login" }) => {
 
       persistAuth(userData, token, true);
 
+      if (finalRole === "PROVIDER") {
+        await ensureProviderProfile();
+      }
+
       if (finalRole === "ADMIN") {
         navigate("/admin");
       } else if (finalRole === "PROVIDER") {
@@ -105,6 +126,35 @@ const AuthPage = ({ initialTab = "login" }) => {
 
       if (!response?.data?.success) {
         setSignupError(response?.data?.message || "Registration failed");
+        return;
+      }
+
+      if (signupRole === "PROVIDER") {
+        const loginResponse = await authApi.login({
+          username: signupUsername,
+          password: signupPassword,
+          role: signupRole
+        });
+
+        if (!loginResponse?.data?.success || !loginResponse?.data?.token) {
+          setSignupError("Provider account created, but automatic sign-in failed. Please sign in once to finish setup.");
+          navigate("/login");
+          return;
+        }
+
+        const providerToken = loginResponse.data.token;
+        const providerRole = String(loginResponse.data.role || signupRole).toUpperCase().trim();
+        const providerUserData = {
+          name: signupUsername,
+          username: signupUsername,
+          role: providerRole,
+          token: providerToken,
+          id: signupUsername
+        };
+
+        persistAuth(providerUserData, providerToken, true);
+        await ensureProviderProfile();
+        navigate("/notifications");
         return;
       }
 
