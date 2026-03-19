@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: optional:configserver:http://config-server:8888
+
+eureka:
+  instance:
+    hostname: eureka-server
+
+management:
+  tracing:
+    enabled: false

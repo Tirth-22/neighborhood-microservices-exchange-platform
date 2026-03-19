@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    table: flyway_schema_history_provider_service
+    validate-on-migrate: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  config:
+    import: optional:configserver:http://config-server:8888
+
+kafka:
+  enabled: ${KAFKA_ENABLED:false}
+
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+
+# Distributed Tracing
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

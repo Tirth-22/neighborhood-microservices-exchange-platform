@@ -1,0 +1,67 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    table: flyway_schema_history_provider_service
+    validate-on-migrate: true
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+kafka:
+  enabled: true
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+
+  config:
+    import: optional:configserver:http://config-server:8888
+
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+    service-name: provider-service
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"

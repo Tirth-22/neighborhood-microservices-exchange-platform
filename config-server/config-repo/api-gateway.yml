@@ -1,0 +1,81 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+      name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+
+        - id: request-service
+          uri: lb://request-service
+          predicates:
+            - Path=/requests/**
+
+        - id: provider-service
+          uri: lb://provider-service
+          predicates:
+            - Path=/providers/**,/admin/providers/**
+
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notifications/**
+
+resilience4j:
+  ratelimiter:
+    instances:
+      auth-rate-limiter:
+        limitForPeriod: 5
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+    service-name: api-gateway
+
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+jwt:
+  secret: ${JWT_SECRET:THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
+
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}

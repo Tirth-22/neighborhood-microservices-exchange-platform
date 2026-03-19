@@ -1,0 +1,86 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+
+        - id: request-service
+          uri: lb://REQUEST-SERVICE
+          predicates:
+            - Path=/requests/**
+
+        - id: provider-service
+          uri: lb://PROVIDER-SERVICE
+          predicates:
+            - Path=/providers/**,/admin/providers/**
+
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notifications/**
+
+jwt:
+  secret: ${JWT_SECRET:THIS_IS_A_SUPER_LONG_SECRET_KEY_FOR_JWT_SIGNING_256_BITS_MINIMUM}
+
+gateway:
+  secret: ${GATEWAY_SECRET:SECURE_GATEWAY_SECRET_KEY_CHANGE_IN_PRODUCTION}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+
+# Distributed Tracing
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,gateway
+
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: API Gateway
+        url: /v3/api-docs
+      - name: Auth Service  
+        url: /auth/v3/api-docs
+      - name: User Service
+        url: /user/v3/api-docs
+      - name: Provider Service
+        url: /providers/v3/api-docs
+      - name: Request Service
+        url: /requests/v3/api-docs
+      - name: Notification Service
+        url: /notifications/v3/api-docs
