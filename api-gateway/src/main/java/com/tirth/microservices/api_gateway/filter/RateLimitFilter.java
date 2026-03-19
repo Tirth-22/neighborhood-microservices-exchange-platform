@@ -6,6 +6,7 @@ import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -32,9 +33,10 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
 
-        // Only apply rate limiting to /auth/login and /auth/register
-        if (!isRateLimitedPath(path)) {
+        // Only apply rate limiting to POST /auth/login and POST /auth/register
+        if (!isRateLimitedPath(path, method)) {
             return chain.filter(exchange);
         }
 
@@ -57,7 +59,10 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange);
     }
 
-    private boolean isRateLimitedPath(String path) {
+    private boolean isRateLimitedPath(String path, HttpMethod method) {
+        if (!HttpMethod.POST.equals(method)) {
+            return false;
+        }
         return path.equals("/auth/login") || path.equals("/auth/register");
     }
 

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -28,9 +29,18 @@ public class JwtFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod httpMethod = exchange.getRequest().getMethod();
+
+        // Always allow CORS preflight requests.
+        if (HttpMethod.OPTIONS.equals(httpMethod)) {
+            return chain.filter(exchange);
+        }
 
         // PUBLIC ENDPOINTS (NO JWT)
-        if (path.startsWith("/auth")) {
+        if (path.startsWith("/auth")
+                || path.startsWith("/providers/services")
+                || path.equals("/providers")
+                || path.startsWith("/providers/search")) {
             return chain.filter(exchange);
         }
 
@@ -88,11 +98,11 @@ public class JwtFilter implements GlobalFilter, Ordered {
         // ADD USER CONTEXT HEADERS AND FORWARD AUTHORIZATION
         ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(builder -> builder
-                        .header("Authorization", authHeader)
-                        .header("X-User-Name", username)
-                        .header("X-User-Role", role)
-                        .header("X-User-Email", email)
-                        .header("X-Gateway-Request", gatewaySecret))
+                .header("Authorization", authHeader)
+                .header("X-User-Name", username)
+                .header("X-User-Role", role)
+                .header("X-User-Email", email)
+                .header("X-Gateway-Request", gatewaySecret))
                 .build();
 
         return chain.filter(mutatedExchange);
