@@ -4,13 +4,27 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
+    private static final java.util.Set<String> PUBLIC_AUTH_PATHS = java.util.Set.of(
+            "/auth/login",
+            "/auth/register",
+            "/auth/forgot-password",
+            "/auth/reset-password",
+            "/auth/verify-email",
+            "/auth/resend-verification",
+            "/auth/test"
+    );
 
     private final JwtUtil jwtUtil;
 
@@ -27,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth")) {
+        if (PUBLIC_AUTH_PATHS.contains(path)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,7 +60,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        String username = jwtUtil.extractUsername(token);
         String role = jwtUtil.extractRole(token).toUpperCase();
+
+        var authentication = new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // role checks
         if (path.startsWith("/provider") && !role.equals("PROVIDER")) {

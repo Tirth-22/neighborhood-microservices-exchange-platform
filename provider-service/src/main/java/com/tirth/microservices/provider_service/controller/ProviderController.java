@@ -161,6 +161,16 @@ public class ProviderController {
         return providerService.getMyServices(username);
     }
 
+    @PutMapping("/services/{id}")
+    public ServiceOffering updateService(
+            @PathVariable Long id,
+            @RequestHeader("X-User-Name") String username,
+            @RequestHeader("X-User-Role") String role,
+            @Valid @RequestBody ServiceOfferingRequest request
+    ) {
+        return providerService.updateService(id, username, role, request);
+    }
+
     @DeleteMapping("/services/{id}")
     public void deleteService(
             @PathVariable Long id,

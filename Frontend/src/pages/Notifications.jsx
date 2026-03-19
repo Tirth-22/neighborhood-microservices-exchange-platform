@@ -78,7 +78,7 @@ const Notifications = () => {
             <div className="min-h-screen flex items-center justify-center bg-secondary-50 dark:bg-[#070e20]">
                 <Card className="p-8 text-center max-w-md border-none shadow-lg bg-white">
                     <p className="text-secondary-600 mb-4">Please login to view notifications</p>
-                    <Link to="/login">
+                    <Link to="/signin">
                         <Button>Login Now</Button>
                     </Link>
                 </Card>

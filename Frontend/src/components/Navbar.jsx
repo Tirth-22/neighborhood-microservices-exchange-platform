@@ -14,8 +14,11 @@ const Navbar = () => {
   const user = JSON.parse(localStorage.getItem("currentUser"));
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
-    navigate("/login");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("currentUser");
+    navigate("/signin");
     setIsMobileMenuOpen(false);
   };
 
@@ -123,7 +126,7 @@ const Navbar = () => {
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
                     <span className="text-sm font-medium">Change Theme</span>
                   </button>
-                  <Link to="/login">
+                  <Link to="/signin">
                     <Button variant="ghost" size="sm">Log In</Button>
                   </Link>
                   <Link to="/signup">
@@ -152,6 +155,9 @@ const Navbar = () => {
                   >
                     {isDark ? <Sun size={18} /> : <Moon size={18} />}
                   </button>
+                  <Link to="/account">
+                    <Button variant="secondary" size="sm" className="h-9 px-4">Account</Button>
+                  </Link>
                   <Button
                     variant="outline"
                     size="sm"
@@ -214,7 +220,7 @@ const Navbar = () => {
             <div className="pt-4 border-t border-secondary-200 dark:border-secondary-700 mt-4">
               {!user ? (
                 <div className="flex flex-col gap-2">
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link to="/signin" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="secondary" className="w-full">Log In</Button>
                   </Link>
                   <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
@@ -232,6 +238,9 @@ const Navbar = () => {
                       <span className="block text-xs text-secondary-500 dark:text-secondary-400 uppercase">{role}</span>
                     </div>
                   </div>
+                  <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="secondary" className="w-full">Account</Button>
+                  </Link>
                   <Button variant="outline" className="w-full" onClick={handleLogout}>
                     Logout
                   </Button>

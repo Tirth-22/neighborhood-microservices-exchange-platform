@@ -8,6 +8,7 @@ export const providerApi = {
     getAllServices: () => api.get('/providers/services'), // Public
     searchServices: (params) => api.get('/providers/services/search', { params }),
     getMyServices: () => api.get('/providers/services/my'),
+    updateService: (id, data) => api.put(`/providers/services/${id}`, data),
     deleteService: (id) => api.delete(`/providers/services/${id}`),
 
     // Admin/Provider actions

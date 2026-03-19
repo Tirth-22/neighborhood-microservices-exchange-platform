@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
                 .body(errorResponse(errors, 400));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleBadRequest(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse(ex.getMessage(), 400));
+    }
+
     // Generic Exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleAll(Exception ex) {

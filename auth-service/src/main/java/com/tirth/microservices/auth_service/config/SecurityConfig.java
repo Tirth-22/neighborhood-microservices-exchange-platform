@@ -30,7 +30,15 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable())
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(
+                        "/auth/login",
+                        "/auth/register",
+                        "/auth/forgot-password",
+                        "/auth/reset-password",
+                        "/auth/verify-email",
+                        "/auth/resend-verification",
+                        "/auth/test"
+                ).permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()

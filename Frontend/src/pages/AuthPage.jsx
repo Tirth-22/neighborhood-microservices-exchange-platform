@@ -129,39 +129,16 @@ const AuthPage = ({ initialTab = "login" }) => {
         return;
       }
 
-      if (signupRole === "PROVIDER") {
-        const loginResponse = await authApi.login({
-          username: signupUsername,
-          password: signupPassword,
-          role: signupRole
-        });
-
-        if (!loginResponse?.data?.success || !loginResponse?.data?.token) {
-          setSignupError("Provider account created, but automatic sign-in failed. Please sign in once to finish setup.");
-          navigate("/login");
-          return;
-        }
-
-        const providerToken = loginResponse.data.token;
-        const providerRole = String(loginResponse.data.role || signupRole).toUpperCase().trim();
-        const providerUserData = {
-          name: signupUsername,
-          username: signupUsername,
-          role: providerRole,
-          token: providerToken,
-          id: signupUsername
-        };
-
-        persistAuth(providerUserData, providerToken, true);
-        await ensureProviderProfile();
-        navigate("/notifications");
+      const verificationToken = response?.data?.data?.verificationToken;
+      if (verificationToken) {
+        navigate(`/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(signupEmail)}`);
         return;
       }
 
       setLoginUsername(signupUsername);
       setLoginPassword("");
       setLoginRole(signupRole);
-      navigate("/login");
+      navigate("/verify-email");
     } catch (error) {
       console.error(error);
       setSignupError("Registration failed. Server unavailable or Gateway Error.");
@@ -215,6 +192,11 @@ const AuthPage = ({ initialTab = "login" }) => {
                     placeholder="Password"
                     className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:border-[#253351] dark:bg-[#111b33] dark:text-[#f8fbff] dark:placeholder:text-[#8ea0bf] dark:focus:border-blue-500 dark:focus:ring-blue-500/20"
                   />
+                  <div className="mt-2 text-right">
+                    <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                      Forgot password?
+                    </Link>
+                  </div>
                 </div>
 
                 <div>
@@ -306,7 +288,6 @@ const AuthPage = ({ initialTab = "login" }) => {
                   >
                     <option value="USER">User</option>
                     <option value="PROVIDER">Provider</option>
-                    <option value="ADMIN">Admin</option>
                   </select>
                 </div>
 
@@ -320,7 +301,7 @@ const AuthPage = ({ initialTab = "login" }) => {
 
                 <p className="text-center text-base text-slate-600 dark:text-[#c5d3eb]">
                   Already have an account? {" "}
-                  <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                  <Link to="/signin" className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                     Sign in
                   </Link>
                 </p>

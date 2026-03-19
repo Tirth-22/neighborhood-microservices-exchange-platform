@@ -116,7 +116,7 @@ const Services = () => {
 
   const handleRequest = (service) => {
     if (!currentUser) {
-      navigate("/login");
+      navigate("/signin");
       return;
     }
     localStorage.setItem("selectedService", JSON.stringify(service));

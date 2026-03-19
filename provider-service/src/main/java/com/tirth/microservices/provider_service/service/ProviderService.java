@@ -44,5 +44,7 @@ public interface ProviderService {
 
     List<ServiceOffering> getMyServices(String username);
 
+    ServiceOffering updateService(Long id, String username, String role, ServiceOfferingRequest request);
+
     void deleteService(Long id, String username, String role);
 }

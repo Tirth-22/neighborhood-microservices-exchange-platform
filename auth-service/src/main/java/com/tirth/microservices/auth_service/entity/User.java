@@ -34,4 +34,11 @@ public class User {
     private String email;
     private String password;
     private String role;
+    private Boolean emailVerified;
+    @Column(unique = true)
+    private String emailVerificationToken;
+    @Column(unique = true)
+    private String passwordResetToken;
+    private java.time.LocalDateTime passwordResetTokenExpiry;
+    private Boolean active;
 }

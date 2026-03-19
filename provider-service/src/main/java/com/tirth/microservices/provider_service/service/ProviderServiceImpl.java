@@ -236,6 +236,23 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    public ServiceOffering updateService(Long id, String username, String role, ServiceOfferingRequest request) {
+        ServiceOffering service = serviceOfferingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found"));
+
+        if (!"ADMIN".equalsIgnoreCase(role) && !service.getProviderUsername().equals(username)) {
+            throw new ForbiddenException("Unauthorized to update this service");
+        }
+
+        service.setName(request.getName());
+        service.setDescription(request.getDescription());
+        service.setPrice(request.getPrice());
+        service.setCategory(request.getCategory());
+
+        return serviceOfferingRepository.save(service);
+    }
+
+    @Override
     public void deleteService(Long id, String username, String role) {
 
         ServiceOffering service = serviceOfferingRepository.findById(id)
