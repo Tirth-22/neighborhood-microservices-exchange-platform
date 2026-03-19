@@ -36,12 +36,12 @@ const Navbar = () => {
   const isAdmin = role === "ADMIN" || role.includes("ADMIN");
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Services", path: "/services" },
-    { name: "Offer Service", path: "/offer-service" },
-    { name: "My Requests", path: "/my-requests" },
-    { name: "Provider Dashboard", path: "/provider-dashboard" },
-    { name: "Admin Dashboard", path: "/admin" },
+    { name: "Home", shortName: "Home", path: "/" },
+    { name: "Services", shortName: "Services", path: "/services" },
+    { name: "Offer Service", shortName: "Offer", path: "/offer-service" },
+    { name: "My Requests", shortName: "Requests", path: "/my-requests" },
+    { name: "Provider Dashboard", shortName: "Dashboard", path: "/provider-dashboard" },
+    { name: "Admin Dashboard", shortName: "Admin", path: "/admin" },
   ].filter((link) => {
     if (!user) {
       return link.path === "/" || link.path === "/services";
@@ -59,11 +59,11 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white/80 dark:bg-secondary-900/90 backdrop-blur-md border-b border-secondary-200 dark:border-secondary-700 sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="w-full px-3 sm:px-4 lg:px-6 xl:px-8">
+        <div className="flex h-16 items-center justify-between md:justify-center gap-3">
 
           {/* LOGO */}
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4 md:mr-3">
             <Link to="/" className="flex items-center gap-2">
               <div className="bg-[#1a1a2e] dark:bg-primary-600 p-2 rounded-lg">
                 <svg
@@ -91,84 +91,89 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* DESKTOP NAV */}
-          <div className="hidden md:flex items-center space-x-8">
-            <ul className="flex space-x-6">
+          {/* DESKTOP CENTER NAV */}
+          <div className="hidden md:flex items-center px-2">
+            <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap">
               {navLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className={`text-sm font-medium transition-colors ${isActive(link.path)
+                    className={`text-sm font-medium whitespace-nowrap transition-colors ${isActive(link.path)
                       ? "text-primary-600"
                       : "text-secondary-600 hover:text-primary-600"
                       }`}
                   >
-                    {link.name}
+                    <span className="hidden xl:inline">{link.name}</span>
+                    <span className="xl:hidden">{link.shortName || link.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
+          </div>
 
-            <div className="flex items-center gap-4 pl-6 border-l border-secondary-200 dark:border-secondary-700">
-              {user && (
-                <Link to="/notifications" className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  <Bell size={20} />
+          {/* DESKTOP RIGHT ACTIONS */}
+          <div className="hidden md:flex shrink-0 items-center gap-2 lg:gap-3 pl-2 lg:pl-3 border-l border-secondary-200 dark:border-secondary-700">
+            {user && (
+              <Link to="/notifications" className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Bell size={20} />
+              </Link>
+            )}
+
+            {!user ? (
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={toggleTheme}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+                  title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                  <span className="text-sm font-medium">Change Theme</span>
+                </button>
+                <Link to="/signin">
+                  <Button variant="ghost" size="sm">Log In</Button>
                 </Link>
-              )}
-
-              {!user ? (
-                <div className="flex gap-2 items-center">
-                  <button
-                    onClick={toggleTheme}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
-                    title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-                  >
-                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                    <span className="text-sm font-medium">Change Theme</span>
-                  </button>
-                  <Link to="/signin">
-                    <Button variant="ghost" size="sm">Log In</Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button size="sm">Get Started</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-secondary-100 dark:border-secondary-700 transition-all duration-300">
-                    <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-primary-600 dark:text-primary-400">
-                      <User size={14} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-secondary-900 dark:text-secondary-100 leading-none">
-                        {user.name || user.username || "Account"}
-                      </span>
-                      <span className="text-[10px] text-secondary-500 dark:text-secondary-400 uppercase font-medium tracking-tight">
-                        {role}
-                      </span>
-                    </div>
+                <Link to="/signup">
+                  <Button size="sm">Get Started</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary-50 dark:bg-secondary-800 rounded-lg border border-secondary-100 dark:border-secondary-700 transition-all duration-300">
+                  <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-primary-600 dark:text-primary-400">
+                    <User size={14} />
                   </div>
-                  <button
-                    onClick={toggleTheme}
-                    className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
-                    title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-                  >
-                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                  </button>
-                  <Link to="/account">
-                    <Button variant="secondary" size="sm" className="h-9 px-4">Account</Button>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 px-4 border-secondary-200 dark:border-secondary-700 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 transition-all font-medium text-secondary-700 dark:text-secondary-300"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </Button>
+                  <div className="flex flex-col">
+                    <span
+                      className="text-sm font-semibold text-secondary-900 dark:text-secondary-100 leading-none max-w-[110px] truncate"
+                      title={user.name || user.username || "Account"}
+                    >
+                      {user.name || user.username || "Account"}
+                    </span>
+                    <span className="text-[10px] text-secondary-500 dark:text-secondary-400 uppercase font-medium tracking-tight">
+                      {role}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </div>
+                <button
+                  onClick={toggleTheme}
+                  className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
+                  title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                <Link to="/account">
+                  <Button variant="secondary" size="sm" className="h-9 px-4">Account</Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 border-secondary-200 dark:border-secondary-700 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 hover:border-red-200 dark:hover:border-red-800 transition-all font-medium text-secondary-700 dark:text-secondary-300"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* MOBILE MENU BUTTON */}
