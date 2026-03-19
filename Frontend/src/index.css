@@ -5,11 +5,34 @@
 @tailwind utilities;
 
 @layer base {
+    html,
+    body,
+    #root {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
     body {
         @apply font-sans antialiased text-secondary-900 bg-secondary-50;
         background: var(--bg-primary);
         color: var(--text-primary);
         transition: background-color 0.3s ease, color 0.3s ease;
+        overflow-x: hidden;
+    }
+
+    img,
+    video,
+    canvas,
+    svg {
+        max-width: 100%;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        font-size: 16px;
     }
     
     /* Dark mode base styles using CSS custom properties */
@@ -41,6 +64,10 @@
 }
 
 @layer utilities {
+    .mobile-page {
+        @apply px-4 sm:px-6 lg:px-8;
+    }
+
     /* Global dark-mode utility remapping so existing light classes render consistently in dark theme. */
     .dark .bg-white {
         background-color: #0f172a !important;

@@ -60,11 +60,11 @@ const Navbar = () => {
   return (
     <nav className="bg-white/80 dark:bg-secondary-900/90 backdrop-blur-md border-b border-secondary-200 dark:border-secondary-700 sticky top-0 z-50 transition-all duration-300">
       <div className="w-full px-3 sm:px-4 lg:px-6 xl:px-8">
-        <div className="flex h-16 items-center justify-between md:justify-center gap-3">
+        <div className="flex h-16 items-center justify-between md:justify-center gap-2 sm:gap-3">
 
           {/* LOGO */}
-          <div className="flex shrink-0 items-center gap-4 md:mr-3">
-            <Link to="/" className="flex items-center gap-2">
+          <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3 md:mr-3">
+            <Link to="/" className="flex min-w-0 items-center gap-2">
               <div className="bg-[#1a1a2e] dark:bg-primary-600 p-2 rounded-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -82,17 +82,17 @@ const Navbar = () => {
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-secondary-900 dark:text-secondary-100">
+              <span className="text-base sm:text-xl font-bold text-secondary-900 dark:text-secondary-100 truncate max-w-[140px] sm:max-w-none">
                 NeighborHub
               </span>
             </Link>
-            <div className="hidden md:block border-l border-secondary-200 dark:border-secondary-700 pl-4">
+            <div className="hidden lg:block border-l border-secondary-200 dark:border-secondary-700 pl-3">
               <LocationSelector />
             </div>
           </div>
 
           {/* DESKTOP CENTER NAV */}
-          <div className="hidden md:flex items-center px-2">
+          <div className="hidden lg:flex items-center px-2">
             <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap">
               {navLinks.map((link) => (
                 <li key={link.path}>
@@ -112,7 +112,7 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP RIGHT ACTIONS */}
-          <div className="hidden md:flex shrink-0 items-center gap-2 lg:gap-3 pl-2 lg:pl-3 border-l border-secondary-200 dark:border-secondary-700">
+          <div className="hidden lg:flex shrink-0 items-center gap-2 lg:gap-3 pl-2 lg:pl-3 border-l border-secondary-200 dark:border-secondary-700">
             {user && (
               <Link to="/notifications" className="text-secondary-600 dark:text-secondary-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                 <Bell size={20} />
@@ -177,7 +177,7 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE MENU BUTTON */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-all"
@@ -196,8 +196,11 @@ const Navbar = () => {
 
       {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-secondary-800 border-t border-secondary-200 dark:border-secondary-700 shadow-lg animate-in slide-in-from-top duration-200">
-          <div className="px-4 pt-2 pb-6 space-y-2">
+        <div className="lg:hidden bg-white dark:bg-secondary-800 border-t border-secondary-200 dark:border-secondary-700 shadow-lg animate-in slide-in-from-top duration-200">
+          <div className="px-3 sm:px-4 pt-3 pb-6 space-y-2 max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <div className="pb-2 border-b border-secondary-200 dark:border-secondary-700">
+              <LocationSelector />
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
