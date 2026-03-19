@@ -1,6 +1,6 @@
 package com.tirth.microservices.request_service.producer;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +15,9 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true")
 public class RequestEventProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectProvider<KafkaTemplate<String, String>> kafkaTemplateProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String ACCEPT_TOPIC = "request.accepted";
@@ -27,53 +26,39 @@ public class RequestEventProducer {
     private static final String CREATED_TOPIC = "request.created"; // ADDED
     private static final String CANCELLED_TOPIC = "request.cancelled"; // ADDED
 
-    public void publishRequestCreatedEvent(RequestCreatedEvent event) {
+    private void sendEvent(String topic, Object event, String label) {
         try {
+            KafkaTemplate<String, String> kafkaTemplate = kafkaTemplateProvider.getIfAvailable();
+            if (kafkaTemplate == null) {
+                System.out.println("KAFKA DISABLED - SKIPPING " + label + " EVENT");
+                return;
+            }
+
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(CREATED_TOPIC, json);
-            System.out.println("SENT CREATED EVENT: " + json);
+            kafkaTemplate.send(topic, json);
+            System.out.println("SENT " + label + " EVENT: " + json);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void publishRequestCreatedEvent(RequestCreatedEvent event) {
+        sendEvent(CREATED_TOPIC, event, "CREATED");
     }
 
     public void publishRequestCancelledEvent(RequestCancelledEvent event) {
-        try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(CANCELLED_TOPIC, json);
-            System.out.println("SENT CANCELLED EVENT: " + json);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        sendEvent(CANCELLED_TOPIC, event, "CANCELLED");
     }
 
     public void publishRequestAcceptedEvent(RequestAcceptedEvent event) {
-        try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(ACCEPT_TOPIC, json);
-            System.out.println(" SENT JSON EVENT: " + json);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        sendEvent(ACCEPT_TOPIC, event, "ACCEPTED");
     }
 
     public void publishRequestRejectedEvent(RequestRejectedEvent event) {
-        try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(REJECT_TOPIC, json);
-            System.out.println("SENT REJECT EVENT: " + json);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        sendEvent(REJECT_TOPIC, event, "REJECTED");
     }
 
     public void publishRequestCompleted(RequestCompletedEvent event) {
-        try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(COMPLETED_TOPIC, json);
-            System.out.println(" SENT COMPLETED EVENT: " + json);
-        }catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+        sendEvent(COMPLETED_TOPIC, event, "COMPLETED");
     }
 }
