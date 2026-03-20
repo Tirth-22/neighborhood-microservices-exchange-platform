@@ -8,22 +8,16 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [resetToken, setResetToken] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setMessage("");
-    setResetToken("");
 
     try {
       const response = await authApi.forgotPassword({ email });
-      setMessage(response?.data?.message || "If the email exists, reset instructions have been generated.");
-      const token = response?.data?.data?.resetToken;
-      if (token) {
-        setResetToken(token);
-      }
+      setMessage(response?.data?.message || "If the email exists, reset instructions have been sent.");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to process request.");
     } finally {
@@ -55,19 +49,13 @@ const ForgotPassword = () => {
           {error && <p className="text-sm text-red-600">{error}</p>}
           {message && <p className="text-sm text-green-700 dark:text-green-400">{message}</p>}
 
-          {resetToken && (
-            <div className="rounded-lg bg-secondary-50 dark:bg-secondary-800 p-3 text-sm break-all">
-              <p className="font-semibold text-secondary-700 dark:text-secondary-100 mb-1">Reset token (development mode):</p>
-              <p className="text-secondary-600 dark:text-secondary-300">{resetToken}</p>
-              <Link to={`/reset-password?token=${encodeURIComponent(resetToken)}`} className="text-primary-600 font-medium inline-block mt-2">
-                Open reset page
-              </Link>
-            </div>
-          )}
-
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Processing..." : "Generate Reset Link"}
           </Button>
+
+          <Link to="/reset-password" className="block text-center text-primary-600 font-medium">
+            I already have a reset link
+          </Link>
         </form>
 
         <p className="text-sm text-secondary-600 dark:text-secondary-300 mt-5">

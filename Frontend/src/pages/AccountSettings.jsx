@@ -83,13 +83,10 @@ const AccountSettings = () => {
         return;
       }
 
-      const verificationToken = response?.data?.data?.verificationToken;
       setMessage(response?.data?.message || "Profile updated.");
       await loadAccount();
 
-      if (verificationToken) {
-        navigate(`/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`);
-      }
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to update profile.");
     }

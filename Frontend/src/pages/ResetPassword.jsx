@@ -6,7 +6,6 @@ import Button from "../components/ui/Button";
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const initialToken = useMemo(() => searchParams.get("token") || "", [searchParams]);
-  const [token, setToken] = useState(initialToken);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,9 +27,14 @@ const ResetPassword = () => {
       return;
     }
 
+    if (!initialToken) {
+      setError("Invalid or missing reset token. Please use the reset link from your email.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await authApi.resetPassword({ token, newPassword });
+      const response = await authApi.resetPassword({ token: initialToken, newPassword });
       if (!response?.data?.success) {
         setError(response?.data?.message || "Failed to reset password.");
         return;
@@ -49,19 +53,9 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-secondary-50 dark:bg-[#070e20] flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md bg-white dark:bg-[#0f172a] border border-secondary-200 dark:border-secondary-700 rounded-2xl p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-secondary-900 dark:text-white mb-2">Reset Password</h1>
-        <p className="text-secondary-600 dark:text-secondary-300 mb-6 text-sm">Enter your reset token and a new password.</p>
+        <p className="text-secondary-600 dark:text-secondary-300 mb-6 text-sm">Set your new password.</p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-secondary-700 dark:text-secondary-200">Reset Token</label>
-            <input
-              type="text"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              required
-              className="w-full rounded-lg border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-[#111b33] px-3 py-2.5 text-secondary-900 dark:text-secondary-100"
-            />
-          </div>
           <div>
             <label className="block mb-2 text-sm font-medium text-secondary-700 dark:text-secondary-200">New Password</label>
             <input
@@ -85,8 +79,13 @@ const ResetPassword = () => {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
           {message && <p className="text-sm text-green-700 dark:text-green-400">{message}</p>}
+          {!initialToken && (
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              Open this page using the full reset link sent to your email.
+            </p>
+          )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !initialToken}>
             {loading ? "Updating..." : "Reset Password"}
           </Button>
         </form>

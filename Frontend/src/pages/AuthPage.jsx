@@ -14,6 +14,9 @@ const persistAuth = (userData, token, rememberMe) => {
 };
 
 const isDuplicateProviderError = (error) => {
+  if (error?.response?.status === 409) {
+    return true;
+  }
   const message = String(error?.response?.data?.message || error?.message || "").toLowerCase();
   return message.includes("already exists") || message.includes("duplicate");
 };
@@ -63,11 +66,12 @@ const AuthPage = ({ initialTab = "login" }) => {
       });
 
       if (!response?.data?.success) {
-        setLoginError("Invalid credentials or server error");
+        setLoginError(response?.data?.message || "Invalid credentials or server error");
         return;
       }
 
-      const { token, role: backendRole } = response.data;
+      const { token, message } = response.data;
+      const backendRole = message;
       const finalRole = String(backendRole || loginRole).toUpperCase().trim();
       const userData = {
         name: loginUsername,
@@ -92,7 +96,7 @@ const AuthPage = ({ initialTab = "login" }) => {
       }
     } catch (error) {
       console.error(error);
-      setLoginError("Invalid credentials or server error");
+      setLoginError(error?.response?.data?.message || "Invalid credentials or server error");
     } finally {
       setLoginLoading(false);
     }
@@ -129,19 +133,13 @@ const AuthPage = ({ initialTab = "login" }) => {
         return;
       }
 
-      const verificationToken = response?.data?.data?.verificationToken;
-      if (verificationToken) {
-        navigate(`/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(signupEmail)}`);
-        return;
-      }
-
       setLoginUsername(signupUsername);
       setLoginPassword("");
       setLoginRole(signupRole);
-      navigate("/verify-email");
+      navigate(`/verify-email?email=${encodeURIComponent(signupEmail)}`);
     } catch (error) {
       console.error(error);
-      setSignupError("Registration failed. Server unavailable or Gateway Error.");
+      setSignupError(error?.response?.data?.message || "Registration failed. Server unavailable or Gateway Error.");
     } finally {
       setSignupLoading(false);
     }
