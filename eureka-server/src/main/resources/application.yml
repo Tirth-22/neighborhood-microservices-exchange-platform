@@ -1,5 +1,5 @@
 server:
-  port: 8761
+  port: ${PORT:8761}
 
 spring:
   application:
@@ -27,4 +27,4 @@ spring:
 
 eureka:
   instance:
-    hostname: eureka-server
+    hostname: ${EUREKA_HOSTNAME:${RENDER_EXTERNAL_HOSTNAME:eureka-server}}
