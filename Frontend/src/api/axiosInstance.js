@@ -17,6 +17,7 @@ const PUBLIC_PATHS = new Set([
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 20000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -38,6 +39,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        if (error.code === 'ECONNABORTED') {
+            return Promise.reject(new Error('Request timeout: backend is taking too long to respond.'));
+        }
+
         if (error.response?.status === 401) {
             const hadAuthState = Boolean(
                 localStorage.getItem('token') ||
