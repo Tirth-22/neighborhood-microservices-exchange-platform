@@ -11,3 +11,7 @@ notification --- 8085
 
 for pgadmin Docker UI
 http://localhost:5050/browser/
+
+Docker
+docker-compose build --no-cache
+docker-compose up -d

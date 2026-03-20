@@ -35,6 +35,10 @@ yarn-error.log*
 pgdata/
 *.db
 *.sqlite
+backups/
+backup_*.sql
+providers_from_postgres_db.sql
+users_from_postgres_db.sql
 
 # Java
 *.class

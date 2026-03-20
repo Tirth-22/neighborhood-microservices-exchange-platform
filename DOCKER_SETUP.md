@@ -72,6 +72,8 @@ docker-compose down
 docker-compose down -v
 ```
 
+Warning: `docker-compose down -v` deletes PostgreSQL volume data. Run a backup first.
+
 ### View Logs
 
 ```bash
@@ -124,3 +126,58 @@ Services use `SPRING_PROFILES_ACTIVE=docker` to load Docker-specific configurati
 ### Database Connection Issues
 - Wait for PostgreSQL health check to pass
 - Verify DB_PASSWORD matches in docker-compose.yml and config files
+
+## Database Backup and Restore (Recommended)
+
+### Create Backup Now (Windows)
+
+```bat
+backup-now.bat
+```
+
+### Create Backup Now (Linux/macOS)
+
+```bash
+./scripts/db-backup.sh
+```
+
+Backups are created under `backups/YYYYMMDD_HHMMSS/` and include all PostgreSQL databases from the running `postgres` container.
+
+### Restore Latest Backup (Windows)
+
+```bat
+restore-latest-backup.bat
+```
+
+### Restore Latest Backup (Linux/macOS)
+
+```bash
+./scripts/db-restore-latest.sh
+```
+
+### Restore Specific Backup Timestamp (Windows)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\db-restore-latest.ps1 -BackupTimestamp 20260320_120000
+```
+
+### Schedule Daily Backup in Windows Task Scheduler
+
+1. Open Task Scheduler.
+2. Create Basic Task.
+3. Trigger: Daily.
+4. Action: Start a program.
+5. Program/script: `powershell`
+6. Add arguments:
+
+```text
+-NoProfile -ExecutionPolicy Bypass -File "T:\github-main\new-main\neighborhood-microservices-exchange-platform\scripts\db-backup.ps1"
+```
+
+7. Finish and test with Run.
+
+Default retention is 14 days. You can change it:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\db-backup.ps1 -RetentionDays 30
+```
