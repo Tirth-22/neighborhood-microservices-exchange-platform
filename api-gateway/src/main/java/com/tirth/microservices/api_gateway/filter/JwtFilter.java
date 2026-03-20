@@ -36,11 +36,22 @@ public class JwtFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
+        boolean isPublicSlotLookup = HttpMethod.GET.equals(httpMethod)
+                && path.startsWith("/providers/availability/slots/")
+                && !path.equals("/providers/availability/slots/schedule")
+                && !path.equals("/providers/availability/slots/my-bookings")
+                && !path.equals("/providers/availability/slots/validate")
+                && !path.equals("/providers/availability/slots/book-slot");
+
+        boolean isPublicProviderServiceRead = HttpMethod.GET.equals(httpMethod)
+                && (path.equals("/providers/services") || path.startsWith("/providers/services/"));
+
         // PUBLIC ENDPOINTS (NO JWT)
         if (path.startsWith("/auth")
-                || path.startsWith("/providers/services")
+                || isPublicProviderServiceRead
                 || path.equals("/providers")
-                || path.startsWith("/providers/search")) {
+                || path.startsWith("/providers/search")
+                || isPublicSlotLookup) {
             return chain.filter(exchange);
         }
 
